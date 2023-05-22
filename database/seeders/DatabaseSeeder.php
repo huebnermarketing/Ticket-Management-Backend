@@ -15,5 +15,13 @@ class DatabaseSeeder extends Seeder
     public function run()
     {
         // \App\Models\User::factory(10)->create();
+        $this->call([
+            TicketAppointmentTypes::class,
+            TicketContractTypes::class,
+            TicketPaymentStatus::class,
+            TicketPriority::class,
+            TicketProblemTypes::class,
+            TicketStatus::class,
+        ]);
     }
 }
