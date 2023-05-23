@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\v1\Auth;
 
 use App\Http\Controllers\Controller;
-use App\User;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use RestResponse;
@@ -32,17 +32,22 @@ class AuthController extends Controller
                 return RestResponse::warning('Incorrect user OR password', 422);
             }
 
-            $getUser = User::where('email', '=', $credentials['email'])->withTrashed()->select('deleted_at', 'email_verify')->first();
-            if ($getUser['deleted_at']) {
-                return RestResponse::warning('User is deactivate in system, Please contact to administration.', 422);
-            }elseif ($getUser['email_verify'] == 0){
+            $getUser = User::where('email', '=', $credentials['email'])->first();
+            if ($getUser['is_verified'] == 0){
                 return RestResponse::warning('An Account has already been registered, but was never verified. Please verify your account.', 422);
             }
             $user = Auth::user();
             $response['access_token'] = $user->createToken('Api Token')->accessToken;
+            $response['user'] = $user;
             return RestResponse::success($response, 'Access token successfully retrieved');
         } catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
+    }
+
+    public function logout()
+    {
+        Auth::user()->token()->delete();
+        return RestResponse::success([], 'Token successfully removed');
     }
 }
