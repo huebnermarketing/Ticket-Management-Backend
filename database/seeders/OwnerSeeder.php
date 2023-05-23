@@ -2,8 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use phpseclib3\Crypt\Hash;
 
 class OwnerSeeder extends Seeder
 {
@@ -15,19 +17,19 @@ class OwnerSeeder extends Seeder
     public function run()
     {
         $ownerData = [
-          'first_name' => '',
+          'first_name' => 'Admin',
           'last_name' => '',
-          'email' => '',
-          'password' => '',
+          'email' => 'admin1@gmail.com',
+          'password' => app('hash')->make('123456'),
           'user_type' => 'owner',
-          'phone' => '',
-          'company_name' => '',
-          'address' => '',
-          'area' => '',
+          'phone' => '865-686-4701',
+          'company_name' => 'World Radio',
+          'address' => '2447 Hardman Road',
+          'area' => 'South Burlington',
           'zipcode' => '',
-          'city' => '',
-          'state' => '',
-          'country' => '',
+          'city' => 'Ahmedabad',
+          'state' => 'Gujarat',
+          'country' => 'India',
           'profile_photo' => '',
           'is_active' => 1,
           'is_verified' => 1,

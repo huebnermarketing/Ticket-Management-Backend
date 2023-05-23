@@ -191,7 +191,8 @@ return [
     */
 
     'aliases' => Facade::defaultAliases()->merge([
-        // ...
+        'RestResponse' => App\RestResource\RestResponseFacade::class,
+
     ])->toArray(),
 
 ];
