@@ -21,7 +21,7 @@ class OwnerSeeder extends Seeder
           'last_name' => '',
           'email' => 'admin1@gmail.com',
           'password' => app('hash')->make('123456'),
-          'user_type' => 'owner',
+          //'user_type' => 'owner',
           'phone' => '865-686-4701',
           'company_name' => 'World Radio',
           'address' => '2447 Hardman Road',

@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Api\v1\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Mail\SendPasswordVerificationLink;
+use App\Models\PasswordVerificationEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use RestResponse;
 use Validator;
 
@@ -49,5 +53,39 @@ class AuthController extends Controller
     {
         Auth::user()->token()->delete();
         return RestResponse::success([], 'Token successfully removed');
+    }
+
+    public function forgotPasswordLinkEmail(Request $request)
+    {
+        try {
+            $validate = Validator::make($request->all(), [
+                'email' => 'required',
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+
+            $checkUser = User::where('email', $request->email)->first();
+            if (!empty($checkUser)) {
+                //Delete Old token
+                PasswordVerificationEmail::where('user_id', $checkUser->id)->delete();
+
+                $email_token = Str::random(50);
+                PasswordVerificationEmail::create([
+                    'user_id' => $checkUser->id,
+                    'token' => $email_token
+                ]);
+                $resetPasswordLink = config('constant.FRONTEND_URL') . '/reset-password?token=' . $email_token;
+                $toUserEmail = $checkUser->email;
+
+                Mail::to($toUserEmail)->send(new SendPasswordVerificationLink($resetPasswordLink));
+
+                return RestResponse::success([], 'You will receive a link to reset your password to your email.');
+            } else {
+                return RestResponse::warning('No such email found.', 422);
+            }
+        } catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
     }
 }

@@ -20,7 +20,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('user_type',['owner','admin','staff'])->default('staff')->comment('owner,admin,staff');
+            //$table->enum('user_type',['owner','admin','staff'])->default('staff')->comment('owner,admin,staff');
             $table->string('phone');
             $table->string('company_name');
             $table->string('address');

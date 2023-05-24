@@ -27,6 +27,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
     Route::middleware('auth:api')->group(function () {
         Route::controller(AuthController::class)->group(function () {
             Route::post('logout', 'logout');
+            Route::post('forgot-password', 'forgotPasswordLinkEmail');
         });
     });
 });
