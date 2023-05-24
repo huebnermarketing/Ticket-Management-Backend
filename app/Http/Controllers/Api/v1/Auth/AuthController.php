@@ -8,6 +8,8 @@ use App\Models\PasswordVerificationEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use RestResponse;
@@ -33,7 +35,7 @@ class AuthController extends Controller
             $credentials['is_active'] = 1;
             $checkUser = Auth::attempt($credentials);
             if (!$checkUser) {
-                return RestResponse::warning('Incorrect user OR password', 422);
+                return RestResponse::warning('Incorrect user OR password.', 422);
             }
 
             $getUser = User::where('email', '=', $credentials['email'])->first();
@@ -43,7 +45,7 @@ class AuthController extends Controller
             $user = Auth::user();
             $response['access_token'] = $user->createToken('Api Token')->accessToken;
             $response['user'] = $user;
-            return RestResponse::success($response, 'Access token successfully retrieved');
+            return RestResponse::success($response, 'Access token successfully retrieved.');
         } catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -52,7 +54,7 @@ class AuthController extends Controller
     public function logout()
     {
         Auth::user()->token()->delete();
-        return RestResponse::success([], 'Token successfully removed');
+        return RestResponse::success([], 'Token successfully removed.');
     }
 
     public function forgotPasswordLinkEmail(Request $request)
@@ -84,6 +86,64 @@ class AuthController extends Controller
             } else {
                 return RestResponse::warning('No such email found.', 422);
             }
+        } catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function getResetPwdUserDetails(Request $request)
+    {
+        try {
+            $validate = Validator::make($request->all(), [
+                'token' => 'required',
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $token = PasswordVerificationEmail::where('token', $request->token)->first();
+
+            if (!empty($token) && $token->user()->exists()) {
+                $user = $token->user;
+                $response['reset_token'] = Crypt::encryptString($user->email);
+                $response['token'] = $request->token;
+                $response['email'] = $user->email;
+
+                return RestResponse::Success($response, 'Password reset details successfully retrieved.');
+            }
+            return RestResponse::warning('This link is expired.');
+
+        } catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function resetPassword(Request $request)
+    {
+        try {
+            $validate = Validator::make($request->all(), [
+                'email' => 'required',
+                'password' => 'required',
+                'password_confirmation' => 'required',
+                'reset_token' => 'required',
+                'token' => 'required',
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $reset_token = Crypt::decryptString($request->reset_token);
+            $token = PasswordVerificationEmail::where('token', $request->token)->first();
+            if (!empty($token) && $token->user()->exists()) {
+                $user = $token->user;
+                if ($reset_token != $user->email) {
+                    return RestResponse::warning(config('constant.SOMETHING_WENT_WRONG_ERROR'));
+                }
+                $token->user->update([
+                    'password' => Hash::make($request->password)
+                ]);
+                $token->delete();
+                return RestResponse::success([], 'New password has been set successfully to User.');
+            }
+            return RestResponse::warning(config('constant.SOMETHING_WENT_WRONG_ERROR'));
         } catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }

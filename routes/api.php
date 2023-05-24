@@ -21,13 +21,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::prefix('v1')->group(function () {
     Route::controller(AuthController::class)->group(function () {
         Route::post('login', 'login');
+        Route::post('forgot-password', 'forgotPasswordLinkEmail');
+        Route::post('reset-password-details', 'getResetPwdUserDetails');
+        Route::post('reset-password', 'resetPassword');
     });
 });
 Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function () {
     Route::middleware('auth:api')->group(function () {
         Route::controller(AuthController::class)->group(function () {
             Route::post('logout', 'logout');
-            Route::post('forgot-password', 'forgotPasswordLinkEmail');
         });
     });
 });

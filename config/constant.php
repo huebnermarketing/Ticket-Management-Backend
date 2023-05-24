@@ -7,6 +7,8 @@ return [
     'APP_NAME' => env('APP_NAME', 'Ticket Management'),
     'MAIL_SALES_ADDRESS' => env('MAIL_SALES_ADDRESS', 'no-reply+local@tickethub.com'),
 
+    //General
+    'SOMETHING_WENT_WRONG_ERROR' => 'Whoops something went wrong.'
 ];
 
 ?>
