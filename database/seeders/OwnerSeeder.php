@@ -18,7 +18,7 @@ class OwnerSeeder extends Seeder
     {
         $ownerData = [
           'first_name' => 'Admin',
-          'last_name' => '',
+          'last_name' => 'ad',
           'email' => 'admin1@gmail.com',
           'password' => app('hash')->make('123456'),
           //'user_type' => 'owner',
@@ -26,11 +26,10 @@ class OwnerSeeder extends Seeder
           'company_name' => 'World Radio',
           'address' => '2447 Hardman Road',
           'area' => 'South Burlington',
-          'zipcode' => '',
+          'zipcode' => '145263',
           'city' => 'Ahmedabad',
           'state' => 'Gujarat',
           'country' => 'India',
-          'profile_photo' => '',
           'is_active' => 1,
           'is_verified' => 1,
         ];

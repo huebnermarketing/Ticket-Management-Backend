@@ -23,10 +23,7 @@ class RoleSeeder extends Seeder
         foreach ($roles as $role){
             $chekRoleExists = Role::where('slug',$role['slug'])->exists();
             if(!$chekRoleExists){
-                info('not exists');
                 Role::create($role);
-            }else{
-                info('exists');
             }
         }
     }

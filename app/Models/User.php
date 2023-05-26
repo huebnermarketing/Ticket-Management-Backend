@@ -13,7 +13,7 @@ class User extends Authenticatable
     use HasApiTokens, HasFactory, Notifiable;
 
     protected $fillable = [
-        'id','first_name','last_name','email','user_type','phone','company_name','address','area',
+        'id','first_name','last_name','email','password','phone','company_name','address','area',
         'zipcode','city','state','country','profile_photo','is_active','is_verified','created_at','updated_at'
     ];
 
@@ -35,4 +35,9 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, RoleUser::class, 'user_id', 'role_id');
+    }
 }

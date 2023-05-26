@@ -22,7 +22,7 @@ class AuthController extends Controller
         try {
             $validate = Validator::make($request->all(), [
                 'email' => 'required',
-                'password' => 'required'
+                'password' => 'required|min:6'
             ]);
 
             if ($validate->fails()) {
@@ -53,8 +53,12 @@ class AuthController extends Controller
 
     public function logout()
     {
-        Auth::user()->token()->delete();
-        return RestResponse::success([], 'Token successfully removed.');
+        try{
+            Auth::user()->token()->delete();
+            return RestResponse::success([], 'Token successfully removed.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
     }
 
     public function forgotPasswordLinkEmail(Request $request)
