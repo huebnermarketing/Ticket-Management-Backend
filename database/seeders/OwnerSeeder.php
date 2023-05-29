@@ -32,6 +32,7 @@ class OwnerSeeder extends Seeder
           'country' => 'India',
           'is_active' => 1,
           'is_verified' => 1,
+           'role_id' => 2
         ];
         User::create($ownerData);
     }

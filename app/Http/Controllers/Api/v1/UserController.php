@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Mail\UserCreateSendPassword;
 use App\Models\RoleUser;
 use App\Models\user;
+use App\Repositories\User\UserRepository;
+use App\Repositories\User\UserRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
@@ -15,15 +17,26 @@ use Validator;
 
 class UserController extends Controller
 {
+    private $userRepository;
+
+    public function __construct(UserRepositoryInterface $userRepository)
+    {
+        $this->userRepository = $userRepository;
+    }
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         try{
-            $getAllUser = User::with('roles')->select('id','first_name','last_name','email')->where(['is_active' => 1 ,'is_verified' =>1])->get();
+            $filters = [
+                'total_record' => $request->total_record,
+                'order_by' => $request->order_by,
+                'sort_value' => $request->sort_value
+            ];
+            $getAllUser = $this->userRepository->getUserWithRole($filters);
             if(empty($getAllUser)){
                 return RestResponse::warning('User not found.');
             }
@@ -46,10 +59,10 @@ class UserController extends Controller
             $validate = Validator::make($request->all(), [
                 'first_name' => 'required',
                 'last_name' => 'required',
-                'email' => 'required',
+                'email' => 'required|email',
                 'password' => 'required|min:6|confirmed',
                 'password_confirmation' => 'required',
-                'phone' => 'required|integer|unique:users',
+                'phone' => 'required|unique:users|min:3|max:10',
                 'role_id' => 'required',
             ]);
             if ($validate->fails()) {
@@ -72,14 +85,16 @@ class UserController extends Controller
             }
             $createUser['is_active'] = 1;
             $createUser['is_verified'] = 1;
-            $storeUser = User::create($createUser);
+            $createUser['role_id'] = $request['role_id'];
+            //$storeUser = User::create($createUser);
+            $storeUser = $this->userRepository->storeUser($createUser);
             if(!$storeUser){
                 return RestResponse::warning('User create failed.');
             }
-            $assignRole = RoleUser::create([
+            /*$assignRole = RoleUser::create([
                'role_id' => $request['role_id'],
                'user_id' => $storeUser['id']
-            ]);
+            ]);*/
             DB::commit();
             $mailData['first_name'] = $request['first_name'];
             $mailData['last_name'] = $request['last_name'];
@@ -99,9 +114,20 @@ class UserController extends Controller
      * @param  \App\Models\user  $user
      * @return \Illuminate\Http\Response
      */
-    public function show(user $user)
+    public function show($id)
     {
-        //
+        try{
+            if(empty($id)){
+                return RestResponse::warning('User id not found.Must pass in URL.');
+            }
+            $getUser = $this->userRepository->findUser($id);
+            if(empty($getUser)){
+                return RestResponse::warning('User not found.');
+            }
+            return RestResponse::Success($getUser,'User retrieve successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
     }
 
     /**
@@ -111,9 +137,34 @@ class UserController extends Controller
      * @param  \App\Models\user  $user
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, user $user)
+    public function update(Request $request,$id)
     {
-        //
+        try{
+            DB::beginTransaction();
+            info($request);
+            info($id);
+            $validate = Validator::make($request->all(), [
+                'first_name' => 'required',
+                'last_name' => 'required',
+                'email' => 'required|email',
+                'phone' => 'required|min:3|max:10|unique:users,phone,'.$id,
+                'role_id' => 'required',
+                'is_active' => 'required',
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+
+            $updateUser = $this->userRepository->updateUser($request->all(),$id);
+
+            //Update User Role
+            $updateRole =
+            DB::commit();
+            return RestResponse::Success('User created successfully.');
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return RestResponse::error($e->getMessage(), $e);
+        }
     }
 
     /**

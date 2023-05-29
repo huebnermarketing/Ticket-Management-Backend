@@ -36,6 +36,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
         Route::controller(UserController::class)->group(function () {
             Route::get('get-users', 'index');
             Route::post('create-user', 'store');
+            Route::get('edit-user/{id}', 'show');
+            Route::post('update-user/{id}', 'update');
         });
     });
 });

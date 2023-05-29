@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Response;
 
 class RestResponse {
 
-    public function success($data=[],$msg='Success Response'){
+    public function success($data=[],$msg='Success'){
         $response = [];
         $response['status'] = true;
         $response['code'] = 200;
