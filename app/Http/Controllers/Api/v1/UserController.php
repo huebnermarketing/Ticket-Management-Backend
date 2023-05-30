@@ -5,9 +5,7 @@ namespace App\Http\Controllers\Api\v1;
 use App\Http\Controllers\Controller;
 use App\Mail\UserCreateSendPassword;
 use App\Models\Role;
-use App\Models\RoleUser;
-use App\Models\user;
-use App\Repositories\User\UserRepository;
+use App\Models\User;
 use App\Repositories\User\UserRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -25,11 +23,7 @@ class UserController extends Controller
     {
         $this->userRepository = $userRepository;
     }
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
+
     public function index(Request $request)
     {
         try{
@@ -48,12 +42,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         try{
@@ -113,12 +101,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  \App\Models\user  $user
-     * @return \Illuminate\Http\Response
-     */
     public function show($id)
     {
         try{
@@ -135,13 +117,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \App\Models\user  $user
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request,$id)
     {
         try{
@@ -204,12 +179,6 @@ class UserController extends Controller
         }
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  \App\Models\user  $user
-     * @return \Illuminate\Http\Response
-     */
     public function destroy($id)
     {
         try{
@@ -232,6 +201,29 @@ class UserController extends Controller
                 return RestResponse::warning('Roles not found.');
             }
             return RestResponse::Success($roles,'Roles retrieve successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function searchUser(Request $request){
+        try{
+            $validate = Validator::make($request->all(), [
+                'search_key' => 'required'
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $searchUser = User::where(function ($qry) use($request){
+               $qry->orWhere('first_name', 'LIKE', '%' . $request->search_key . '%');
+               $qry->orWhere('last_name', 'LIKE', '%' . $request->search_key . '%');
+               $qry->orWhere('phone', 'LIKE', '%' . $request->search_key . '%');
+               $qry->orWhere('email', 'LIKE', '%' . $request->search_key . '%');
+            })->get();
+            if(count($searchUser) < 0){
+                return RestResponse::warning('No any search result found.');
+            }
+            return RestResponse::Success($searchUser,'User search successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }

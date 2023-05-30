@@ -152,4 +152,26 @@ class AuthController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
+
+    public function profileResetPassword(Request $request){
+        try{
+            $validate = Validator::make($request->all(), [
+                'password' => 'required',
+                'password_confirmation' => 'required',
+                'user_id' => 'required'
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $getUser = User::where('id',$request['user_id'])->first();
+            if(empty($getUser)){
+                return RestResponse::warning('User not found.');
+            }
+            $getUser['password'] = Hash::make($request->password);
+            $getUser->save();
+            return RestResponse::success([], 'Password has been reset successfully to User.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
 }
