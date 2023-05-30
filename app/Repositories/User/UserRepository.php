@@ -25,7 +25,12 @@ class UserRepository implements UserRepositoryInterface
 
     public function findUser($id)
     {
-        return User::with('roles')->where(['is_active' => 1 ,'is_verified' =>1 ,'id' => $id])->find($id);
+        return User::where(['is_active' => 1 ,'is_verified' =>1 ,'id' => $id])->find($id);
+    }
+
+    public function findUserWithRole($id)
+    {
+        return User::with('role')->where(['is_active' => 1 ,'is_verified' =>1 ,'id' => $id])->find($id);
     }
 
     public function updateUser($data, $id)
@@ -35,8 +40,13 @@ class UserRepository implements UserRepositoryInterface
         $user->last_name = $data['last_name'];
         $user->email = $data['email'];
         $user->phone = $data['phone'];
-        $user->is_active = $data['slug'];
+        $user->is_active = $data['is_active'];
+        $user->role_id = $data['role_id'];
+        if(array_key_exists('profile_photo',$data)){
+            $user->profile_photo = $data['profile_photo'];
+        }
         $user->save();
+        return $user;
     }
 
     public function destroyUser($id)

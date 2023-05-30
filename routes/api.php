@@ -38,6 +38,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::post('create-user', 'store');
             Route::get('edit-user/{id}', 'show');
             Route::post('update-user/{id}', 'update');
+            Route::delete('delete-user/{id}', 'destroy');
+            Route::get('get-roles', 'getRoles');
         });
     });
 });
