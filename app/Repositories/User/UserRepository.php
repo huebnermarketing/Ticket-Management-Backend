@@ -4,9 +4,12 @@ namespace App\Repositories\User;
 
 use App\Repositories\User\UserRepositoryInterface;
 use App\Models\User;
-
+use App\Traits\RolePermissionTrait;
+use Spatie\Permission\Models\Role;
 class UserRepository implements UserRepositoryInterface
 {
+    use RolePermissionTrait;
+
     public function allUsers()
     {
         return User::latest()->all();
@@ -15,12 +18,15 @@ class UserRepository implements UserRepositoryInterface
     {
         $sortValue = (!empty($filters) && array_key_exists('sort_value',$filters) && !empty($filters['sort_value'])) ? $filters['sort_value'] : 'email';
         $orderBy = (!empty($filters) && array_key_exists('order_by',$filters)) && !empty($filters['order_by']) ? $filters['order_by'] : 'DESC';
-        $pageLimit = (!empty($filters) && array_key_exists('total_record',$filters)) && !empty($filters['total_record']) ? $filters['total_record'] : 10;
+        $pageLimit = (!empty($filters) && array_key_exists('total_record',$filters)) && !empty($filters['total_record']) ? $filters['total_record'] : config('constant.PAGINATION_RECORD');
         return User::with('role')->where(['is_active' => 1 ,'is_verified' =>1])->orderBy($sortValue,$orderBy)->paginate($pageLimit);
     }
     public function storeUser($data)
     {
-        return User::create($data);
+         $getRole = $this->getUserRole($data['role_id']);
+         $user = User::create($data);
+         $user->assignRole($getRole['role_slug']);
+         return $user;
     }
 
     public function findUser($id)

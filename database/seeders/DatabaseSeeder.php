@@ -16,12 +16,18 @@ class DatabaseSeeder extends Seeder
     {
         // \App\Models\User::factory(10)->create();
         $this->call([
-            TicketAppointmentTypes::class,
+            RoleSeeder::class,
+            PermissionSeeder::class,
+            RolePermissionSeeder::class,
+            //OwnerSeeder::class,
+
+            /*TicketAppointmentTypes::class,
             TicketContractTypes::class,
             TicketPaymentStatus::class,
             TicketPriority::class,
             TicketProblemTypes::class,
-            TicketStatus::class,
+            TicketStatus::class,*/
         ]);
     }
 }
+

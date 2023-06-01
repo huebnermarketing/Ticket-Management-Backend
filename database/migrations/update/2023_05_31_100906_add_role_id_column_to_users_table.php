@@ -16,7 +16,7 @@ return new class extends Migration
         if(Schema::hasTable('users')){
             Schema::table('users', function (Blueprint $table){
                 $table->unsignedBigInteger('role_id')->after('is_verified');
-                $table->foreign('role_id')->references('id')->on('roles');
+                $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
             });
         }
     }
@@ -28,10 +28,12 @@ return new class extends Migration
      */
     public function down()
     {
-        if(Schema::hasTable('users')){
-            Schema::table('users', function (Blueprint $table){
-                $table->dropColumn('role_id');
-            });
-        }
+        Schema::disableForeignKeyConstraints();
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropForeign('users_role_id_foreign');
+            $table->dropIndex('users_role_id_foreign');
+            $table->dropColumn('role_id');
+        });
+        Schema::enableForeignKeyConstraints();
     }
 };

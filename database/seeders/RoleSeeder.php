@@ -2,7 +2,7 @@
 
 namespace Database\Seeders;
 
-use App\Models\Role;
+use Spatie\Permission\Models\Role;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -15,13 +15,9 @@ class RoleSeeder extends Seeder
      */
     public function run()
     {
-        $roles = [
-            ['name'=>'Owner','slug'=>'owner','display_name'=>'Owner'],
-            ['name'=>'Admin','slug'=>'admin','display_name'=>'Admin'],
-            ['name'=>'Staff','slug'=>'staff','display_name'=>'Staff'],
-        ];
+        $roles = config('constant.USER_ROLES');
         foreach ($roles as $role){
-            $chekRoleExists = Role::where('slug',$role['slug'])->exists();
+            $chekRoleExists = Role::where('name',$role['name'])->exists();
             if(!$chekRoleExists){
                 Role::create($role);
             }

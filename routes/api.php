@@ -32,6 +32,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
         Route::controller(AuthController::class)->group(function () {
             Route::post('logout', 'logout');
             Route::post('profile-reset-password', 'profileResetPassword');
+            Route::post('company-setting', 'companySettings');
         });
 
         Route::controller(UserController::class)->group(function () {

@@ -174,4 +174,14 @@ class AuthController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
+
+    public function companySettings(Request $request)
+    {
+        try{
+            info($request);
+            return RestResponse::success([], 'Company settings updated successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
 }

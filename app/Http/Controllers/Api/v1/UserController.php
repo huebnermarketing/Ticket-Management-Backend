@@ -8,6 +8,7 @@ use App\Models\Role;
 use App\Models\User;
 use App\Repositories\User\UserRepositoryInterface;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Storage;
@@ -27,16 +28,20 @@ class UserController extends Controller
     public function index(Request $request)
     {
         try{
-            $filters = [
-                'total_record' => $request->total_record,
-                'order_by' => $request->order_by,
-                'sort_value' => $request->sort_value
-            ];
-            $getAllUser = $this->userRepository->getUserWithRole($filters);
-            if(empty($getAllUser)){
-                return RestResponse::warning('User not found.');
+            if(Auth::user()->hasPermissionTo('user crud')){
+                $filters = [
+                    'total_record' => $request->total_record,
+                    'order_by' => $request->order_by,
+                    'sort_value' => $request->sort_value
+                ];
+                $getAllUser = $this->userRepository->getUserWithRole($filters);
+                if(empty($getAllUser)){
+                    return RestResponse::warning('User not found.');
+                }
+                return RestResponse::Success($getAllUser, 'Users retrieve successfully.');
+            } else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
-            return RestResponse::Success($getAllUser, 'Users retrieve successfully.');
         } catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
