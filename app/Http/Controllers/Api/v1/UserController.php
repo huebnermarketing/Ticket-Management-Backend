@@ -28,7 +28,7 @@ class UserController extends Controller
     public function index(Request $request)
     {
         try{
-            if(Auth::user()->hasPermissionTo('user crud')){
+            //if(Auth::user()->hasPermissionTo('user crud')){
                 $filters = [
                     'total_record' => $request->total_record,
                     'order_by' => $request->order_by,
@@ -39,9 +39,9 @@ class UserController extends Controller
                     return RestResponse::warning('User not found.');
                 }
                 return RestResponse::Success($getAllUser, 'Users retrieve successfully.');
-            } else {
+            /*} else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
-            }
+            }*/
         } catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -57,7 +57,7 @@ class UserController extends Controller
                 'email' => 'required|email',
                 'password' => 'required|min:6|confirmed',
                 'password_confirmation' => 'required',
-                'phone' => 'required|unique:users|min:3|max:10',
+                'phone' => 'required|unique:users|min:3|max:15',
                 'role_id' => 'required',
             ]);
             if ($validate->fails()) {
@@ -82,7 +82,7 @@ class UserController extends Controller
                     //$fileName = $photo->getClientOriginalName();
                     $imageName = time() . '-' . rand(0, 100) . '.' . $photo->getClientOriginalExtension();
                     $filePath = 'user_profile/' . $imageName;
-                    Storage::disk('s3')->put($filePath, file_get_contents($photo));
+                    Storage::disk('s3')->put($filePath, file_get_contents($photo),'public');
                     $createUser['profile_photo'] = $imageName;
                 }
             }
@@ -99,7 +99,7 @@ class UserController extends Controller
             $mailData['password'] = $request['password'];
             Mail::to($request['email'])->send(new UserCreateSendPassword($mailData));
 
-            return RestResponse::Success('User created successfully.');
+            return RestResponse::Success([],'User created successfully.');
         }catch (\Exception $e) {
             DB::rollBack();
             return RestResponse::error($e->getMessage(), $e);
@@ -110,7 +110,7 @@ class UserController extends Controller
     {
         try{
             if(empty($id)){
-                return RestResponse::warning('User id not found.Must pass in URL.');
+                return RestResponse::warning('User id not found. Must pass in URL.');
             }
             $getUser = $this->userRepository->findUserWithRole($id);
             if(empty($getUser)){
@@ -130,7 +130,7 @@ class UserController extends Controller
                 'first_name' => 'required',
                 'last_name' => 'required',
                 'email' => 'required|email',
-                'phone' => 'required|min:3|max:10|unique:users,phone,'.$id,
+                'phone' => 'required|min:3|max:15|unique:users,phone,'.$id,
                 'role_id' => 'required',
                 'is_active' => 'required',
             ]);
@@ -159,7 +159,7 @@ class UserController extends Controller
                 $imageName = time() . '-' . rand(0, 100) . '.' . $images->getClientOriginalExtension();
                 $s3 = Storage::disk('s3');
                 $filePath = 'user_profile/' . $imageName;
-                $s3->put($filePath, file_get_contents($images));
+                $s3->put($filePath, file_get_contents($images),'public');
                 $profileImage = $imageName;
                 if ($user->profile_photo != "") {
                     $s3->delete('user_profile/' . $user->profile_photo);
@@ -177,7 +177,7 @@ class UserController extends Controller
                 return RestResponse::warning('User update failed.');
             }
             DB::commit();
-            return RestResponse::Success('User updated successfully.');
+            return RestResponse::Success([],'User updated successfully.');
         }catch (\Exception $e) {
             DB::rollBack();
             return RestResponse::error($e->getMessage(), $e);
@@ -192,7 +192,7 @@ class UserController extends Controller
                 return RestResponse::warning('User not found.');
             }
             $user->delete();
-            return RestResponse::Success('User deleted successfully.');
+            return RestResponse::Success([],'User deleted successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -233,4 +233,37 @@ class UserController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
+
+    public function updateUserProfile(Request $request, $userId)
+    {
+        try{
+            $validate = Validator::make($request->all(), [
+                'first_name' => 'required',
+                'last_name' => 'required',
+                'email' => 'required|email',
+                'phone' => 'required|min:3|max:15|unique:users,phone,'.$userId,
+                'address' => 'required',
+                'area' => 'required',
+                'city' => 'required',
+                'state' => 'required',
+                'country' => 'required'
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $getUser = $this->userRepository->findUser($userId);
+            if (empty($getUser)) {
+                return RestResponse::warning('User not found.');
+            }
+            $updateData = $request->except('profile_photo');
+            if(array_key_exists('profile_photo',$request->all())){
+                $updateData['profile_photo'] = 'abc';
+            }
+            User::where('id',$userId)->update($updateData);
+            return RestResponse::Success([],'User updated successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
 }

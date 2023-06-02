@@ -16,6 +16,8 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
+    'image_path' => env('AWS_URL','https://ticketmanagement.s3.ap-south-1.amazonaws.com/'),
+
 
     /*
     |--------------------------------------------------------------------------

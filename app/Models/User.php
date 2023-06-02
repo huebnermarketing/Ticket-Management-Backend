@@ -36,6 +36,14 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
+    public function getProfilePhotoAttribute(){
+        $imagePath = null;
+        if(!empty($this->attributes['profile_photo'])){
+            $imagePath = config('app.image_path')."user_profile/".$this->attributes['profile_photo'];
+        }
+        return $imagePath;
+    }
+
    /* public function roles()
     {
         return $this->belongsToMany(Role::class, RoleUser::class, 'user_id', 'role_id');

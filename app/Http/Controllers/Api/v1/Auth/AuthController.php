@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendPasswordVerificationLink;
+use App\Models\CompanySettings;
 use App\Models\PasswordVerificationEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -14,6 +15,8 @@ use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use RestResponse;
 use Validator;
+use File;
+use Storage;
 
 class AuthController extends Controller
 {
@@ -28,7 +31,6 @@ class AuthController extends Controller
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
             }
-
 
             $credentials = $request->only('email', 'password');
             $credentials['is_verified'] = 1;
@@ -175,10 +177,95 @@ class AuthController extends Controller
         }
     }
 
-    public function companySettings(Request $request)
+    public function getCompanySettings(Request $request){
+        try{
+            $companyId= $request->query('company_id');
+            $userId= $request->query('user_id');
+            if(!empty($companyId) && !empty($userId)){
+                $getCompanySetting = CompanySettings::where(['id' => $companyId, 'user_id' => $userId])->first();
+                if(empty($getCompanySetting)){
+                    return RestResponse::warning('Company settings not found.');
+                }
+                return RestResponse::success($getCompanySetting, 'Company settings retrieve successfully.');
+            }else{
+                return RestResponse::warning('Must pass company or user id.');
+            }
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function updateCompanySettings(Request $request)
     {
         try{
-            info($request);
+            $validate = Validator::make($request->all(), [
+                'user_id' => 'required',
+                'company_id' => 'required',
+                'company_name' => 'required',
+                'address_line1' => 'required',
+                'area' => 'required',
+                'zipcode' => 'required',
+                'city' => 'required',
+                'state' => 'required',
+                'country' => 'required',
+                'currency' => 'required',
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+
+            $getCompanySetting = CompanySettings::where(['id' => $request['company_id'] , 'user_id' => $request['user_id']])->first();
+            if(empty($getCompanySetting)){
+                return RestResponse::warning('User company setting not found.');
+            }
+
+            $getCompanySetting['company_name'] = $request['company_name'];
+            $getCompanySetting['address_line1'] = $request['address_line1'];
+            $getCompanySetting['area'] = $request['area'];
+            $getCompanySetting['zipcode'] = $request['zipcode'];
+            $getCompanySetting['city'] = $request['city'];
+            $getCompanySetting['state'] = $request['state'];
+            $getCompanySetting['country'] = $request['country'];
+            $getCompanySetting['currency'] = $request['currency'];
+            if(array_key_exists('company_logo',$request->all()) && !empty($request['company_logo'])){
+                $logoUrl = $request->file('company_logo');
+                if (!empty($logoUrl)) {
+                    if (File::size($logoUrl) > 2097152) {
+                        return RestResponse::warning('Company logo upto 2 Mb max.', 422);
+                    }
+                    $extension = $logoUrl->getClientOriginalExtension();
+                    $imageName = time() . '-' . rand(0, 100) . '.' . $extension;
+                    $s3 = Storage::disk('s3');
+                    $filePath = 'company_logo/' . $imageName;
+                    $s3->put($filePath, file_get_contents($logoUrl));
+                    if ($getCompanySetting->company_logo != "") {
+                        $s3->delete('company_logo/' . $getCompanySetting->company_logo);
+                    }
+                    $getCompanySetting['company_logo'] = $imageName;
+                }else {
+                    return RestResponse::warning('Whoops something went wrong.');
+                }
+            }
+            if(array_key_exists('company_favicon',$request->all()) && !empty($request['company_favicon'])){
+                $faviconUrl = $request->file('company_favicon');
+                if (!empty($faviconUrl)) {
+                    if (File::size($faviconUrl) > 2097152) {
+                        return RestResponse::warning('Company favicon upto 2 Mb max.', 422);
+                    }
+                    $extension = $faviconUrl->getClientOriginalExtension();
+                    $imageName = time() . '-' . rand(0, 100) . '.' . $extension;
+                    $s3 = Storage::disk('s3');
+                    $filePath = 'company_favicon/' . $imageName;
+                    $s3->put($filePath, file_get_contents($faviconUrl));
+                    if ($getCompanySetting->company_favicon != "") {
+                        $s3->delete('company_favicon/' . $getCompanySetting->company_favicon);
+                    }
+                    $getCompanySetting['company_favicon'] = $imageName;
+                }else {
+                    return RestResponse::warning('Whoops something went wrong.');
+                }
+            }
+            $getCompanySetting->save();
             return RestResponse::success([], 'Company settings updated successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);

@@ -32,7 +32,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
         Route::controller(AuthController::class)->group(function () {
             Route::post('logout', 'logout');
             Route::post('profile-reset-password', 'profileResetPassword');
-            Route::post('company-setting', 'companySettings');
+            Route::get('get-company-setting', 'getCompanySettings');
+            Route::post('update-company-setting', 'updateCompanySettings');
         });
 
         Route::controller(UserController::class)->group(function () {
@@ -43,6 +44,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::delete('delete-user/{id}', 'destroy');
             Route::get('get-roles', 'getRoles');
             Route::post('search-user', 'searchUser');
+            Route::post('update-user-profile/{id}', 'updateUserProfile');
         });
     });
 });
