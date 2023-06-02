@@ -16,6 +16,17 @@ class OwnerSeeder extends Seeder
      */
     public function run()
     {
+        $companySetting = CompanySettings::create([
+            'company_name' => 'Systune Systems Services',
+            'address_line1' => '66, management enclave Shopping Center, Opp. Indraprasth bunglow',
+            'area' => 'Vastrapur',
+            'zipcode' => '380015',
+            'city' => 'Ahmedabad',
+            'state' => 'Gujarat',
+            'country' => 'India',
+            'currency' => 'INR'
+        ]);
+
         $ownerData = [
           'first_name' => 'Owner',
           'email' => 'owner@gmail.com',
@@ -33,10 +44,5 @@ class OwnerSeeder extends Seeder
           'role_id' => 1
         ];
         $createUser = User::create($ownerData);
-
-        $companySetting = CompanySettings::create([
-           'user_id' => $createUser['id'],
-           'company_name' => $createUser['company_name'],
-        ]);
     }
 }

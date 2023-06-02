@@ -15,7 +15,6 @@ return new class extends Migration
     {
         Schema::create('company_settings', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->unsignedBigInteger('user_id')->comment('Must be a owner.');
             $table->string('company_name');
             $table->string('company_logo')->nullable();
             $table->string('company_favicon')->nullable();
@@ -26,7 +25,6 @@ return new class extends Migration
             $table->string('state')->nullable();
             $table->string('country')->nullable();
             $table->string('currency')->nullable();
-            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

@@ -180,15 +180,14 @@ class AuthController extends Controller
     public function getCompanySettings(Request $request){
         try{
             $companyId= $request->query('company_id');
-            $userId= $request->query('user_id');
-            if(!empty($companyId) && !empty($userId)){
-                $getCompanySetting = CompanySettings::where(['id' => $companyId, 'user_id' => $userId])->first();
+            if(!empty($companyId)){
+                $getCompanySetting = CompanySettings::where('id',$companyId)->first();
                 if(empty($getCompanySetting)){
                     return RestResponse::warning('Company settings not found.');
                 }
                 return RestResponse::success($getCompanySetting, 'Company settings retrieve successfully.');
             }else{
-                return RestResponse::warning('Must pass company or user id.');
+                return RestResponse::warning('Company id is required.');
             }
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
@@ -214,7 +213,7 @@ class AuthController extends Controller
                 return RestResponse::validationError($validate->errors());
             }
 
-            $getCompanySetting = CompanySettings::where(['id' => $request['company_id'] , 'user_id' => $request['user_id']])->first();
+            $getCompanySetting = CompanySettings::where('id',$request['company_id'])->first();
             if(empty($getCompanySetting)){
                 return RestResponse::warning('User company setting not found.');
             }
@@ -237,7 +236,7 @@ class AuthController extends Controller
                     $imageName = time() . '-' . rand(0, 100) . '.' . $extension;
                     $s3 = Storage::disk('s3');
                     $filePath = 'company_logo/' . $imageName;
-                    $s3->put($filePath, file_get_contents($logoUrl));
+                    $s3->put($filePath, file_get_contents($logoUrl),'public');
                     if ($getCompanySetting->company_logo != "") {
                         $s3->delete('company_logo/' . $getCompanySetting->company_logo);
                     }
@@ -256,7 +255,7 @@ class AuthController extends Controller
                     $imageName = time() . '-' . rand(0, 100) . '.' . $extension;
                     $s3 = Storage::disk('s3');
                     $filePath = 'company_favicon/' . $imageName;
-                    $s3->put($filePath, file_get_contents($faviconUrl));
+                    $s3->put($filePath, file_get_contents($faviconUrl),'public');
                     if ($getCompanySetting->company_favicon != "") {
                         $s3->delete('company_favicon/' . $getCompanySetting->company_favicon);
                     }

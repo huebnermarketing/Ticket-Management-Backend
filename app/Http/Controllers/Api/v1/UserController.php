@@ -257,7 +257,26 @@ class UserController extends Controller
             }
             $updateData = $request->except('profile_photo');
             if(array_key_exists('profile_photo',$request->all())){
-                $updateData['profile_photo'] = 'abc';
+                    $profilePhoto = $request->file('profile_photo');
+
+                    if (!empty($profilePhoto)) {
+                        if (File::size($profilePhoto) > 2097152) {
+                            return RestResponse::warning('Profile Image upto 2 Mb max.', 422);
+                        }
+                        $ext = $profilePhoto->getClientOriginalExtension();
+                        if (!in_array(strtolower($ext), array("png", "jpeg", "jpg", "gif", "svg"))) {
+                            return RestResponse::warning('Profile Image must be a PNG, JPEG, GIF, SVG file.', 422);
+                        }
+                    }
+
+                    $imageName = time() . '-' . rand(0, 100) . '.' . $profilePhoto->getClientOriginalExtension();
+                    $s3 = Storage::disk('s3');
+                    $filePath = 'user_profile/' . $imageName;
+                    $s3->put($filePath, file_get_contents($profilePhoto),'public');
+                    if ($getUser->profile_photo != "") {
+                        $s3->delete('user_profile/' . $getUser->profile_photo);
+                    }
+                $updateData['profile_photo'] = $imageName;
             }
             User::where('id',$userId)->update($updateData);
             return RestResponse::Success([],'User updated successfully.');
