@@ -22,7 +22,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::prefix('v1')->group(function () {
-    Route::controller(AuthController::class)->group(function () {
+    Route::group(['prefix' => 'auth', 'controller' => AuthController::class],function () {
         Route::post('login', 'login');
         Route::post('forgot-password', 'forgotPasswordLinkEmail');
         Route::post('reset-password-details', 'getResetPwdUserDetails');
@@ -31,12 +31,12 @@ Route::prefix('v1')->group(function () {
 });
 Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function () {
     Route::middleware('auth:api')->group(function () {
-        Route::controller(AuthController::class)->group(function () {
+        Route::group(['prefix' => 'auth', 'controller' => AuthController::class],function () {
             Route::post('logout', 'logout');
             Route::post('profile-reset-password', 'profileResetPassword');
         });
 
-        Route::controller(UserController::class)->group(function () {
+        Route::group(['prefix' => 'user', 'controller' => UserController::class], function () {
             Route::get('get-users', 'index');
             Route::post('create-user', 'store');
             Route::get('edit-user/{id}', 'show');
@@ -47,15 +47,22 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::post('update-user-profile/{id}', 'updateUserProfile');
         });
 
-        Route::controller(SettingsController::class)->group(function () {
-            Route::get('get-company-setting', 'getCompanySettings');
-            Route::post('update-company-setting', 'updateCompanySettings');
+        Route::group(['prefix' => 'settings', 'controller' => SettingsController::class], function () {
+            Route::prefix('company')->group(function () {
+                Route::get('get', 'getCompanySettings');
+                Route::post('update', 'updateCompanySettings');
+            });
 
             //Contract Type
-            Route::post('add-contract-type', 'addContractType');
+            Route::prefix('contract')->group(function () {
+                Route::post('add', 'addContractType');
+                Route::get('list', 'listAllContractType');
+                Route::get('edit/{id}', 'editContractType');
+                Route::post('update/{id}', 'updateContractType');
+            });
         });
 
-        Route::controller(CustomerController::class)->group(function () {
+        Route::group(['prefix' => 'customer', 'controller' => CustomerController::class], function () {
             Route::post('create-customer', 'store');
         });
     });
