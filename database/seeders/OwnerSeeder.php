@@ -6,7 +6,7 @@ use App\Models\CompanySettings;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-
+use Spatie\Permission\Models\Role;
 class OwnerSeeder extends Seeder
 {
     /**
@@ -44,5 +44,7 @@ class OwnerSeeder extends Seeder
           'role_id' => 1
         ];
         $createUser = User::create($ownerData);
+        $getRole = Role::where('name','owner')->first();
+        $createUser->assignRole($getRole);
     }
 }

@@ -1,6 +1,8 @@
 <?php
 
 use App\Http\Controllers\Api\v1\Auth\AuthController;
+use App\Http\Controllers\Api\v1\CustomerController;
+use App\Http\Controllers\Api\v1\SettingsController;
 use App\Http\Controllers\Api\v1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -32,8 +34,6 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
         Route::controller(AuthController::class)->group(function () {
             Route::post('logout', 'logout');
             Route::post('profile-reset-password', 'profileResetPassword');
-            Route::get('get-company-setting', 'getCompanySettings');
-            Route::post('update-company-setting', 'updateCompanySettings');
         });
 
         Route::controller(UserController::class)->group(function () {
@@ -45,6 +45,18 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::get('get-roles', 'getRoles');
             Route::post('search-user', 'searchUser');
             Route::post('update-user-profile/{id}', 'updateUserProfile');
+        });
+
+        Route::controller(SettingsController::class)->group(function () {
+            Route::get('get-company-setting', 'getCompanySettings');
+            Route::post('update-company-setting', 'updateCompanySettings');
+
+            //Contract Type
+            Route::post('add-contract-type', 'addContractType');
+        });
+
+        Route::controller(CustomerController::class)->group(function () {
+            Route::post('create-customer', 'store');
         });
     });
 });

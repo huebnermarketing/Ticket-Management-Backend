@@ -22,7 +22,15 @@ return [
         ['name' => 'user-crud','permission_slug' => 'user-crud','display_name'=>'User CRUD','guard_name' => 'api'],
         ['name' => 'company-setting','permission_slug' => 'company-setting','display_name'=>'Company Setting','guard_name' => 'api'],
         ['name' => 'user-profile','permission_slug' => 'user-profile','display_name'=>'User Profile','guard_name' => 'api'],
+        ['name' => 'customer-crud','permission_slug' => 'customer-management','display_name'=>'Customer Management','guard_name' => 'api'],
     ],
+
+    //Permissions
+    'PERMISSION_USER_AUTH' => 'user-auth',
+    'PERMISSION_USER_CRUD' => 'user-crud',
+    'PERMISSION_COMPANY_SETTING' => 'company-setting',
+    'PERMISSION_USER_PROFILE' => 'user-profile',
+    'PERMISSION_CUSTOMER_CRUD' => 'customer-crud',
 ];
 
 ?>
