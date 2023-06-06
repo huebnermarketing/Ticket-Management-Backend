@@ -70,6 +70,14 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
                 Route::post('update/{id}', 'update');
                 Route::delete('delete/{id}', 'destroy');
             });
+
+            Route::group(['prefix' => 'ticket-status', 'controller' => ProblemTypeController::class], function () {
+                Route::post('add', 'store');
+                Route::get('list', 'index');
+                Route::get('edit/{id}', 'edit');
+                Route::post('update/{id}', 'update');
+                Route::delete('delete/{id}', 'destroy');
+            });
         });
 
         Route::group(['prefix' => 'customer', 'controller' => CustomerController::class], function () {

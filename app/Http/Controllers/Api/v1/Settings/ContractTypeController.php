@@ -53,7 +53,7 @@ class ContractTypeController extends Controller
                 return RestResponse::validationError($validate->errors());
             }
             $contract['contract_name'] = $request['contract_name'];
-            $contract['is_active'] = '1';
+            $contract['is_active'] = 1;
             $createContract = ContractType::create($contract);
             if(!$createContract){
                 return RestResponse::warning('Contract create failed.');

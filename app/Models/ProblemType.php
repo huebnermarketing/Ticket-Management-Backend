@@ -8,5 +8,5 @@ use Illuminate\Database\Eloquent\Model;
 class ProblemType extends Model
 {
     use HasFactory;
-    protected $fillable = ['id','problem_name','active_status','created_at','updated_at'];
+    protected $fillable = ['id','problem_name','is_active','created_at','updated_at'];
 }

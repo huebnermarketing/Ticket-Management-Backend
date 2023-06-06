@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('payment_types', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('payment_type');
-            $table->enum('is_active',[0,1])->default(0)->comment('0=Inactive, 1=Active');
+            $table->tinyInteger('is_active')->default(0)->comment('0=Inactive, 1=Active');
             $table->timestamps();
         });
     }
