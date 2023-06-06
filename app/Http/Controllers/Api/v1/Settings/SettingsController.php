@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1\Settings;
 use App\Http\Controllers\Controller;
 use App\Models\CompanySettings;
 use App\Models\ContractType;
+use App\Models\Currency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Validator;
@@ -26,7 +27,7 @@ class SettingsController extends Controller
                         return RestResponse::warning('Company settings not found.');
                     }
                     $data['company_setting'] = $getCompanySetting;
-                    $data['currency'] = currency()->getCurrencies();
+                    $data['currency'] = Currency::where('active',1)->get();
                     return RestResponse::success($data, 'Company settings retrieve successfully.');
                 }else{
                     return RestResponse::warning('Company id is required.');

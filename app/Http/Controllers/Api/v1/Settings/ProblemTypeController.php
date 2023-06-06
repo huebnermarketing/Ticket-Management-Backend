@@ -47,13 +47,12 @@ class ProblemTypeController extends Controller
     {
         try{
             $validate = Validator::make($request->all(), [
-                'problem_name' => 'required|unique:problem_types'
+                'problem_name' => 'required|unique:problem_types,problem_name,NULL,id,deleted_at,NULL'
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
             }
             $data['problem_name'] = $request['problem_name'];
-            $data['is_active'] = 1;
             $create = ProblemType::create($data);
             if(!$create){
                 return RestResponse::warning('Problem type create failed.');
@@ -106,7 +105,6 @@ class ProblemTypeController extends Controller
         try{
             $validate = Validator::make($request->all(), [
                 'problem_name' => 'required|unique:problem_types,problem_name,'.$id,
-                'is_active' => 'required'
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
@@ -118,7 +116,6 @@ class ProblemTypeController extends Controller
             }
 
             $findProblemType['problem_name'] = $request['problem_name'];
-            $findProblemType['is_active'] = $request['is_active'];
             $findProblemType->save();
             return RestResponse::success([], 'Problem type updated successfully.');
         }catch (\Exception $e) {

@@ -23,11 +23,8 @@ class TicketPrioritySeeder extends Seeder
 
         foreach ($priorityTypes as $type){
             $chekExists = TicketPriority::where('priority_name',$type)->exists();
-            info('$chekExists---');
-            info($chekExists);
             if(!$chekExists){
                 $priority['priority_name'] = $type;
-                $priority['active_status'] = '1';
                 TicketPriority::create($priority);
             }
         }

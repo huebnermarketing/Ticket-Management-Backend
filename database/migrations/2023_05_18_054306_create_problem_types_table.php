@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('problem_types', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('problem_name');
-            $table->tinyInteger('is_active')->default(0)->comment('0=Inactive, 1=Active');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

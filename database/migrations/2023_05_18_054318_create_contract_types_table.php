@@ -16,7 +16,7 @@ return new class extends Migration
         Schema::create('contract_types', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('contract_name');
-            $table->tinyInteger('is_active')->default(0)->comment('0=Inactive, 1=Active');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

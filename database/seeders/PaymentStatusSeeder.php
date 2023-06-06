@@ -25,7 +25,6 @@ class PaymentStatusSeeder extends Seeder
             $chekExists = PaymentTypes::where('payment_type',$type)->exists();
             if(!$chekExists){
                 $payment['payment_type'] = $type;
-                $payment['active_status'] = '1';
                 PaymentTypes::create($payment);
             }
         }

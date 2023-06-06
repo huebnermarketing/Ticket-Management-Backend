@@ -47,13 +47,12 @@ class ContractTypeController extends Controller
     {
         try{
             $validate = Validator::make($request->all(), [
-                'contract_name' => 'required|unique:contract_types'
+                'contract_name' => 'required|unique:contract_types,contract_name,NULL,id,deleted_at,NULL'
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
             }
             $contract['contract_name'] = $request['contract_name'];
-            $contract['is_active'] = 1;
             $createContract = ContractType::create($contract);
             if(!$createContract){
                 return RestResponse::warning('Contract create failed.');
@@ -105,8 +104,7 @@ class ContractTypeController extends Controller
     {
         try{
             $validate = Validator::make($request->all(), [
-                'contract_name' => 'required|unique:contract_types,contract_name,'.$id,
-                'is_active' => 'required'
+                'contract_name' => 'required|unique:contract_types,contract_name,'.$id.'NULL,id,deleted_at,NULL'
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
@@ -118,7 +116,6 @@ class ContractTypeController extends Controller
             }
 
             $findContract['contract_name'] = $request['contract_name'];
-            $findContract['is_active'] = $request['is_active'];
             $findContract->save();
             return RestResponse::success([], 'Contract updated successfully.');
         }catch (\Exception $e) {

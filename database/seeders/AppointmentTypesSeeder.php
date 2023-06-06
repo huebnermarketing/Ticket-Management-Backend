@@ -25,7 +25,6 @@ class AppointmentTypesSeeder extends Seeder
             $chekExists = AppointmentTypes::where('appointment_name',$type)->exists();
             if(!$chekExists){
                 $appointment['appointment_name'] = $type;
-                $appointment['active_status'] = '1';
                 AppointmentTypes::create($appointment);
             }
         }

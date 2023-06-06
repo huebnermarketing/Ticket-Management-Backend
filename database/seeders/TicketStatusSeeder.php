@@ -15,7 +15,7 @@ class TicketStatusSeeder extends Seeder
      */
     public function run()
     {
-        $ticketStatusType = ['Open','In-Progress','Work Done','Closed'];
+        $ticketStatusType = ['Open','In-Progress','Work Done','Closed','Non-Billable','Uncollectible'];
         $clientTicketStatusType = ['Open','Done','Close'];
 
         $getSeederType = config('constant.SEEDER_TYPE');
@@ -25,7 +25,7 @@ class TicketStatusSeeder extends Seeder
             $chekExists = TicketStatus::where('status_name',$type)->exists();
             if(!$chekExists){
                 $ticketStatus['status_name'] = $type;
-                $ticketStatus['active_status'] = '1';
+                $ticketStatus['is_lock'] = 1;
                 TicketStatus::create($ticketStatus);
             }
         }
