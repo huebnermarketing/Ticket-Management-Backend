@@ -52,8 +52,7 @@ class ContractTypeController extends Controller
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
             }
-            $contract['contract_name'] = $request['contract_name'];
-            $createContract = ContractType::create($contract);
+            $createContract = ContractType::create(['contract_name' => $request['contract_name']]);
             if(!$createContract){
                 return RestResponse::warning('Contract create failed.');
             }

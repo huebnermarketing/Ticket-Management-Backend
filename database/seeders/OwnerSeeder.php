@@ -25,7 +25,7 @@ class OwnerSeeder extends Seeder
         $setting['city'] = 'Ahmedabad';
         $setting['state'] = 'Gujarat';
         $setting['country'] = 'India';
-        $setting['currency_id'] = (!empty($getCurrency)) ? $getCurrency : null;
+        $setting['currency_id'] = (!empty($getCurrency)) ? $getCurrency['id'] : null;
         $companySetting = CompanySettings::create($setting);
 
         $ownerData = [

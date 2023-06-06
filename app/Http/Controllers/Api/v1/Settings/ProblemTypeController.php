@@ -52,8 +52,7 @@ class ProblemTypeController extends Controller
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
             }
-            $data['problem_name'] = $request['problem_name'];
-            $create = ProblemType::create($data);
+            $create = ProblemType::create(['problem_name' => $request['problem_name']]);
             if(!$create){
                 return RestResponse::warning('Problem type create failed.');
             }

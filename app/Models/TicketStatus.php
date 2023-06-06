@@ -9,5 +9,5 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class TicketStatus extends Model
 {
     use HasFactory,SoftDeletes;
-    protected $fillable = ['id','status_name','is_lock','created_at','updated_at'];
+    protected $fillable = ['id','status_name','is_lock','deleted_at','created_at','updated_at'];
 }

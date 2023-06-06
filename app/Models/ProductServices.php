@@ -6,9 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-class AppointmentTypes extends Model
+class ProductServices extends Model
 {
     use HasFactory,SoftDeletes;
-
-    protected $fillable = ['id','appointment_name','is_active','deleted_at','created_at','updated_at'];
+    protected $fillable = ['id','service_name','is_lock','deleted_at','created_at','updated_at'];
 }

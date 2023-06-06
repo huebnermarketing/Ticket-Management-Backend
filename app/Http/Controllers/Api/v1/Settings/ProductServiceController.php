@@ -3,11 +3,11 @@
 namespace App\Http\Controllers\Api\v1\Settings;
 
 use App\Http\Controllers\Controller;
-use App\Models\TicketStatus;
+use App\Models\ProductServices;
 use Illuminate\Http\Request;
 use Validator;
 use RestResponse;
-class TicketStatusController extends Controller
+class ProductServiceController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -17,11 +17,11 @@ class TicketStatusController extends Controller
     public function index()
     {
         try{
-            $getAllTicketStatus = TicketStatus::all();
-            if(empty($getAllTicketStatus)){
-                return RestResponse::warning('Ticket Status not found.');
+            $getAllService = ProductServices::all();
+            if(empty($getAllService)){
+                return RestResponse::warning('Product service not found.');
             }
-            return RestResponse::success($getAllTicketStatus,'Ticket Status list retrieve successfully.');
+            return RestResponse::success($getAllService,'Product service list retrieve successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -47,16 +47,16 @@ class TicketStatusController extends Controller
     {
         try{
             $validate = Validator::make($request->all(), [
-                'status_name' => 'required|unique:ticket_statuses,status_name,NULL,id,deleted_at,NULL'
+                'service_name' => 'required|unique:product_services,service_name,NULL,id,deleted_at,NULL'
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
             }
-            $createTicketStatus = TicketStatus::create(['status_name' => $request['status_name']]);
-            if(!$createTicketStatus){
-                return RestResponse::warning('Ticket status create failed.');
+            $create = ProductServices::create(['service_name' => $request['service_name']]);
+            if(!$create){
+                return RestResponse::warning('Product service create failed.');
             }
-            return RestResponse::success([], 'Ticket status created successfully.');
+            return RestResponse::success([], 'Product service created successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -82,11 +82,11 @@ class TicketStatusController extends Controller
     public function edit($id)
     {
         try{
-            $getTicketStatus = TicketStatus::find($id);
-            if(empty($getTicketStatus)){
-                return RestResponse::warning('Ticket status not found.');
+            $getProductService = ProductServices::find($id);
+            if(empty($getProductService)){
+                return RestResponse::warning('Product service not found.');
             }
-            return RestResponse::success($getTicketStatus,'Ticket status retrieve successfully.');
+            return RestResponse::success($getProductService,'Product service retrieve successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -103,24 +103,22 @@ class TicketStatusController extends Controller
     {
         try{
             $validate = Validator::make($request->all(), [
-                'status_name' => 'required|unique:ticket_statuses,status_name,'.$id.'NULL,id,deleted_at,NULL'
+                'service_name' => 'required|unique:product_services,service_name,'.$id.'NULL,id,deleted_at,NULL'
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
             }
 
-            $findTicketStatus = TicketStatus::find($id);
-            if(empty($findTicketStatus)){
-                return RestResponse::warning('Ticket status not found.');
+            $findService = ProductServices::find($id);
+            if(empty($findService)){
+                return RestResponse::warning('Product service not found.');
             }
-
-            if($findTicketStatus['is_lock'] == 1){
-                return RestResponse::warning("You can't update default ticket status.");
+            if($findService['is_lock'] == 1){
+                return RestResponse::warning("You can't update default product service.");
             }
-
-            $findTicketStatus['status_name'] = $request['status_name'];
-            $findTicketStatus->save();
-            return RestResponse::success([], 'Ticket status updated successfully.');
+            $findService['service_name'] = $request['service_name'];
+            $findService->save();
+            return RestResponse::success([], 'Product service updated successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -135,15 +133,15 @@ class TicketStatusController extends Controller
     public function destroy($id)
     {
         try{
-            $getTicketStatus = TicketStatus::find($id);
-            if (empty($getTicketStatus)) {
-                return RestResponse::warning('Ticket status not found.');
+            $getProductService = ProductServices::find($id);
+            if (empty($getProductService)) {
+                return RestResponse::warning('Product service not found.');
             }
-            if($getTicketStatus['is_lock'] == 1){
-                return RestResponse::warning("You can't delete default ticket status.");
+            if($getProductService['is_lock'] == 1){
+                return RestResponse::warning("You can't delete default product service.");
             }
-            $getTicketStatus->delete();
-            return RestResponse::Success([],'Ticket status deleted successfully.');
+            $getProductService->delete();
+            return RestResponse::Success([],'Product service deleted successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }

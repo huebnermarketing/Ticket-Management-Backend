@@ -9,6 +9,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ContractType extends Model
 {
     use HasFactory,SoftDeletes;
-    protected $fillable = ['id','contract_name','created_at','updated_at'];
+    protected $fillable = ['id','contract_name','deleted_at','created_at','updated_at'];
 
 }

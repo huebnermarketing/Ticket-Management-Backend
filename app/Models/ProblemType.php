@@ -9,5 +9,5 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class ProblemType extends Model
 {
     use HasFactory,SoftDeletes;
-    protected $fillable = ['id','problem_name','created_at','updated_at'];
+    protected $fillable = ['id','problem_name','deleted_at','created_at','updated_at'];
 }

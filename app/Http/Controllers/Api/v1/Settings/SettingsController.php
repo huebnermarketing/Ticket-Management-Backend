@@ -4,12 +4,14 @@ namespace App\Http\Controllers\Api\v1\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\CompanySettings;
-use App\Models\ContractType;
 use App\Models\Currency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Validator;
 use RestResponse;
+use File;
+use Storage;
+
 class SettingsController extends Controller
 {
     private $perCompanySetting;
