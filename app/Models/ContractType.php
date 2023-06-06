@@ -8,6 +8,6 @@ use Illuminate\Database\Eloquent\Model;
 class ContractType extends Model
 {
     use HasFactory;
-    protected $fillable = ['id','contract_name','active_status','created_at','updated_at'];
+    protected $fillable = ['id','contract_name','is_active','created_at','updated_at'];
 
 }

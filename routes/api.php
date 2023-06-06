@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\Api\v1\Auth\AuthController;
 use App\Http\Controllers\Api\v1\CustomerController;
-use App\Http\Controllers\Api\v1\SettingsController;
+use App\Http\Controllers\Api\v1\Settings\ContractTypeController;
+use App\Http\Controllers\Api\v1\Settings\ProblemTypeController;
+use App\Http\Controllers\Api\v1\Settings\SettingsController;
 use App\Http\Controllers\Api\v1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -47,23 +49,31 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::post('update-user-profile/{id}', 'updateUserProfile');
         });
 
-        Route::group(['prefix' => 'settings', 'controller' => SettingsController::class], function () {
-            Route::prefix('company')->group(function () {
+        Route::group(['prefix' => 'settings'], function () {
+            Route::group(['prefix' => 'company', 'controller' => SettingsController::class], function () {
                 Route::get('get', 'getCompanySettings');
                 Route::post('update', 'updateCompanySettings');
             });
 
-            //Contract Type
-            Route::prefix('contract')->group(function () {
-                Route::post('add', 'addContractType');
-                Route::get('list', 'listAllContractType');
-                Route::get('edit/{id}', 'editContractType');
-                Route::post('update/{id}', 'updateContractType');
+            Route::group(['prefix' => 'contract-type', 'controller' => ContractTypeController::class], function () {
+                Route::post('add', 'store');
+                Route::get('list', 'index');
+                Route::get('edit/{id}', 'edit');
+                Route::post('update/{id}', 'update');
+                Route::delete('delete/{id}', 'destroy');
+            });
+
+            Route::group(['prefix' => 'problem-type', 'controller' => ProblemTypeController::class], function () {
+                Route::post('add', 'store');
+                Route::get('list', 'index');
+                Route::get('edit/{id}', 'edit');
+                Route::post('update/{id}', 'update');
+                Route::delete('delete/{id}', 'destroy');
             });
         });
 
         Route::group(['prefix' => 'customer', 'controller' => CustomerController::class], function () {
-            Route::post('create-customer', 'store');
+            Route::post('create', 'store');
         });
     });
 });

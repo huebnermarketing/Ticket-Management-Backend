@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\v1;
+namespace App\Http\Controllers\Api\v1\Settings;
 
 use App\Http\Controllers\Controller;
 use App\Models\CompanySettings;
@@ -119,49 +119,4 @@ class SettingsController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
-
-    public function addContractType(Request $request){
-        try{
-            $validate = Validator::make($request->all(), [
-                'contract_name' => 'required|unique:contract_types'
-            ]);
-            if ($validate->fails()) {
-                return RestResponse::validationError($validate->errors());
-            }
-            $contract['contract_name'] = $request['contract_name'];
-            $contract['active_status'] = "1";
-            $createContract = ContractType::create($contract);
-            if(!$createContract){
-                return RestResponse::warning('Contract create failed.');
-            }
-            return RestResponse::success([], 'Contract created successfully.');
-        }catch (\Exception $e) {
-            return RestResponse::error($e->getMessage(), $e);
-        }
-    }
-
-    public function listAllContractType(){
-        try{
-            $getAllContracts = ContractType::all();
-            if(empty($getAllContracts)){
-                return RestResponse::warning('No any Contract found.');
-            }
-            return RestResponse::success($getAllContracts,'Contract type list retrieve successfully.');
-        }catch (\Exception $e) {
-            return RestResponse::error($e->getMessage(), $e);
-        }
-    }
-
-    public function editContractType($id){
-        try{
-            $getContract = ContractType::find($id);
-            if(empty($getContract)){
-                return RestResponse::warning('Contract type not found.');
-            }
-            return RestResponse::success($getContract,'Contract typwretrieve successfully.');
-        }catch (\Exception $e) {
-            return RestResponse::error($e->getMessage(), $e);
-        }
-    }
-
 }
