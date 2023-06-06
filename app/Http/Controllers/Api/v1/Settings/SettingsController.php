@@ -20,18 +20,18 @@ class SettingsController extends Controller
     public function getCompanySettings(Request $request){
         try{
             if(Auth::user()->hasPermissionTo($this->perCompanySetting)){
-                $companyId= $request->query('company_id');
-                if(!empty($companyId)){
-                    $getCompanySetting = CompanySettings::where('id',$companyId)->first();
+                /*$companyId= $request->query('company_id');
+                if(!empty($companyId)){*/
+                    $getCompanySetting = CompanySettings::first();
                     if(empty($getCompanySetting)){
                         return RestResponse::warning('Company settings not found.');
                     }
                     $data['company_setting'] = $getCompanySetting;
                     $data['currency'] = Currency::where('active',1)->get();
                     return RestResponse::success($data, 'Company settings retrieve successfully.');
-                }else{
+                /*}else{
                     return RestResponse::warning('Company id is required.');
-                }
+                }*/
             } else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
@@ -45,7 +45,6 @@ class SettingsController extends Controller
         try{
             if(Auth::user()->hasPermissionTo($this->perCompanySetting)){
                 $validate = Validator::make($request->all(), [
-                    'user_id' => 'required',
                     'company_id' => 'required',
                     'company_name' => 'required',
                     'address_line1' => 'required',
@@ -80,6 +79,9 @@ class SettingsController extends Controller
                             return RestResponse::warning('Company logo upto 2 Mb max.', 422);
                         }
                         $extension = $logoUrl->getClientOriginalExtension();
+                        if (!in_array(strtolower($extension), array("png", "jpeg", "jpg", "gif", "svg"))) {
+                            return RestResponse::warning('Company logo must be a PNG, JPEG, GIF, SVG file.', 422);
+                        }
                         $imageName = time() . '-' . rand(0, 100) . '.' . $extension;
                         $s3 = Storage::disk('s3');
                         $filePath = 'company_logo/' . $imageName;
@@ -99,6 +101,9 @@ class SettingsController extends Controller
                             return RestResponse::warning('Company favicon upto 2 Mb max.', 422);
                         }
                         $extension = $faviconUrl->getClientOriginalExtension();
+                        if (!in_array(strtolower($extension), array("png", "jpeg", "jpg", "gif", "svg"))) {
+                            return RestResponse::warning('Company favicon must be a PNG, JPEG, GIF, SVG file.', 422);
+                        }
                         $imageName = time() . '-' . rand(0, 100) . '.' . $extension;
                         $s3 = Storage::disk('s3');
                         $filePath = 'company_favicon/' . $imageName;

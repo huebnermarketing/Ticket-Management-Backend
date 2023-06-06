@@ -104,7 +104,7 @@ class ProblemTypeController extends Controller
     {
         try{
             $validate = Validator::make($request->all(), [
-                'problem_name' => 'required|unique:problem_types,problem_name,'.$id,
+                'problem_name' => 'required|unique:problem_types,problem_name,'.$id.'NULL,id,deleted_at,NULL'
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
