@@ -24,7 +24,8 @@ return new class extends Migration
             $table->string('city')->nullable();
             $table->string('state')->nullable();
             $table->string('country')->nullable();
-            $table->string('currency')->nullable();
+            $table->unsignedInteger('currency_id')->nullable();
+            $table->foreign('currency_id')->references('id')->on('currencies');
             $table->timestamps();
         });
     }

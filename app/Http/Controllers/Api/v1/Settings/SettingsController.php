@@ -22,12 +22,12 @@ class SettingsController extends Controller
             if(Auth::user()->hasPermissionTo($this->perCompanySetting)){
                 /*$companyId= $request->query('company_id');
                 if(!empty($companyId)){*/
-                    $getCompanySetting = CompanySettings::first();
+                    $getCompanySetting = CompanySettings::with('currency')->first();
                     if(empty($getCompanySetting)){
                         return RestResponse::warning('Company settings not found.');
                     }
                     $data['company_setting'] = $getCompanySetting;
-                    $data['currency'] = Currency::where('active',1)->get();
+                    $data['all_currency'] = Currency::where('active',1)->get();
                     return RestResponse::success($data, 'Company settings retrieve successfully.');
                 /*}else{
                     return RestResponse::warning('Company id is required.');
@@ -53,7 +53,7 @@ class SettingsController extends Controller
                     'city' => 'required',
                     'state' => 'required',
                     'country' => 'required',
-                    'currency' => 'required',
+                    'currency_id' => 'required',
                 ]);
                 if ($validate->fails()) {
                     return RestResponse::validationError($validate->errors());
@@ -71,7 +71,7 @@ class SettingsController extends Controller
                 $getCompanySetting['city'] = $request['city'];
                 $getCompanySetting['state'] = $request['state'];
                 $getCompanySetting['country'] = $request['country'];
-                $getCompanySetting['currency'] = $request['currency'];
+                $getCompanySetting['currency_id'] = $request['currency_id'];
                 if(array_key_exists('company_logo',$request->all()) && !empty($request['company_logo'])){
                     $logoUrl = $request->file('company_logo');
                     if (!empty($logoUrl)) {

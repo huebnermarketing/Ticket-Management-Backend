@@ -9,7 +9,7 @@ class CompanySettings extends Model
 {
     use HasFactory;
     protected $fillable = ['id','user_id','company_name','company_logo','company_favicon','address_line1',
-        'area','zipcode','city','state','country','currency','created_at','updated_at'];
+        'area','zipcode','city','state','country','currency_id','created_at','updated_at'];
 
     public function getCompanyLogoAttribute(){
         $companyLogo = null;
@@ -25,5 +25,10 @@ class CompanySettings extends Model
             $companyFavicon = config('app.image_path')."company_favicon/".$this->attributes['company_favicon'];
         }
         return $companyFavicon;
+    }
+
+    public function currency()
+    {
+        return $this->hasOne(Currency::class,'id','currency_id');
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\v1\CustomerController;
 use App\Http\Controllers\Api\v1\Settings\ContractTypeController;
 use App\Http\Controllers\Api\v1\Settings\ProblemTypeController;
 use App\Http\Controllers\Api\v1\Settings\SettingsController;
+use App\Http\Controllers\Api\v1\Settings\TicketStatusController;
 use App\Http\Controllers\Api\v1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -71,7 +72,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
                 Route::delete('delete/{id}', 'destroy');
             });
 
-            Route::group(['prefix' => 'ticket-status', 'controller' => ProblemTypeController::class], function () {
+            Route::group(['prefix' => 'ticket-status', 'controller' => TicketStatusController::class], function () {
                 Route::post('add', 'store');
                 Route::get('list', 'index');
                 Route::get('edit/{id}', 'edit');

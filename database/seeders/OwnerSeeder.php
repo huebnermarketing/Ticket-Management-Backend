@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\CompanySettings;
+use App\Models\Currency;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -16,16 +17,16 @@ class OwnerSeeder extends Seeder
      */
     public function run()
     {
-        $companySetting = CompanySettings::create([
-            'company_name' => 'Systune Systems Services',
-            'address_line1' => '66, management enclave Shopping Center, Opp. Indraprasth bunglow',
-            'area' => 'Vastrapur',
-            'zipcode' => '380015',
-            'city' => 'Ahmedabad',
-            'state' => 'Gujarat',
-            'country' => 'India',
-            'currency' => 'INR'
-        ]);
+        $getCurrency = Currency::where('code','INR')->first();
+        $setting['company_name'] = 'Systune Systems Services';
+        $setting['address_line1'] = '66, management enclave Shopping Center, Opp. Indraprasth bunglow';
+        $setting['area'] = 'Vastrapur';
+        $setting['zipcode'] = '380015';
+        $setting['city'] = 'Ahmedabad';
+        $setting['state'] = 'Gujarat';
+        $setting['country'] = 'India';
+        $setting['currency_id'] = (!empty($getCurrency)) ? $getCurrency : null;
+        $companySetting = CompanySettings::create($setting);
 
         $ownerData = [
           'first_name' => 'Owner',
