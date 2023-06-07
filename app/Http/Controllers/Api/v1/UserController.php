@@ -256,12 +256,13 @@ class UserController extends Controller
                 if ($validate->fails()) {
                     return RestResponse::validationError($validate->errors());
                 }
+                $limit = isset($request->total_record) ? $request->total_record : config('constant.PAGINATION_RECORD');
                 $searchUser = User::where(function ($qry) use($request){
                     $qry->orWhere('first_name', 'LIKE', '%' . $request->search_key . '%');
                     $qry->orWhere('last_name', 'LIKE', '%' . $request->search_key . '%');
                     $qry->orWhere('phone', 'LIKE', '%' . $request->search_key . '%');
                     $qry->orWhere('email', 'LIKE', '%' . $request->search_key . '%');
-                })->get();
+                })->paginate($limit);
                 if(count($searchUser) < 0){
                     return RestResponse::warning('No any search result found.');
                 }

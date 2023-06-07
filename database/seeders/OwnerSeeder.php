@@ -29,7 +29,8 @@ class OwnerSeeder extends Seeder
         $companySetting = CompanySettings::create($setting);
 
         $ownerData = [
-          'first_name' => 'Owner',
+          'first_name' => 'Sarah',
+          'last_name' => 'Danforth',
           'email' => 'owner@gmail.com',
           'password' => app('hash')->make('123456'),
           'phone' => '9879205700 ',

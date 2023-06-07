@@ -22,9 +22,22 @@ class CustomerController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        try{
+            $filters = [
+                'total_record' => $request->total_record,
+                'order_by' => $request->order_by,
+                'sort_value' => $request->sort_value
+            ];
+            $getAllCustomer = $this->customerRepository->getCustomers($filters);
+            if(empty($getAllCustomer)){
+                return RestResponse::warning('Customer not found.');
+            }
+            return RestResponse::Success($getAllCustomer, 'Customers retrieve successfully.');
+        } catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
     }
 
     /**
@@ -46,8 +59,6 @@ class CustomerController extends Controller
     public function store(Request $request)
     {
        try{
-           info('inside request---');
-           info($request);
            DB::beginTransaction();
            $validate = Validator::make($request->all(), [
                'first_name' => 'required',
