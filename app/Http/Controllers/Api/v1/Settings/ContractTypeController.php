@@ -5,10 +5,16 @@ namespace App\Http\Controllers\Api\v1\Settings;
 use App\Http\Controllers\Controller;
 use App\Models\ContractType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Validator;
 use RestResponse;
 class ContractTypeController extends Controller
 {
+    private $perContractCRUD;
+    public function __construct()
+    {
+        $this->perContractCRUD = config('constant.PERMISSION_CONTRACT_TYPE_CRUD');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -17,11 +23,15 @@ class ContractTypeController extends Controller
     public function index()
     {
         try{
-            $getAllContracts = ContractType::all();
-            if(empty($getAllContracts)){
-                return RestResponse::warning('No any Contract found.');
+            if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                $getAllContracts = ContractType::all();
+                if(empty($getAllContracts)){
+                    return RestResponse::warning('No any Contract found.');
+                }
+                return RestResponse::success($getAllContracts,'Contract type list retrieve successfully.');
+            } else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
-            return RestResponse::success($getAllContracts,'Contract type list retrieve successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -46,17 +56,21 @@ class ContractTypeController extends Controller
     public function store(Request $request)
     {
         try{
-            $validate = Validator::make($request->all(), [
-                'contract_name' => 'required|unique:contract_types,contract_name,NULL,id,deleted_at,NULL'
-            ]);
-            if ($validate->fails()) {
-                return RestResponse::validationError($validate->errors());
+            if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                $validate = Validator::make($request->all(), [
+                    'contract_name' => 'required|unique:contract_types,contract_name,NULL,id,deleted_at,NULL'
+                ]);
+                if ($validate->fails()) {
+                    return RestResponse::validationError($validate->errors());
+                }
+                $createContract = ContractType::create(['contract_name' => $request['contract_name']]);
+                if(!$createContract){
+                    return RestResponse::warning('Contract create failed.');
+                }
+                return RestResponse::success([], 'Contract created successfully.');
+            } else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
-            $createContract = ContractType::create(['contract_name' => $request['contract_name']]);
-            if(!$createContract){
-                return RestResponse::warning('Contract create failed.');
-            }
-            return RestResponse::success([], 'Contract created successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -82,11 +96,15 @@ class ContractTypeController extends Controller
     public function edit($id)
     {
         try{
-            $getContract = ContractType::find($id);
-            if(empty($getContract)){
-                return RestResponse::warning('Contract type not found.');
+            if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                $getContract = ContractType::find($id);
+                if(empty($getContract)){
+                    return RestResponse::warning('Contract type not found.');
+                }
+                return RestResponse::success($getContract,'Contract retrieve successfully.');
+            } else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
-            return RestResponse::success($getContract,'Contract retrieve successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -102,21 +120,25 @@ class ContractTypeController extends Controller
     public function update(Request $request, $id)
     {
         try{
-            $validate = Validator::make($request->all(), [
-                'contract_name' => 'required|unique:contract_types,contract_name,'.$id.'NULL,id,deleted_at,NULL'
-            ]);
-            if ($validate->fails()) {
-                return RestResponse::validationError($validate->errors());
-            }
+            if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                $validate = Validator::make($request->all(), [
+                    'contract_name' => 'required|unique:contract_types,contract_name,'.$id.'NULL,id,deleted_at,NULL'
+                ]);
+                if ($validate->fails()) {
+                    return RestResponse::validationError($validate->errors());
+                }
 
-            $findContract = ContractType::find($id);
-            if(empty($findContract)){
-                return RestResponse::warning('Contract type not found.');
-            }
+                $findContract = ContractType::find($id);
+                if(empty($findContract)){
+                    return RestResponse::warning('Contract type not found.');
+                }
 
-            $findContract['contract_name'] = $request['contract_name'];
-            $findContract->save();
-            return RestResponse::success([], 'Contract updated successfully.');
+                $findContract['contract_name'] = $request['contract_name'];
+                $findContract->save();
+                return RestResponse::success([], 'Contract updated successfully.');
+            } else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
+            }
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -131,12 +153,16 @@ class ContractTypeController extends Controller
     public function destroy($id)
     {
         try{
-            $getContractType = ContractType::find($id);
-            if (empty($getContractType)) {
-                return RestResponse::warning('Contract type not found.');
+            if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                $getContractType = ContractType::find($id);
+                if (empty($getContractType)) {
+                    return RestResponse::warning('Contract type not found.');
+                }
+                $getContractType->delete();
+                return RestResponse::Success([],'Contract type deleted successfully.');
+            } else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
-            $getContractType->delete();
-            return RestResponse::Success([],'Contract type deleted successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }

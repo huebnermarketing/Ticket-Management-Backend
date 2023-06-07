@@ -5,10 +5,16 @@ namespace App\Http\Controllers\Api\v1\Settings;
 use App\Http\Controllers\Controller;
 use App\Models\ProblemType;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Validator;
 use RestResponse;
 class ProblemTypeController extends Controller
 {
+    private $perProblemType;
+    public function __construct()
+    {
+        $this->perProblemType = config('constant.PERMISSION_PROBLEM_TYPE_CRUD');
+    }
     /**
      * Display a listing of the resource.
      *
@@ -17,11 +23,15 @@ class ProblemTypeController extends Controller
     public function index()
     {
         try{
-            $getAllProblemType = ProblemType::all();
-            if(empty($getAllProblemType)){
-                return RestResponse::warning('Problem type not found.');
+            if(Auth::user()->hasPermissionTo($this->perProblemType)) {
+                $getAllProblemType = ProblemType::all();
+                if(empty($getAllProblemType)){
+                    return RestResponse::warning('Problem type not found.');
+                }
+                return RestResponse::success($getAllProblemType,'Problem type list retrieve successfully.');
+            }else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
-            return RestResponse::success($getAllProblemType,'Problem type list retrieve successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -46,17 +56,21 @@ class ProblemTypeController extends Controller
     public function store(Request $request)
     {
         try{
-            $validate = Validator::make($request->all(), [
-                'problem_name' => 'required|unique:problem_types,problem_name,NULL,id,deleted_at,NULL'
-            ]);
-            if ($validate->fails()) {
-                return RestResponse::validationError($validate->errors());
+            if(Auth::user()->hasPermissionTo($this->perProblemType)) {
+                $validate = Validator::make($request->all(), [
+                    'problem_name' => 'required|unique:problem_types,problem_name,NULL,id,deleted_at,NULL'
+                ]);
+                if ($validate->fails()) {
+                    return RestResponse::validationError($validate->errors());
+                }
+                $create = ProblemType::create(['problem_name' => $request['problem_name']]);
+                if(!$create){
+                    return RestResponse::warning('Problem type create failed.');
+                }
+                return RestResponse::success([], 'Problem type created successfully.');
+            }else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
-            $create = ProblemType::create(['problem_name' => $request['problem_name']]);
-            if(!$create){
-                return RestResponse::warning('Problem type create failed.');
-            }
-            return RestResponse::success([], 'Problem type created successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -82,11 +96,15 @@ class ProblemTypeController extends Controller
     public function edit($id)
     {
         try{
-            $getProblemType = ProblemType::find($id);
-            if(empty($getProblemType)){
-                return RestResponse::warning('Problem type not found.');
+            if(Auth::user()->hasPermissionTo($this->perProblemType)) {
+                $getProblemType = ProblemType::find($id);
+                if(empty($getProblemType)){
+                    return RestResponse::warning('Problem type not found.');
+                }
+                return RestResponse::success($getProblemType,'Problem type retrieve successfully.');
+            }else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
-            return RestResponse::success($getProblemType,'Problem type retrieve successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -102,21 +120,25 @@ class ProblemTypeController extends Controller
     public function update(Request $request, $id)
     {
         try{
-            $validate = Validator::make($request->all(), [
-                'problem_name' => 'required|unique:problem_types,problem_name,'.$id.'NULL,id,deleted_at,NULL'
-            ]);
-            if ($validate->fails()) {
-                return RestResponse::validationError($validate->errors());
-            }
+            if(Auth::user()->hasPermissionTo($this->perProblemType)) {
+                $validate = Validator::make($request->all(), [
+                    'problem_name' => 'required|unique:problem_types,problem_name,'.$id.'NULL,id,deleted_at,NULL'
+                ]);
+                if ($validate->fails()) {
+                    return RestResponse::validationError($validate->errors());
+                }
 
-            $findProblemType = ProblemType::find($id);
-            if(empty($findProblemType)){
-                return RestResponse::warning('Problem type not found.');
-            }
+                $findProblemType = ProblemType::find($id);
+                if(empty($findProblemType)){
+                    return RestResponse::warning('Problem type not found.');
+                }
 
-            $findProblemType['problem_name'] = $request['problem_name'];
-            $findProblemType->save();
-            return RestResponse::success([], 'Problem type updated successfully.');
+                $findProblemType['problem_name'] = $request['problem_name'];
+                $findProblemType->save();
+                return RestResponse::success([], 'Problem type updated successfully.');
+            }else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
+            }
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
@@ -131,12 +153,16 @@ class ProblemTypeController extends Controller
     public function destroy($id)
     {
         try{
-            $getProblemType = ProblemType::find($id);
-            if (empty($getProblemType)) {
-                return RestResponse::warning('Problem type not found.');
+            if(Auth::user()->hasPermissionTo($this->perProblemType)) {
+                $getProblemType = ProblemType::find($id);
+                if (empty($getProblemType)) {
+                    return RestResponse::warning('Problem type not found.');
+                }
+                $getProblemType->delete();
+                return RestResponse::Success([],'Problem type deleted successfully.');
+            }else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
-            $getProblemType->delete();
-            return RestResponse::Success([],'Problem type deleted successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }

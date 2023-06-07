@@ -22,7 +22,11 @@ return [
         ['name' => 'user-crud','permission_slug' => 'user-crud','display_name'=>'User CRUD','guard_name' => 'api'],
         ['name' => 'company-setting','permission_slug' => 'company-setting','display_name'=>'Company Setting','guard_name' => 'api'],
         ['name' => 'user-profile','permission_slug' => 'user-profile','display_name'=>'User Profile','guard_name' => 'api'],
-        ['name' => 'customer-crud','permission_slug' => 'customer-management','display_name'=>'Customer Management','guard_name' => 'api'],
+        ['name' => 'customer-crud','permission_slug' => 'customer-crud','display_name'=>'Customer CRUD','guard_name' => 'api'],
+        ['name' => 'contract-type-crud','permission_slug' => 'contract-type-crud','display_name'=>'Contract Type CRUD','guard_name' => 'api'],
+        ['name' => 'problem-type-crud','permission_slug' => 'problem-type-crud','display_name'=>'Problem Type CRUD','guard_name' => 'api'],
+        ['name' => 'ticket-status-crud','permission_slug' => 'ticket-status-crud','display_name'=>'Ticket Status CRUD','guard_name' => 'api'],
+        ['name' => 'product-services-crud','permission_slug' => 'product-services-crud','display_name'=>'Product Services CRUD','guard_name' => 'api'],
     ],
 
     //Permissions
@@ -31,6 +35,10 @@ return [
     'PERMISSION_COMPANY_SETTING' => 'company-setting',
     'PERMISSION_USER_PROFILE' => 'user-profile',
     'PERMISSION_CUSTOMER_CRUD' => 'customer-crud',
+    'PERMISSION_CONTRACT_TYPE_CRUD' => 'contract-type-crud',
+    'PERMISSION_PROBLEM_TYPE_CRUD' => 'problem-type-crud',
+    'PERMISSION_TICKET_STATUS_CRUD' => 'ticket-status-crud',
+    'PERMISSION_PRODUCT_SERVICES_CRUD' => 'product-services-crud',
 ];
 
 ?>

@@ -26,6 +26,10 @@ class RolePermissionSeeder extends Seeder
                 config('constant.PERMISSION_USER_CRUD'),
                 config('constant.PERMISSION_COMPANY_SETTING'),
                 config('constant.PERMISSION_USER_PROFILE'),
+                config('constant.PERMISSION_CONTRACT_TYPE_CRUD'),
+                config('constant.PERMISSION_PROBLEM_TYPE_CRUD'),
+                config('constant.PERMISSION_TICKET_STATUS_CRUD'),
+                config('constant.PERMISSION_PRODUCT_SERVICES_CRUD'),
             ];
             $getAdminRole->syncPermissions($adminPermissions);
         }
@@ -38,6 +42,10 @@ class RolePermissionSeeder extends Seeder
                 config('constant.PERMISSION_USER_CRUD'),
                 config('constant.PERMISSION_COMPANY_SETTING'),
                 config('constant.PERMISSION_USER_PROFILE'),
+                config('constant.PERMISSION_CONTRACT_TYPE_CRUD'),
+                config('constant.PERMISSION_PROBLEM_TYPE_CRUD'),
+                config('constant.PERMISSION_TICKET_STATUS_CRUD'),
+                config('constant.PERMISSION_PRODUCT_SERVICES_CRUD'),
             ];
             $getOwnerRole->syncPermissions($ownerPermissions);
         }
