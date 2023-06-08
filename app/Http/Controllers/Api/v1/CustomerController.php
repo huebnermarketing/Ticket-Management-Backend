@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
+use App\Models\CustomerLocations;
 use App\Repositories\Customer\CustomerRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -71,6 +72,7 @@ class CustomerController extends Controller
                 'addresses.*.city' => 'required',
                 'addresses.*.zipcode' => 'required|min:4|max:8',
                 'addresses.*.country' => 'required',
+                'addresses.*.state' => 'required',
                 'addresses.*.is_primary' => 'required',
            ]);
            if ($validate->fails()) {
@@ -131,7 +133,29 @@ class CustomerController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        try {
+            DB::beginTransaction();
+            $validate = Validator::make($request->all(), [
+                'first_name' => 'required',
+                'last_name' => 'required',
+                'email' => 'required|email',
+                'primary_mobile' => 'required',
+                'primary_address_id' => 'required'
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+
+            $updateCustomer = $this->customerRepository->updateCustomer($request,$id);
+            if(!$updateCustomer){
+                return RestResponse::warning('Customer update failed.');
+            }
+            DB::commit();
+            return RestResponse::Success([],'Customer updated successfully.');
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return RestResponse::error($e->getMessage(), $e);
+        }
     }
 
     /**
@@ -142,6 +166,73 @@ class CustomerController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $customer = $this->customerRepository->findCustomer($id);
+        if (empty($customer)) {
+            return RestResponse::warning('Customer not found.');
+        }
+        $customer->delete();
+        return RestResponse::Success([],'Customer deleted successfully.');
+    }
+
+    public function addCustomerAddress(Request $request)
+    {
+        try{
+            $validate = Validator::make($request->all(), [
+                'address_line1' => 'required',
+                'company_name' => 'required',
+                'area' => 'required',
+                'city' => 'required',
+                'zipcode' => 'required|min:4|max:8',
+                'state' => 'required',
+                'country' => 'required',
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $addAddress = $this->customerRepository->addAddress($request->all());
+            if(!$addAddress){
+                return RestResponse::warning('Customer address create failed.');
+            }
+            return RestResponse::Success([],'Customer address added successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function updateCustomerAddress(Request $request,$id){
+        try{
+            $validate = Validator::make($request->all(), [
+                'address_line1' => 'required',
+                'company_name' => 'required',
+                'area' => 'required',
+                'city' => 'required',
+                'zipcode' => 'required|min:4|max:8',
+                'state' => 'required',
+                'country' => 'required'
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $addAddress = $this->customerRepository->updateAddress($request->all(),$id);
+            if(!$addAddress){
+                return RestResponse::warning('Customer address update failed.');
+            }
+            return RestResponse::Success([],'Customer address updated successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function deleteCustomerAddress($id){
+        try{
+            $customer = $this->customerRepository->findAddress($id);
+            if (empty($customer)) {
+                return RestResponse::warning('Customer not found.');
+            }
+            $customer->delete();
+            return RestResponse::Success([],'Customer deleted successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
     }
 }

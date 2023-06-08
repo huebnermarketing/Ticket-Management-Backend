@@ -202,7 +202,7 @@ class UserController extends Controller
                     return RestResponse::warning('User update failed.');
                 }
                 DB::commit();
-                return RestResponse::Success([],'User updated successfully.');
+                return RestResponse::Success($updateUser,'User updated successfully.');
             }else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }

@@ -94,6 +94,14 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::post('create', 'store');
             Route::get('list', 'index');
             Route::get('edit/{id}', 'edit');
+            Route::post('update/{id}', 'update');
+            Route::delete('delete/{id}', 'destroy');
+
+            Route::group(['prefix' => 'address'], function () {
+                Route::post('add', 'addCustomerAddress');
+                Route::post('update/{id}', 'updateCustomerAddress');
+                Route::delete('delete/{id}', 'deleteCustomerAddress');
+            });
         });
     });
 });

@@ -55,4 +55,62 @@ class CustomerRepository implements CustomerRepositoryInterface
     {
         return Customers::with(['locations','phones'])->find($id);
     }
+
+    public function updateCustomer($data,$customerId)
+    {
+        $getCustomer = $this->findCustomer($customerId);
+        if (empty($getCustomer)) {
+            return RestResponse::warning('Customer not found.');
+        }
+        //Update Customer
+        $getCustomer['first_name'] = $data['first_name'];
+        $getCustomer['last_name'] = $data['last_name'];
+        $getCustomer['email'] = $data['email'];
+        $updateCustomer = $getCustomer->save();
+        //Delete Customer Phones
+        $deletePhones = CustomerPhones::where('customer_id',$customerId)->delete();
+        //Create Customer Phones
+        $this->createPhone($data['primary_mobile'], $customerId,1);
+        if(array_key_exists('alternate_mobile',$data->all()) && count($data['alternate_mobile']) > 0){
+            foreach($data['alternate_mobile'] as $phone){
+                $this->createPhone($phone, $customerId,0);
+            }
+        }
+        //Update Customer Primary Address
+        foreach ($getCustomer['locations'] as $address) {
+            if ($address->id === $data['primary_address_id']) {
+                $address->is_primary = true;
+            } else {
+                $address->is_primary = false;
+            }
+            $address->save();
+        }
+        return true;
+    }
+
+    public function findAddress($id)
+    {
+        return CustomerLocations::find($id);
+    }
+
+    public function addAddress($data)
+    {
+        return CustomerLocations::create($data);
+    }
+
+    public function updateAddress($data,$addressId)
+    {
+        $getAddress = $this->findAddress($addressId);
+        if (empty($getAddress)) {
+            return RestResponse::warning('Customer address not found.');
+        }
+        $getAddress['address_line1'] = $data['address_line1'];
+        $getAddress['company_name'] = $data['company_name'];
+        $getAddress['area'] = $data['area'];
+        $getAddress['city'] = $data['city'];
+        $getAddress['zipcode'] = $data['zipcode'];
+        $getAddress['state'] = $data['state'];
+        $getAddress['country'] = $data['country'];
+        return $getAddress->save();
+    }
 }

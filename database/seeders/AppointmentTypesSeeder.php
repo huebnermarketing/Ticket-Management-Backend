@@ -15,7 +15,7 @@ class AppointmentTypesSeeder extends Seeder
      */
     public function run()
     {
-        $appointmentType = ['On site','Our Office','Phone Call','Remote Support','aa','ccc'];
+        $appointmentType = ['On site','Our Office','Phone Call','Remote Support'];
         $clientAppointmentType = ['Remote Support'];
 
         $getSeederType = config('constant.SEEDER_TYPE');
