@@ -69,7 +69,7 @@ class CustomerController extends Controller
                 'addresses.*.company_name' => 'required',
                 'addresses.*.area' => 'required',
                 'addresses.*.city' => 'required',
-                'addresses.*.zipcode' => 'required',
+                'addresses.*.zipcode' => 'required|min:4|max:8',
                 'addresses.*.country' => 'required',
                 'addresses.*.is_primary' => 'required',
            ]);
@@ -108,7 +108,18 @@ class CustomerController extends Controller
      */
     public function edit($id)
     {
-        //
+        try{
+            if(empty($id)){
+                return RestResponse::warning('Id not found. Must pass in URL.');
+            }
+            $getCustomer = $this->customerRepository->findCustomer($id);
+            if(empty($getCustomer)){
+                return RestResponse::warning('Customer not found.');
+            }
+            return RestResponse::Success($getCustomer,'Customer retrieve successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
     }
 
     /**

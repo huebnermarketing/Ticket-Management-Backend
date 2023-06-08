@@ -19,7 +19,7 @@ class UserRepository implements UserRepositoryInterface
         $sortValue = (!empty($filters) && array_key_exists('sort_value',$filters) && !empty($filters['sort_value'])) ? $filters['sort_value'] : 'email';
         $orderBy = (!empty($filters) && array_key_exists('order_by',$filters)) && !empty($filters['order_by']) ? $filters['order_by'] : 'DESC';
         $pageLimit = (!empty($filters) && array_key_exists('total_record',$filters)) && !empty($filters['total_record']) ? $filters['total_record'] : config('constant.PAGINATION_RECORD');
-        return User::with('role')->where(['is_active' => 1 ,'is_verified' =>1])->orderBy($sortValue,$orderBy)->paginate($pageLimit);
+        return User::with('role')->orderBy($sortValue,$orderBy)->paginate($pageLimit);
     }
     public function storeUser($data)
     {

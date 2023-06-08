@@ -180,6 +180,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         Laravel\Passport\PassportServiceProvider::class,
         App\Providers\RestResourceProvider::class,
+        App\Providers\CompanyNameServiceProvider::class,
     ],
 
     /*

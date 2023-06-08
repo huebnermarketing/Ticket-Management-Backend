@@ -51,7 +51,7 @@ class SettingsController extends Controller
                     'company_name' => 'required',
                     'address_line1' => 'required',
                     'area' => 'required',
-                    'zipcode' => 'required',
+                    'zipcode' => 'required|min:4|max:8',
                     'city' => 'required',
                     'state' => 'required',
                     'country' => 'required',

@@ -47,7 +47,7 @@ class AuthController extends Controller
 
                 $getUser = User::where('email', '=', $credentials['email'])->first();
                 if ($getUser['is_verified'] == 0){
-                    return RestResponse::warning('An Account has already been registered, but was never verified. Please verify your account.', 422);
+                    return RestResponse::warning('An account has already been registered, but was never verified. please verify your account.', 422);
                 }
                 $user = Auth::user();
                 $response['access_token'] = $user->createToken('Api Token')->accessToken;
@@ -98,11 +98,13 @@ class AuthController extends Controller
                         'token' => $email_token
                     ]);
                     $resetPasswordLink = config('constant.FRONTEND_URL') . '/reset-password?token=' . $email_token;
+                    $data['reset_pwd_link'] = $resetPasswordLink;
+                    $data['user_name'] = $checkUser['first_name'];
                     $toUserEmail = $checkUser->email;
 
-                    Mail::to($toUserEmail)->send(new SendPasswordVerificationLink($resetPasswordLink));
+                    Mail::to($toUserEmail)->send(new SendPasswordVerificationLink($data));
 
-                    return RestResponse::success([], 'You will receive a link to reset your password to your email.');
+                    return RestResponse::success([], 'You will receive a link to reset your password.');
                 } else {
                     return RestResponse::warning('No such email found.', 422);
                 }
@@ -168,7 +170,7 @@ class AuthController extends Controller
                         'password' => Hash::make($request->password)
                     ]);
                     $token->delete();
-                    return RestResponse::success([], 'New password has been set successfully to User.');
+                    return RestResponse::success([], 'New password has been set successfully.');
                 }
                 return RestResponse::warning(config('constant.SOMETHING_WENT_WRONG_ERROR'));
             } else {
@@ -196,7 +198,7 @@ class AuthController extends Controller
                 }
                 $getUser['password'] = Hash::make($request->password);
                 $getUser->save();
-                return RestResponse::success([], 'Password has been reset successfully to User.');
+                return RestResponse::success([], 'Password has been reset successfully.');
             } else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }

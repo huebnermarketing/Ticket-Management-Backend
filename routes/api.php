@@ -93,6 +93,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
         Route::group(['prefix' => 'customer', 'controller' => CustomerController::class], function () {
             Route::post('create', 'store');
             Route::get('list', 'index');
+            Route::get('edit/{id}', 'edit');
         });
     });
 });

@@ -41,24 +41,18 @@ class CustomerRepository implements CustomerRepositoryInterface
         $sortValue = (!empty($filters) && array_key_exists('sort_value',$filters) && !empty($filters['sort_value'])) ? $filters['sort_value'] : 'email';
         $orderBy = (!empty($filters) && array_key_exists('order_by',$filters)) && !empty($filters['order_by']) ? $filters['order_by'] : 'DESC';
         $pageLimit = (!empty($filters) && array_key_exists('total_record',$filters)) && !empty($filters['total_record']) ? $filters['total_record'] : config('constant.PAGINATION_RECORD');
-//        return Customers::with([
-//            'locations' => function($query){
-//                $query->where('is_primary',1);
-//            },
-//            'phones' => function($query){
-//                $query->where('is_primary',1);
-//            }
-//            ])->orderBy($sortValue,$orderBy)->paginate($pageLimit);
 
-
-        $aa = Customers::select('customers.id','customers.first_name','customers.last_name',
-                'customers.id','customers.id','customers.id',
-            'customers.id')
+        return Customers::select('customers.id','customers.first_name','customers.last_name',
+                'customer_phones.phone','customers.email','customer_locations.company_name')
             ->join('customer_locations', 'customers.id', 'customer_locations.customer_id')
             ->join('customer_phones', 'customers.id', 'customer_phones.customer_id')
             ->where('customer_locations.is_primary',1)
             ->where('customer_phones.is_primary',1)
-            ->paginate($pageLimit);
-        dd($aa->toArray());
+            ->orderBy($sortValue,$orderBy)->paginate($pageLimit);
+    }
+
+    public function findCustomer($id)
+    {
+        return Customers::with(['locations','phones'])->find($id);
     }
 }
