@@ -96,6 +96,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::get('edit/{id}', 'edit');
             Route::post('update/{id}', 'update');
             Route::delete('delete/{id}', 'destroy');
+            Route::post('search', 'searchCustomer');
 
             Route::group(['prefix' => 'address'], function () {
                 Route::post('add', 'addCustomerAddress');
