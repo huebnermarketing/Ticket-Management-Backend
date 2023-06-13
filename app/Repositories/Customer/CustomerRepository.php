@@ -6,6 +6,7 @@ use App\Models\CustomerLocations;
 use App\Models\CustomerPhones;
 use App\Models\Customers;
 use App\Repositories\Customer\CustomerRepositoryInterface;
+use RestResponse;
 class CustomerRepository implements CustomerRepositoryInterface
 {
     public function storeCustomer($data)
@@ -22,11 +23,14 @@ class CustomerRepository implements CustomerRepositoryInterface
                 $this->createPhone($phone, $customerId,0);
             }
         }
-        foreach ($data['addresses'] as $address){
-            $address['customer_id'] = $customerId;
-            CustomerLocations::create($address);
+
+        if(array_key_exists('addresses',$data)){
+            foreach ($data['addresses'] as $address){
+                $address['customer_id'] = $customerId;
+                CustomerLocations::create($address);
+            }
         }
-        return $customer;
+        return $createCustomer;
     }
 
     public function createPhone($phone, $customerId,$is_primary){
@@ -66,7 +70,31 @@ class CustomerRepository implements CustomerRepositoryInterface
         $getCustomer['first_name'] = $data['first_name'];
         $getCustomer['last_name'] = $data['last_name'];
         $getCustomer['email'] = $data['email'];
-        $updateCustomer = $getCustomer->save();
+        return $getCustomer->save();
+    }
+
+    public function updatePrimaryLocations($data,$customerId)
+    {
+        $getCustomer = $this->findCustomer($customerId);
+        if (empty($getCustomer)) {
+            return RestResponse::warning('Customer not found.');
+        }
+        //Update Customer Primary Address
+        if(array_key_exists('primary_address_id',$data)){
+            foreach ($getCustomer['locations'] as $address) {
+                if ($address->id === $data['primary_address_id']) {
+                    $address->is_primary = true;
+                } else {
+                    $address->is_primary = false;
+                }
+                $address->save();
+            }
+        }
+        return ;
+    }
+
+    public function updateCustomerPhones($data,$customerId)
+    {
         //Delete Customer Phones
         $deletePhones = CustomerPhones::where('customer_id',$customerId)->delete();
         //Create Customer Phones
@@ -76,16 +104,7 @@ class CustomerRepository implements CustomerRepositoryInterface
                 $this->createPhone($phone, $customerId,0);
             }
         }
-        //Update Customer Primary Address
-        foreach ($getCustomer['locations'] as $address) {
-            if ($address->id === $data['primary_address_id']) {
-                $address->is_primary = true;
-            } else {
-                $address->is_primary = false;
-            }
-            $address->save();
-        }
-        return true;
+        return;
     }
 
     public function findAddress($id)

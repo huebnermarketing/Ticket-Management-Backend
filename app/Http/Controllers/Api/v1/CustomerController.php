@@ -163,9 +163,8 @@ class CustomerController extends Controller
                 }
 
                 $updateCustomer = $this->customerRepository->updateCustomer($request,$id);
-                if(!$updateCustomer){
-                    return RestResponse::warning('Customer update failed.');
-                }
+                $updateCustomerPhones = $this->customerRepository->updateCustomerPhones($request,$id);
+                $updatePrimaryLocations = $this->customerRepository->updatePrimaryLocations($request,$id);
                 DB::commit();
                 return RestResponse::Success([],'Customer updated successfully.');
             }else {
@@ -262,6 +261,18 @@ class CustomerController extends Controller
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
+    }
+
+    public function getCustomerAddress($customerId){
+        try{
+            $getCustomer = CustomerLocations::where('customer_id',$customerId)->get();
+            if(count($getCustomer) <= 0){
+                return RestResponse::warning('No any customer address found.');
+            }
+            return RestResponse::Success($getCustomer,'Customer address retrieve successfully.');
+        }catch (\Exception $e) {
+        }
+        return RestResponse::error($e->getMessage(), $e);
     }
 
     public function updateCustomerAddress(Request $request,$id){

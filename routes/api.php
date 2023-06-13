@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\v1\Settings\ProblemTypeController;
 use App\Http\Controllers\Api\v1\Settings\ProductServiceController;
 use App\Http\Controllers\Api\v1\Settings\SettingsController;
 use App\Http\Controllers\Api\v1\Settings\TicketStatusController;
+use App\Http\Controllers\Api\v1\Ticket\TicketController;
 use App\Http\Controllers\Api\v1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -100,9 +101,16 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
 
             Route::group(['prefix' => 'address'], function () {
                 Route::post('add', 'addCustomerAddress');
+                Route::get('get/{id}', 'getCustomerAddress');
                 Route::post('update/{id}', 'updateCustomerAddress');
                 Route::delete('delete/{id}', 'deleteCustomerAddress');
             });
+        });
+
+        Route::group(['prefix' => 'ticket', 'controller' => TicketController::class], function () {
+            Route::get('get-detail', 'show');
+            Route::post('create', 'store');
+            Route::get('list', 'index');
         });
     });
 });

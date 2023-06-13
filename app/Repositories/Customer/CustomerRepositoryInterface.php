@@ -7,6 +7,8 @@ Interface CustomerRepositoryInterface{
     public function getCustomers($filters);
     public function findCustomer($id);
     public function updateCustomer($data, $customerId);
+    public function updatePrimaryLocations($data, $customerId);
+    public function updateCustomerPhones($data, $customerId);
 
     public function addAddress($data);
     public function updateAddress($data,$addressId);

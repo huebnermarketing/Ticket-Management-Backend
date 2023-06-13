@@ -109,7 +109,7 @@ class UserController extends Controller
                 $mailData['password'] = $request['password'];
                 Mail::to($request['email'])->send(new UserCreateSendPassword($mailData));
 
-                return RestResponse::Success([],'User created successfully.');
+                return RestResponse::Success($storeUser,'User created successfully.');
             } else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
