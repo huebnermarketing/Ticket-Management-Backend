@@ -10,12 +10,14 @@ use App\Models\CustomerPhones;
 use App\Models\Customers;
 use App\Models\PaymentTypes;
 use App\Models\ProblemType;
+use App\Models\TicketComments;
 use App\Models\Tickets;
 use App\Models\TicketStatus;
 use App\Models\User;
 use App\Repositories\Customer\CustomerRepositoryInterface;
 use App\Repositories\Ticket\TicketRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -47,11 +49,6 @@ class TicketController extends Controller
         return $slugNumber;
     }
 
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
         try{
@@ -72,22 +69,11 @@ class TicketController extends Controller
         }
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
         //
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
         try {
@@ -161,6 +147,7 @@ class TicketController extends Controller
             if(!$createTicket){
                 return RestResponse::warning('Ticket create failed.');
             }
+
             $findUser = $this->userRepository->findUser($request['assigned_user_id']);
             $authUser = Auth::user();
             $mailData = [
@@ -181,12 +168,7 @@ class TicketController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+
     public function show()
     {
         try{
@@ -208,37 +190,117 @@ class TicketController extends Controller
         }
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
+    public function view($ticketId)
+    {
+        try{
+            $getTicket = Tickets::with('comments')->where('id',$ticketId)->ticketRelations()->first();
+            if(empty($getTicket)){
+                return RestResponse::warning('Ticket not found.');
+            }
+            $ticketData = [
+              'ticket_detail' => $getTicket,
+              'ticket_status' => TicketStatus::all(),
+            ];
+            return RestResponse::Success($ticketData, 'Ticket details retrieve successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
     public function edit($id)
     {
         //
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
     public function update(Request $request, $id)
+    {
+        try{
+            DB::beginTransaction();
+            $validate = Validator::make($request->all(), [
+                'ticket_type' => 'required',
+                //'is_existing_customer' => 'required',
+                'customer_name' => 'required',
+                'address_line1' => 'required',
+                'area' => 'required',
+                'zipcode' => 'required',
+                'city' => 'required',
+                'state' => 'required',
+                'country' => 'required',
+                'primary_mobile' => 'required',
+
+                'problem_type_id' => 'required',
+                'problem_title' => 'required',
+                'due_date' => 'required',
+                'ticket_status_id' => 'required',
+                'priority_id' => 'required',
+                'assigned_user_id' => 'required',
+                'appointment_type_id' => 'required',
+
+                'ticket_amount' => 'required|numeric|gt:0',
+                'payment_type_id' => 'required',
+                'collected_amount' => 'required|numeric|gte:0',
+                'remaining_amount' => 'required',
+                'payment_mode' => 'required'
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function destroy($id)
     {
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function addComment(Request $request)
     {
-        //
+        try {
+            $validate = Validator::make($request->all(), [
+                'ticket_id' => 'required',
+                'comment' => 'required'
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $authUser = Auth::user();
+            $createData = [
+              'user_id' => $authUser['id'],
+              'ticket_id' => $request['ticket_id'],
+              'comment' => $request['comment'],
+              'comment_date' => Carbon::now()->toDateString(),
+            ];
+            $addComment = TicketComments::create($createData);
+            if(!$addComment){
+                return RestResponse::warning('Ticket comment add failed.');
+            }
+            return RestResponse::Success([],'Ticket comment added successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function changeStatus(Request $request)
+    {
+        try {
+            $validate = Validator::make($request->all(), [
+                'ticket_id' => 'required',
+                'ticket_status_id' => 'required'
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $changeStatus = Tickets::where('id',$request['ticket_id'])->update([
+                'ticket_status_id' => $request['ticket_status_id']
+            ]);
+            if(!$changeStatus){
+                return RestResponse::warning('Ticket status update failed.');
+            }
+            return RestResponse::Success([],'Ticket status updated successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
     }
 }

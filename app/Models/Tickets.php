@@ -20,6 +20,11 @@ class Tickets extends Model
 //        return TicketTypesEnum::values();
 //    }
 
+    public function comments()
+    {
+        return $this->hasMany(TicketComments::class,'ticket_id','id');
+    }
+
     public function customer()
     {
         return $this->belongsTo(Customers::class,'customer_id','id');
@@ -53,6 +58,17 @@ class Tickets extends Model
     public function payment_status()
     {
         return $this->belongsTo(PaymentTypes::class,'payment_type_id','id');
+    }
+
+    public function scopeTicketRelations($query)
+    {
+        return $query->with(['customer.phones'=> function($qry){ $qry->select('id','customer_id','phone'); },
+            'customer_location',
+            'assigned_engineer'=> function($qry){ $qry->select('id','first_name','last_name','profile_photo'); },
+            'appointment_type' => function($qry){ $qry->select('id','appointment_name'); },
+            'ticket_priority' => function($qry){ $qry->select('id','priority_name'); },
+            'ticket_status' => function($qry){ $qry->select('id','status_name'); },
+            'payment_status' => function($qry){ $qry->select('id','payment_type'); }]);
     }
 
     public function scopePaymentStatus($query,$status)

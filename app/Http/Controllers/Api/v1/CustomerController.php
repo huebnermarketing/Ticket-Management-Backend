@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\CustomerLocations;
+use App\Models\CustomerPhones;
 use App\Models\Customers;
 use App\Repositories\Customer\CustomerRepositoryInterface;
 use Illuminate\Http\Request;
@@ -71,7 +72,6 @@ class CustomerController extends Controller
                DB::beginTransaction();
                $validate = Validator::make($request->all(), [
                    'first_name' => 'required',
-                   'last_name' => 'required',
                    'email' => 'required|email',
                    'primary_mobile' => 'required',
                    'addresses.*.address_line1' => 'required',
@@ -126,10 +126,14 @@ class CustomerController extends Controller
                 if(empty($id)){
                     return RestResponse::warning('Id not found. Must pass in URL.');
                 }
-                $getCustomer = $this->customerRepository->findCustomer($id);
+                $getCustomer = Customers::where(['id' => $id])->with(['locations','phones'=> function($qry){
+                    $qry->where('is_primary',0);
+                }])->first();
                 if(empty($getCustomer)){
                     return RestResponse::warning('Customer not found.');
                 }
+                $collection = CustomerPhones::where(['customer_id'=>$id,'is_primary'=>1])->first();
+                $getCustomer['primary_mobile'] = $collection['phone'];
                 return RestResponse::Success($getCustomer,'Customer retrieve successfully.');
             }else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
@@ -153,7 +157,6 @@ class CustomerController extends Controller
                 DB::beginTransaction();
                 $validate = Validator::make($request->all(), [
                     'first_name' => 'required',
-                    'last_name' => 'required',
                     'email' => 'required|email',
                     'primary_mobile' => 'required',
                     'primary_address_id' => 'required'

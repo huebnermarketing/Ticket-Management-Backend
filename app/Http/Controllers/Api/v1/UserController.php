@@ -104,9 +104,11 @@ class UserController extends Controller
                 $this->assignRoleToUser($storeUser['id'],$request['role_id']);
 
                 DB::commit();
-                $mailData['first_name'] = $request['first_name'];
-                $mailData['last_name'] = $request['last_name'];
-                $mailData['password'] = $request['password'];
+                $mailData = [
+                    'first_name' => $request['first_name'],
+                    'last_name' => $request['last_name'],
+                    'password' => $request['password']
+                ];
                 Mail::to($request['email'])->send(new UserCreateSendPassword($mailData));
 
                 return RestResponse::Success($storeUser,'User created successfully.');

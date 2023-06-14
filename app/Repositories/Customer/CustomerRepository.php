@@ -11,9 +11,11 @@ class CustomerRepository implements CustomerRepositoryInterface
 {
     public function storeCustomer($data)
     {
-        $customer['first_name'] = $data['first_name'];
-        $customer['last_name'] = $data['last_name'];
-        $customer['email'] = $data['email'];
+        $customer = [
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'email' => $data['email']
+        ];
         $createCustomer = Customers::create($customer);
 
         $customerId = $createCustomer['id'];
@@ -34,9 +36,11 @@ class CustomerRepository implements CustomerRepositoryInterface
     }
 
     public function createPhone($phone, $customerId,$is_primary){
-        $phonePayload['customer_id'] = $customerId;
-        $phonePayload['phone'] = $phone;
-        $phonePayload['is_primary'] = $is_primary;
+        $phonePayload = [
+            'customer_id' => $customerId,
+            'phone' => $phone,
+            'is_primary' => $is_primary
+        ];
         CustomerPhones::create($phonePayload);
     }
 
@@ -67,9 +71,11 @@ class CustomerRepository implements CustomerRepositoryInterface
             return RestResponse::warning('Customer not found.');
         }
         //Update Customer
-        $getCustomer['first_name'] = $data['first_name'];
-        $getCustomer['last_name'] = $data['last_name'];
-        $getCustomer['email'] = $data['email'];
+        $getCustomer = [
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'email' => $data['email']
+        ];
         return $getCustomer->save();
     }
 
