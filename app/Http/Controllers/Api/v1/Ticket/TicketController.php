@@ -252,7 +252,16 @@ class TicketController extends Controller
 
     public function destroy($id)
     {
-        //
+        try{
+            $findTicket = $this->ticketRepository->findTicket($id);
+            if (empty($findTicket)) {
+                return RestResponse::warning('Ticket not found.');
+            }
+            $findTicket->delete();
+            return RestResponse::Success([],'Ticket deleted successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
     }
 
     public function addComment(Request $request)
@@ -282,6 +291,40 @@ class TicketController extends Controller
         }
     }
 
+    public function updateComment(Request $request,$id)
+    {
+        try {
+            $validate = Validator::make($request->all(), [
+                'comment' => 'required'
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $getComment = TicketComments::where('id',$id)->first();
+            if(empty($getComment)){
+                return RestResponse::warning('Ticket comment not found.');
+            }
+            $getComment['comment'] = $request['comment'];
+            $getComment->save();
+            return RestResponse::Success([],'Ticket comment updated successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function deleteComment($id)
+    {
+        try {
+            $getComment = TicketComments::where('id',$id)->first();
+            if(empty($getComment)){
+                return RestResponse::warning('Ticket comment not found.');
+            }
+            $getComment->delete();
+            return RestResponse::Success([],'Ticket comment deleted successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
     public function changeStatus(Request $request)
     {
         try {

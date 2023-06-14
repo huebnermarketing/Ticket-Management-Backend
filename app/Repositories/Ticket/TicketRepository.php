@@ -57,4 +57,9 @@ class TicketRepository implements TicketRepositoryInterface
         ];
         return Tickets::create($ticketPayload);
     }
+
+    public function findTicket($id)
+    {
+        return Tickets::find($id);
+    }
 }

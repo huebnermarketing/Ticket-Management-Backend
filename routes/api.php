@@ -113,11 +113,12 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::get('list', 'index');
             Route::get('view/{id}', 'view');
             Route::post('update/{id}', 'update');
+            Route::delete('delete/{id}', 'destroy');
             Route::post('change-status', 'changeStatus');
             Route::group(['prefix' => 'comment'], function () {
                 Route::post('add', 'addComment');
-                /*Route::post('edit', 'editComment');
-                Route::delete('delete', 'deleteComment');*/
+                Route::post('update/{id}', 'updateComment');
+                Route::delete('delete/{id}', 'deleteComment');
             });
         });
     });

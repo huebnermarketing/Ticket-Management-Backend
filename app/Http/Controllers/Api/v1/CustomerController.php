@@ -268,8 +268,8 @@ class CustomerController extends Controller
 
     public function getCustomerAddress($customerId){
         try{
-            $getCustomer = CustomerLocations::where('customer_id',$customerId)->get();
-            if(count($getCustomer) <= 0){
+            $getCustomer = CustomerLocations::where('id',$customerId)->first();
+            if(empty($getCustomer)){
                 return RestResponse::warning('No any customer address found.');
             }
             return RestResponse::Success($getCustomer,'Customer address retrieve successfully.');

@@ -71,11 +71,9 @@ class CustomerRepository implements CustomerRepositoryInterface
             return RestResponse::warning('Customer not found.');
         }
         //Update Customer
-        $getCustomer = [
-            'first_name' => $data['first_name'],
-            'last_name' => $data['last_name'],
-            'email' => $data['email']
-        ];
+        $getCustomer['first_name'] = $data['first_name'];
+        $getCustomer['last_name'] = $data['last_name'];
+        $getCustomer['email'] = $data['email'];
         return $getCustomer->save();
     }
 
@@ -86,7 +84,7 @@ class CustomerRepository implements CustomerRepositoryInterface
             return RestResponse::warning('Customer not found.');
         }
         //Update Customer Primary Address
-        if(array_key_exists('primary_address_id',$data)){
+        if(array_key_exists('primary_address_id',$data->all())){
             foreach ($getCustomer['locations'] as $address) {
                 if ($address->id === $data['primary_address_id']) {
                     $address->is_primary = true;
