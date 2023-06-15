@@ -12,6 +12,7 @@ return [
     'SOMETHING_WENT_WRONG_ERROR' => 'Whoops something went wrong.',
     'USER_DONT_HAVE_PERMISSION'  =>  "You don't have permission to access this api.",
 
+    'PAYMENT_MODE' =>['card','cash','online'],
     'USER_ROLES'    =>  [
         ['name'=>'owner','role_slug'=>'owner','display_name'=>'Owner','guard_name'=>'api'],
         ['name'=>'admin','role_slug'=>'admin','display_name'=>'Admin','guard_name'=>'api'],

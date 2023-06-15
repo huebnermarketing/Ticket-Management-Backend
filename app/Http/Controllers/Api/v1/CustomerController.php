@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Models\CustomerLocations;
+use App\Models\CustomerPhones;
 use App\Models\Customers;
 use App\Repositories\Customer\CustomerRepositoryInterface;
 use Illuminate\Http\Request;
@@ -71,7 +72,6 @@ class CustomerController extends Controller
                DB::beginTransaction();
                $validate = Validator::make($request->all(), [
                    'first_name' => 'required',
-                   'last_name' => 'required',
                    'email' => 'required|email',
                    'primary_mobile' => 'required',
                    'addresses.*.address_line1' => 'required',
@@ -126,10 +126,14 @@ class CustomerController extends Controller
                 if(empty($id)){
                     return RestResponse::warning('Id not found. Must pass in URL.');
                 }
-                $getCustomer = $this->customerRepository->findCustomer($id);
+                $getCustomer = Customers::where(['id' => $id])->with(['locations','phones'=> function($qry){
+                    $qry->where('is_primary',0);
+                }])->first();
                 if(empty($getCustomer)){
                     return RestResponse::warning('Customer not found.');
                 }
+                $collection = CustomerPhones::where(['customer_id'=>$id,'is_primary'=>1])->first();
+                $getCustomer['primary_mobile'] = $collection['phone'];
                 return RestResponse::Success($getCustomer,'Customer retrieve successfully.');
             }else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
@@ -153,7 +157,6 @@ class CustomerController extends Controller
                 DB::beginTransaction();
                 $validate = Validator::make($request->all(), [
                     'first_name' => 'required',
-                    'last_name' => 'required',
                     'email' => 'required|email',
                     'primary_mobile' => 'required',
                     'primary_address_id' => 'required'
@@ -163,9 +166,8 @@ class CustomerController extends Controller
                 }
 
                 $updateCustomer = $this->customerRepository->updateCustomer($request,$id);
-                if(!$updateCustomer){
-                    return RestResponse::warning('Customer update failed.');
-                }
+                $updateCustomerPhones = $this->customerRepository->updateCustomerPhones($request,$id);
+                $updatePrimaryLocations = $this->customerRepository->updatePrimaryLocations($request,$id);
                 DB::commit();
                 return RestResponse::Success([],'Customer updated successfully.');
             }else {
@@ -264,6 +266,18 @@ class CustomerController extends Controller
         }
     }
 
+    public function getCustomerAddress($customerId){
+        try{
+            $getCustomer = CustomerLocations::where('id',$customerId)->first();
+            if(empty($getCustomer)){
+                return RestResponse::warning('No any customer address found.');
+            }
+            return RestResponse::Success($getCustomer,'Customer address retrieve successfully.');
+        }catch (\Exception $e) {
+        }
+        return RestResponse::error($e->getMessage(), $e);
+    }
+
     public function updateCustomerAddress(Request $request,$id){
         try{
             if(Auth::user()->hasPermissionTo($this->perCustomerCRUD)) {
@@ -281,7 +295,7 @@ class CustomerController extends Controller
                 }
                 $addAddress = $this->customerRepository->updateAddress($request->all(),$id);
                 if(!$addAddress){
-                    return RestResponse::warning('Customer address update failed.');
+                    return RestResponse::warning("You can't update the primary address.");
                 }
                 return RestResponse::Success([],'Customer address updated successfully.');
             }else {
@@ -298,6 +312,9 @@ class CustomerController extends Controller
                 $customer = $this->customerRepository->findAddress($id);
                 if (empty($customer)) {
                     return RestResponse::warning('Customer not found.');
+                }
+                if($customer->is_primary == 1){
+                    return RestResponse::warning("You can't delete the primary address.");
                 }
                 $customer->delete();
                 return RestResponse::Success([],'Customer deleted successfully.');

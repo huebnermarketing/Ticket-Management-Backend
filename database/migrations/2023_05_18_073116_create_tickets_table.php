@@ -15,18 +15,20 @@ return new class extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('url_slug');
             $table->enum('ticket_type',['adhoc','contract'])->default('adhoc')->comment('adhoc,contract');
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('customer_locations_id');
             $table->unsignedBigInteger('problem_type_id');
             $table->unsignedBigInteger('ticket_status_id');
+            $table->unsignedBigInteger('priority_id');
             $table->unsignedBigInteger('assigned_user_id');
             $table->unsignedBigInteger('appointment_type_id');
             $table->unsignedBigInteger('payment_type_id');
 
             $table->string('problem_title');
-            $table->dateTime('due_date');
-            $table->longText('description');
+            $table->date('due_date');
+            $table->longText('description')->nullable();
             $table->unsignedDouble('amount', 8, 2);
             $table->unsignedDouble('collected_amount', 8, 2);
             $table->unsignedDouble('remaining_amount', 8, 2);
@@ -36,6 +38,7 @@ return new class extends Migration
             $table->foreign('customer_locations_id')->references('id')->on('customer_locations');
             $table->foreign('problem_type_id')->references('id')->on('problem_types');
             $table->foreign('ticket_status_id')->references('id')->on('ticket_statuses');
+            $table->foreign('priority_id')->references('id')->on('ticket_priorities');
             $table->foreign('assigned_user_id')->references('id')->on('users');
             $table->foreign('appointment_type_id')->references('id')->on('appointment_types');
             $table->foreign('payment_type_id')->references('id')->on('payment_types');
