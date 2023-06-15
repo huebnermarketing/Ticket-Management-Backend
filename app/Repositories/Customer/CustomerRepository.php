@@ -127,13 +127,17 @@ class CustomerRepository implements CustomerRepositoryInterface
         if (empty($getAddress)) {
             return RestResponse::warning('Customer address not found.');
         }
-        $getAddress['address_line1'] = $data['address_line1'];
-        $getAddress['company_name'] = $data['company_name'];
-        $getAddress['area'] = $data['area'];
-        $getAddress['city'] = $data['city'];
-        $getAddress['zipcode'] = $data['zipcode'];
-        $getAddress['state'] = $data['state'];
-        $getAddress['country'] = $data['country'];
-        return $getAddress->save();
+        if($getAddress->is_primary != 1){
+            $getAddress['address_line1'] = $data['address_line1'];
+            $getAddress['company_name'] = $data['company_name'];
+            $getAddress['area'] = $data['area'];
+            $getAddress['city'] = $data['city'];
+            $getAddress['zipcode'] = $data['zipcode'];
+            $getAddress['state'] = $data['state'];
+            $getAddress['country'] = $data['country'];
+            return $getAddress->save();
+        }else{
+            return false;
+        }
     }
 }

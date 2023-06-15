@@ -295,7 +295,7 @@ class CustomerController extends Controller
                 }
                 $addAddress = $this->customerRepository->updateAddress($request->all(),$id);
                 if(!$addAddress){
-                    return RestResponse::warning('Customer address update failed.');
+                    return RestResponse::warning("You can't update the primary address.");
                 }
                 return RestResponse::Success([],'Customer address updated successfully.');
             }else {
@@ -312,6 +312,9 @@ class CustomerController extends Controller
                 $customer = $this->customerRepository->findAddress($id);
                 if (empty($customer)) {
                     return RestResponse::warning('Customer not found.');
+                }
+                if($customer->is_primary == 1){
+                    return RestResponse::warning("You can't delete the primary address.");
                 }
                 $customer->delete();
                 return RestResponse::Success([],'Customer deleted successfully.');

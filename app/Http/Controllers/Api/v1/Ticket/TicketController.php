@@ -218,19 +218,21 @@ class TicketController extends Controller
             DB::beginTransaction();
             $validate = Validator::make($request->all(), [
                 'ticket_type' => 'required',
-                //'is_existing_customer' => 'required',
-                'customer_name' => 'required',
+                'customer_id' => 'required',
+                'customer_locations_id' => 'required',
                 'address_line1' => 'required',
                 'area' => 'required',
-                'zipcode' => 'required',
-                'city' => 'required',
                 'state' => 'required',
+                'zipcode' => 'required',
+                'email' => 'required',
+                'customer_name' => 'required',
+                'city' => 'required',
                 'country' => 'required',
-                'primary_mobile' => 'required',
 
                 'problem_type_id' => 'required',
                 'problem_title' => 'required',
                 'due_date' => 'required',
+                'description' => 'required',
                 'ticket_status_id' => 'required',
                 'priority_id' => 'required',
                 'assigned_user_id' => 'required',
@@ -240,11 +242,20 @@ class TicketController extends Controller
                 'payment_type_id' => 'required',
                 'collected_amount' => 'required|numeric|gte:0',
                 'remaining_amount' => 'required',
-                'payment_mode' => 'required'
+                'payment_mode' => 'required',
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
             }
+
+            $updateCustomer = Customers::where('id',$request['customer_id'])->update([
+               'email' => $request['email']
+            ]);
+
+            $customerAddressPayload = $request->only(['address_line1','company_name','area','city','zipcode','state','country']);
+            $updateCustomerLocation = $this->customerRepository->updateAddress($customerAddressPayload,$request['customer_locations_id']);
+
+
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
