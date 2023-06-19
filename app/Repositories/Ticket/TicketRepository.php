@@ -62,4 +62,28 @@ class TicketRepository implements TicketRepositoryInterface
     {
         return Tickets::find($id);
     }
+
+    public function updateTicket($data,$ticketId)
+    {
+        $updateTicket = [
+            'ticket_type' => $data['ticket_type'],
+            'customer_locations_id' => $data['customer_locations_id'],
+
+            'problem_type_id' => $data['problem_type_id'],
+            'problem_title' => $data['problem_title'],
+            'due_date' => $data['due_date'],
+            'description' => $data['description'],
+            'ticket_status_id' => $data['ticket_status_id'],
+            'priority_id' => $data['priority_id'],
+            'assigned_user_id' => $data['assigned_user_id'],
+            'appointment_type_id' => $data['appointment_type_id'],
+
+            'amount' => $data['ticket_amount'],
+            'payment_type_id' => $data['payment_type_id'],
+            'collected_amount' => $data['collected_amount'],
+            'remaining_amount' => $data['remaining_amount'],
+            'payment_mode' => $data['payment_mode']
+        ];
+        return Tickets::where('id',$ticketId)->update($updateTicket);
+    }
 }

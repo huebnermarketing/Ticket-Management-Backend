@@ -232,7 +232,6 @@ class TicketController extends Controller
                 'problem_type_id' => 'required',
                 'problem_title' => 'required',
                 'due_date' => 'required',
-                'description' => 'required',
                 'ticket_status_id' => 'required',
                 'priority_id' => 'required',
                 'assigned_user_id' => 'required',
@@ -251,12 +250,17 @@ class TicketController extends Controller
             $updateCustomer = Customers::where('id',$request['customer_id'])->update([
                'email' => $request['email']
             ]);
-
             $customerAddressPayload = $request->only(['address_line1','company_name','area','city','zipcode','state','country']);
             $updateCustomerLocation = $this->customerRepository->updateAddress($customerAddressPayload,$request['customer_locations_id']);
 
-
+            $updateTicket = $this->ticketRepository->updateTicket($request,$id);
+            if (empty($updateTicket)) {
+                return RestResponse::warning('Ticket update failed.');
+            }
+            DB::commit();
+            return RestResponse::Success([],'Ticket updated successfully.');
         }catch (\Exception $e) {
+            DB::rollBack();
             return RestResponse::error($e->getMessage(), $e);
         }
     }
