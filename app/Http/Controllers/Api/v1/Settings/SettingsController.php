@@ -74,6 +74,7 @@ class SettingsController extends Controller
                 $getCompanySetting['state'] = $request['state'];
                 $getCompanySetting['country'] = $request['country'];
                 $getCompanySetting['currency_id'] = $request['currency_id'];
+                $s3 = Storage::disk('s3');
                 if(array_key_exists('company_logo',$request->all()) && !empty($request['company_logo'])){
                     $logoUrl = $request->file('company_logo');
                     if (!empty($logoUrl)) {
@@ -85,7 +86,6 @@ class SettingsController extends Controller
                             return RestResponse::warning('Company logo must be a PNG, JPEG, GIF, SVG file.', 422);
                         }
                         $imageName = time() . '-' . rand(0, 100) . '.' . $extension;
-                        $s3 = Storage::disk('s3');
                         $filePath = 'company_logo/' . $imageName;
                         $s3->put($filePath, file_get_contents($logoUrl),'public');
                         if ($getCompanySetting->company_logo != "") {
@@ -95,6 +95,11 @@ class SettingsController extends Controller
                     }else {
                         return RestResponse::warning('Whoops something went wrong.');
                     }
+                }else{
+                    if ($getCompanySetting->company_logo != "") {
+                        $s3->delete('company_logo/' . $getCompanySetting->company_logo);
+                    }
+                    $getCompanySetting['company_logo'] = null;
                 }
                 if(array_key_exists('company_favicon',$request->all()) && !empty($request['company_favicon'])){
                     $faviconUrl = $request->file('company_favicon');
@@ -107,7 +112,6 @@ class SettingsController extends Controller
                             return RestResponse::warning('Company favicon must be a PNG, JPEG, GIF, SVG file.', 422);
                         }
                         $imageName = time() . '-' . rand(0, 100) . '.' . $extension;
-                        $s3 = Storage::disk('s3');
                         $filePath = 'company_favicon/' . $imageName;
                         $s3->put($filePath, file_get_contents($faviconUrl),'public');
                         if ($getCompanySetting->company_favicon != "") {
@@ -117,6 +121,11 @@ class SettingsController extends Controller
                     }else {
                         return RestResponse::warning('Whoops something went wrong.');
                     }
+                }else{
+                    if ($getCompanySetting->company_favicon != "") {
+                        $s3->delete('company_favicon/' . $getCompanySetting->company_favicon);
+                    }
+                    $getCompanySetting['company_favicon'] = null;
                 }
                 $getCompanySetting->save();
                 return RestResponse::success([], 'Company settings updated successfully.');

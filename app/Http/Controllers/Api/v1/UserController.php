@@ -300,6 +300,7 @@ class UserController extends Controller
                     return RestResponse::warning('User not found.');
                 }
                 $updateData = $request->except('profile_photo');
+                $s3 = Storage::disk('s3');
                 if(array_key_exists('profile_photo',$request->all()) && !empty($request['profile_photo'])){
                     $profilePhoto = $request->file('profile_photo');
 
@@ -314,13 +315,17 @@ class UserController extends Controller
                     }
 
                     $imageName = time() . '-' . rand(0, 100) . '.' . $profilePhoto->getClientOriginalExtension();
-                    $s3 = Storage::disk('s3');
                     $filePath = 'user_profile/' . $imageName;
                     $s3->put($filePath, file_get_contents($profilePhoto),'public');
                     if ($getUser->profile_photo != "") {
                         $s3->delete('user_profile/' . $getUser->profile_photo);
                     }
                     $updateData['profile_photo'] = $imageName;
+                }else{
+                    if ($getUser->profile_photo != "") {
+                        $s3->delete('user_profile/' . $getUser->profile_photo);
+                    }
+                    $updateData['profile_photo'] = null;
                 }
                 User::where('id',$userId)->update($updateData);
                 return RestResponse::Success([],'User updated successfully.');
