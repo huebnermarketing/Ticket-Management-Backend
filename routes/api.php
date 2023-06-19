@@ -115,6 +115,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::post('update/{id}', 'update');
             Route::delete('delete/{id}', 'destroy');
             Route::post('change-status', 'changeStatus');
+            Route::post('filters', 'filters');
             Route::group(['prefix' => 'comment'], function () {
                 Route::post('add', 'addComment');
                 Route::post('update/{id}', 'updateComment');

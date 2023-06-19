@@ -76,7 +76,7 @@ class UserController extends Controller
                 $createUser['email'] = $request['email'];
                 $createUser['phone'] = $request['phone'];
                 $createUser['password'] = app('hash')->make($request['password']);
-                if(array_key_exists('profile_photo',$request->all())){
+                if(array_key_exists('profile_photo',$request->all()) && !empty($request['profile_photo'])){
                     if ($request->hasFile('profile_photo')) {
                         $photo = $request->file('profile_photo');
                         if (File::size($photo) > 2097152) {
@@ -300,7 +300,7 @@ class UserController extends Controller
                     return RestResponse::warning('User not found.');
                 }
                 $updateData = $request->except('profile_photo');
-                if(array_key_exists('profile_photo',$request->all())){
+                if(array_key_exists('profile_photo',$request->all()) && !empty($request['profile_photo'])){
                     $profilePhoto = $request->file('profile_photo');
 
                     if (!empty($profilePhoto)) {

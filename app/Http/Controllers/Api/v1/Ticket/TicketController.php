@@ -279,6 +279,21 @@ class TicketController extends Controller
         }
     }
 
+    public function filters(Request $request)
+    {
+        try{
+
+            /*$findTicket = $this->ticketRepository->findTicket($id);
+            if (empty($findTicket)) {
+                return RestResponse::warning('Ticket not found.');
+            }
+            $findTicket->delete();*/
+            return RestResponse::Success([],'Filter applied successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
     public function addComment(Request $request)
     {
         try {
@@ -340,6 +355,7 @@ class TicketController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
+
     public function changeStatus(Request $request)
     {
         try {
