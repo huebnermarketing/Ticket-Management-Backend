@@ -76,7 +76,7 @@ class UserController extends Controller
                 $createUser['email'] = $request['email'];
                 $createUser['phone'] = $request['phone'];
                 $createUser['password'] = app('hash')->make($request['password']);
-                if(array_key_exists('profile_photo',$request->all())){
+                if(array_key_exists('profile_photo',$request->all()) && !empty($request['profile_photo'])){
                     if ($request->hasFile('profile_photo')) {
                         $photo = $request->file('profile_photo');
                         if (File::size($photo) > 2097152) {
@@ -300,7 +300,8 @@ class UserController extends Controller
                     return RestResponse::warning('User not found.');
                 }
                 $updateData = $request->except('profile_photo');
-                if(array_key_exists('profile_photo',$request->all())){
+                $s3 = Storage::disk('s3');
+                if(array_key_exists('profile_photo',$request->all()) && !empty($request['profile_photo'])){
                     $profilePhoto = $request->file('profile_photo');
 
                     if (!empty($profilePhoto)) {
@@ -314,13 +315,17 @@ class UserController extends Controller
                     }
 
                     $imageName = time() . '-' . rand(0, 100) . '.' . $profilePhoto->getClientOriginalExtension();
-                    $s3 = Storage::disk('s3');
                     $filePath = 'user_profile/' . $imageName;
                     $s3->put($filePath, file_get_contents($profilePhoto),'public');
                     if ($getUser->profile_photo != "") {
                         $s3->delete('user_profile/' . $getUser->profile_photo);
                     }
                     $updateData['profile_photo'] = $imageName;
+                }else{
+                    if ($getUser->profile_photo != "") {
+                        $s3->delete('user_profile/' . $getUser->profile_photo);
+                    }
+                    $updateData['profile_photo'] = null;
                 }
                 User::where('id',$userId)->update($updateData);
                 return RestResponse::Success([],'User updated successfully.');
