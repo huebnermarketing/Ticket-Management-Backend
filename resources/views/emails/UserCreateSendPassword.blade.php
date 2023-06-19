@@ -10,7 +10,7 @@
         <a class="button" href="{{ config('constant.FRONTEND_URL') }}/login">Log In</a>
     </div>
     <div class="content">
-        <p>Best regards,<br>{{$mailData['first_name']}} {{$mailData['last_name']}}<br>{{$companyName['company_name']}}</p>
+        <p>Best regards,<br>{{$companyName['company_name']}}</p>
     </div>
 </div>
 @include('layouts.footer')

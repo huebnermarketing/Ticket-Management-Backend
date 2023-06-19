@@ -53,7 +53,7 @@ class AuthController extends Controller
                 $response['access_token'] = $user->createToken('Api Token')->accessToken;
                 $response['user'] = $user;
                 $response['permissions'] = $user->getAllPermissions();
-                return RestResponse::success($response, 'Access token successfully retrieved.');
+                return RestResponse::success($response, 'User Successfully Logged In');
             } else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
