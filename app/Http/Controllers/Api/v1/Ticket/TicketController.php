@@ -57,7 +57,7 @@ class TicketController extends Controller
                 'order_by' => $request->order_by,
                 'sort_value' => $request->sort_value
             ];
-            $getAllTickets = $this->ticketRepository->getTickets($filters);
+            $getAllTickets = $this->ticketRepository->getTickets($filters, $request);
             if(empty($getAllTickets)){
                 return RestResponse::warning('Ticket not found.');
             }

@@ -8,13 +8,42 @@ use Carbon\Carbon;
 
 class TicketRepository implements TicketRepositoryInterface
 {
-    public function getTickets($filters = null)
+    public function getTickets($filters = null, $request = null)
     {
         $sortValue = (!empty($filters) && array_key_exists('sort_value',$filters) && !empty($filters['sort_value'])) ? $filters['sort_value'] : 'id';
         $orderBy = (!empty($filters) && array_key_exists('order_by',$filters)) && !empty($filters['order_by']) ? $filters['order_by'] : 'DESC';
         $pageLimit = (!empty($filters) && array_key_exists('total_record',$filters)) && !empty($filters['total_record']) ? $filters['total_record'] : config('constant.PAGINATION_RECORD');
 
-        return Tickets::ticketRelations()->orderBy($sortValue,$orderBy)->paginate($pageLimit);
+        $ticketQuery = Tickets::with(['customer.phones'=> function($qry){ $qry->select('id','customer_id','phone'); },
+                'customer_location',
+                'assigned_engineer'=> function($qry){ $qry->select('id','first_name','last_name','profile_photo'); },
+                'appointment_type' => function($qry){ $qry->select('id','appointment_name'); },
+                'ticket_priority' => function($qry){ $qry->select('id','priority_name'); },
+                'ticket_status' => function($qry){ $qry->select('id','status_name'); },
+                'payment_status' => function($qry){ $qry->select('id','payment_type'); }]);
+
+        if(isset($request->customer_id) && (count($request->customer_id) > 0)){
+            $ticketQuery = $ticketQuery->whereIn('customer_id',$request->customer_id);
+        }
+        if(isset($request->problem_type_id) && (count($request->problem_type_id) > 0)){
+            $ticketQuery = $ticketQuery->whereIn('problem_type_id',$request->problem_type_id);
+        }
+        if(isset($request->ticket_status_id) && (count($request->ticket_status_id) > 0)){
+            $ticketQuery = $ticketQuery->whereIn('ticket_status_id',$request->ticket_status_id);
+        }
+        if(isset($request->appointment_type_id) && (count($request->appointment_type_id) > 0)){
+            $ticketQuery = $ticketQuery->whereIn('appointment_type_id',$request->appointment_type_id);
+        }
+        if(isset($request->payment_type_id) && (count($request->payment_type_id) > 0)){
+            $ticketQuery = $ticketQuery->whereIn('payment_type_id',$request->payment_type_id);
+        }
+        if(isset($request->priority_id) && (count($request->priority_id) > 0)){
+            $ticketQuery = $ticketQuery->whereIn('priority_id',$request->priority_id);
+        }
+        $ticketQuery = $ticketQuery->orderBy($sortValue,$orderBy)->paginate($pageLimit);
+
+        return $ticketQuery;
+//        return Tickets::ticketRelations()->orderBy($sortValue,$orderBy)->paginate($pageLimit);
     }
 
     public function ticketListDashboard(){
