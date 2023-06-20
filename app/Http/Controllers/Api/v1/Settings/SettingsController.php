@@ -7,6 +7,7 @@ use App\Models\CompanySettings;
 use App\Models\Currency;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
 use Validator;
 use RestResponse;
 use File;
@@ -93,7 +94,9 @@ class SettingsController extends Controller
                         }
                         $getCompanySetting['company_logo'] = $imageName;
                     }else {
-                        return RestResponse::warning('Whoops something went wrong.');
+                        if (!Str::contains($request['company_logo'], $getCompanySetting->getAttributes()['company_logo'])) {
+                            return RestResponse::warning('Whoops something went wrong.');
+                        }
                     }
                 }else{
                     if ($getCompanySetting->company_logo != "") {
@@ -119,7 +122,9 @@ class SettingsController extends Controller
                         }
                         $getCompanySetting['company_favicon'] = $imageName;
                     }else {
-                        return RestResponse::warning('Whoops something went wrong.');
+                        if (!Str::contains($request['company_logo'], $getCompanySetting->getAttributes()['company_logo'])) {
+                            return RestResponse::warning('Whoops something went wrong.');
+                        }
                     }
                 }else{
                     if ($getCompanySetting->company_favicon != "") {
