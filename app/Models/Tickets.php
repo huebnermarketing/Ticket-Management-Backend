@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use App\Enums\TicketTypesEnum;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Pricecurrent\LaravelEloquentFilters\Filterable;
 
 class Tickets extends Model
 {
-    use HasFactory,SoftDeletes;
+    use HasFactory,SoftDeletes,Filterable;
 //    protected $casts = ['ticket_type' => TicketTypesEnum::class];
     protected $fillable = ['id','url_slug','ticket_type','customer_id','customer_locations_id','problem_type_id',
         'ticket_status_id','priority_id','assigned_user_id','appointment_type_id','payment_type_id','problem_title','due_date',
