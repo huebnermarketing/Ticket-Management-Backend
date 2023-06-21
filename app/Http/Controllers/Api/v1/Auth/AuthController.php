@@ -90,6 +90,7 @@ class AuthController extends Controller
                 $checkUser = User::where('email', $request->email)->first();
                 if (!empty($checkUser)) {
                     //Delete Old token
+
                     PasswordVerificationEmail::where('user_id', $checkUser->id)->delete();
 
                     $email_token = Str::random(50);

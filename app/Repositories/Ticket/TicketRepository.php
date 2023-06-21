@@ -6,16 +6,19 @@ use App\Models\TicketProblemType;
 use App\Models\Tickets;
 use \App\Repositories\Ticket\TicketRepositoryInterface;
 use Carbon\Carbon;
+use App\Filters\TicketFilter;
+use Pricecurrent\LaravelEloquentFilters\EloquentFilters;
 
 class TicketRepository implements TicketRepositoryInterface
 {
-    public function getTickets($filters = null)
+    public function getTickets($filters = null, $request = null)
     {
         $sortValue = (!empty($filters) && array_key_exists('sort_value',$filters) && !empty($filters['sort_value'])) ? $filters['sort_value'] : 'id';
         $orderBy = (!empty($filters) && array_key_exists('order_by',$filters)) && !empty($filters['order_by']) ? $filters['order_by'] : 'DESC';
         $pageLimit = (!empty($filters) && array_key_exists('total_record',$filters)) && !empty($filters['total_record']) ? $filters['total_record'] : config('constant.PAGINATION_RECORD');
-
-        return Tickets::ticketRelations()->orderBy($sortValue,$orderBy)->paginate($pageLimit);
+        $filterQuery = EloquentFilters::make([new TicketFilter($request)]);
+        $tickets = Tickets::filter($filterQuery)->orderBy($sortValue,$orderBy)->paginate($pageLimit);
+        return $tickets;
     }
 
     public function ticketListDashboard(){
