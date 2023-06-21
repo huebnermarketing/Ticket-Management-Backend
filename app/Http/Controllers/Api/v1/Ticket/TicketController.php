@@ -11,6 +11,7 @@ use App\Models\Customers;
 use App\Models\PaymentTypes;
 use App\Models\ProblemType;
 use App\Models\TicketComments;
+use App\Models\TicketPriority;
 use App\Models\Tickets;
 use App\Models\TicketStatus;
 use App\Models\User;
@@ -184,6 +185,7 @@ class TicketController extends Controller
             $data['appointment_type'] = AppointmentTypes::all();
             $data['payment_status'] = PaymentTypes::all();
             $data['payment_mode'] = config('constant.PAYMENT_MODE');
+            $data['ticket_priorities'] = TicketPriority::where('is_active',1)->get();
             return RestResponse::Success($data, 'Ticket details retrieve successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
