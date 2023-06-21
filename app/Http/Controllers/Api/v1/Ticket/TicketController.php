@@ -43,7 +43,7 @@ class TicketController extends Controller
     {
         $digit = 5;
         $slugNumber = substr(str_shuffle("0123456789"), 0, $digit);
-        $checkSlugNumber = Tickets::where('url_slug', $slugNumber)->count();
+        $checkSlugNumber = Tickets::where('unique_id', $slugNumber)->count();
         if ($checkSlugNumber > 0) {
             $this->generateTicketUrlSlug();
         }
@@ -92,9 +92,10 @@ class TicketController extends Controller
                 'primary_mobile' => 'required',
 
                 'problem_type_id' => 'required',
-                'problem_title' => 'required',
+                'problem_title' => 'required|max:50',
                 'due_date' => 'required',
                 'ticket_status_id' => 'required',
+                'description' => 'max:500',
                 'priority_id' => 'required',
                 'assigned_user_id' => 'required',
                 'appointment_type_id' => 'required',
@@ -109,10 +110,9 @@ class TicketController extends Controller
                 return RestResponse::validationError($validate->errors());
             }
             $splitCustomerName = explode(' ', $request['customer_name'], 2);
-            $ticketUrlSlug = $this->generateTicketUrlSlug();
+            //$ticketUrlSlug = $this->generateTicketUrlSlug();
             $request->merge(['first_name' => $splitCustomerName[0],
                 'last_name' => !empty($splitCustomerName[1]) ? $splitCustomerName[1] : '',
-                'url_slug' => $ticketUrlSlug
             ]);
 
             if($request['is_existing_customer'] == 1){
@@ -153,7 +153,7 @@ class TicketController extends Controller
             $authUser = Auth::user();
             $mailData = [
                 'assign_user_name' => $findUser['first_name'] .' '.$findUser['last_name'],
-                'ticket_id' => $ticketUrlSlug,
+                'ticket_id' => $createTicket['unique_id'],
                 'ticket_title' => $request['problem_title'],
                 'due_date' => $request['due_date'],
                 'description' => !empty($request['description']) ? $request['description'] : null,
@@ -232,9 +232,10 @@ class TicketController extends Controller
                 'country' => 'required',
 
                 'problem_type_id' => 'required',
-                'problem_title' => 'required',
+                'problem_title' => 'required|max:50',
                 'due_date' => 'required',
                 'ticket_status_id' => 'required',
+                'description' => 'max:500',
                 'priority_id' => 'required',
                 'assigned_user_id' => 'required',
                 'appointment_type_id' => 'required',

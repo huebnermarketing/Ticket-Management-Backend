@@ -12,7 +12,7 @@ class Tickets extends Model
 {
     use HasFactory,SoftDeletes;
 //    protected $casts = ['ticket_type' => TicketTypesEnum::class];
-    protected $fillable = ['id','url_slug','ticket_type','customer_id','customer_locations_id',
+    protected $fillable = ['id','unique_id','ticket_type','customer_id','customer_locations_id',
         'ticket_status_id','priority_id','assigned_user_id','appointment_type_id','payment_type_id','problem_title','due_date',
         'description','amount','collected_amount','remaining_amount','payment_mode','created_at','updated_at','deleted_at'];
 
@@ -20,6 +20,23 @@ class Tickets extends Model
 //    {
 //        return TicketTypesEnum::values();
 //    }
+    protected static function boot()
+    {
+        parent::boot();
+        static::creating(function ($model) {
+            $model->unique_id = static::generateId();
+        });
+    }
+    protected static function generateId()
+    {
+        $lastRecord = static::query()->withTrashed()->orderByDesc('id')->first();
+        if ($lastRecord) {
+            $newId = $lastRecord->unique_id + 1;
+        } else {
+            $newId = config('constant.TICKET_UNIQUE_ID');
+        }
+        return str_pad($newId, 5, '0', STR_PAD_LEFT);
+    }
 
     public function comments()
     {

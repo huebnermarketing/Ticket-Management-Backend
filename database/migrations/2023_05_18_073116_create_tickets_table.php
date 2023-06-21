@@ -15,7 +15,7 @@ return new class extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('url_slug');
+            $table->string('unique_id');
             $table->enum('ticket_type',['adhoc','contract'])->default('adhoc')->comment('adhoc,contract');
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('customer_locations_id');
