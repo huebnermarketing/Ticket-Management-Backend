@@ -12,7 +12,7 @@ class Tickets extends Model
 {
     use HasFactory,SoftDeletes;
 //    protected $casts = ['ticket_type' => TicketTypesEnum::class];
-    protected $fillable = ['id','url_slug','ticket_type','customer_id','customer_locations_id','problem_type_id',
+    protected $fillable = ['id','url_slug','ticket_type','customer_id','customer_locations_id',
         'ticket_status_id','priority_id','assigned_user_id','appointment_type_id','payment_type_id','problem_title','due_date',
         'description','amount','collected_amount','remaining_amount','payment_mode','created_at','updated_at','deleted_at'];
 
@@ -61,10 +61,16 @@ class Tickets extends Model
         return $this->belongsTo(PaymentTypes::class,'payment_type_id','id');
     }
 
+    public function problem_types()
+    {
+        return $this->belongsToMany(ProblemType::class, TicketProblemType::class, 'ticket_id', 'problem_type_id');
+
+    }
+
     public function scopeTicketRelations($query)
     {
         return $query->with(['customer.phones'=> function($qry){ $qry->select('id','customer_id','phone'); },
-            'customer_location',
+            'customer_location','problem_types',
             'assigned_engineer'=> function($qry){ $qry->select('id','first_name','last_name','profile_photo'); },
             'appointment_type' => function($qry){ $qry->select('id','appointment_name'); },
             'ticket_priority' => function($qry){ $qry->select('id','priority_name'); },

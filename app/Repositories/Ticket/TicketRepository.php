@@ -2,6 +2,7 @@
 
 namespace App\Repositories\Ticket;
 
+use App\Models\TicketProblemType;
 use App\Models\Tickets;
 use \App\Repositories\Ticket\TicketRepositoryInterface;
 use Carbon\Carbon;
@@ -40,7 +41,7 @@ class TicketRepository implements TicketRepositoryInterface
             'customer_id' => $data['customer_id'],
             'customer_locations_id' => $data['customer_locations_id'],
 
-            'problem_type_id' => $data['problem_type_id'],
+            //'problem_type_id' => $data['problem_type_id'],
             'problem_title' => $data['problem_title'],
             'due_date' => $data['due_date'],
             'description' => $data['description'],
@@ -55,7 +56,16 @@ class TicketRepository implements TicketRepositoryInterface
             'remaining_amount' => $data['remaining_amount'],
             'payment_mode' => $data['payment_mode']
         ];
-        return Tickets::create($ticketPayload);
+        $createTicket = Tickets::create($ticketPayload);
+
+        foreach ($data['problem_type_id'] as $problems){
+            $ticketProblemTypePayload = [
+                'ticket_id' => $createTicket['id'],
+                'problem_type_id' => $problems
+            ];
+            $ticketProblemType = TicketProblemType::create($ticketProblemTypePayload);
+        }
+        return true;
     }
 
     public function findTicket($id)
