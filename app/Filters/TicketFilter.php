@@ -15,7 +15,7 @@ class TicketFilter extends AbstractEloquentFilter
 
     public function apply(Builder $builder): Builder
     {
-        $ticketQuery = $builder->with(['customer.phones'=> function($qry){ $qry->select('id','customer_id','phone'); },
+        $ticketQuery = $builder->with(['customer.phones'=> function($qry){ $qry->select('id','customer_id','phone','is_primary'); },
                 'customer_location',
                 'assigned_engineer'=> function($qry){ $qry->select('id','first_name','last_name','profile_photo'); },
                 'appointment_type' => function($qry){ $qry->select('id','appointment_name'); },

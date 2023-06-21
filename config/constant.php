@@ -40,6 +40,21 @@ return [
     'PERMISSION_PROBLEM_TYPE_CRUD' => 'problem-type-crud',
     'PERMISSION_TICKET_STATUS_CRUD' => 'ticket-status-crud',
     'PERMISSION_PRODUCT_SERVICES_CRUD' => 'product-services-crud',
+
+    //Contract Durations
+    'CONTRACT_DURATIONS' => [
+        ['slug' => 'year', 'display_name'=> 'Year'],
+        ['slug' => 'half-year', 'display_name'=> 'Half Year'],
+        ['slug' => 'qtr', 'display_name'=> 'Qtr'],
+        ['slug' => 'month', 'display_name'=> 'Month'],
+    ],
+
+    'CONTRACT_PAYMENT_TERM' => [
+        ['slug' => 'month', 'display_name'=>'Month'],
+        ['slug' => 'qtr', 'display_name'=>'Qtr'],
+        ['slug' => 'half-year', 'display_name'=>'Half Year'],
+        ['slug' => 'all-at-once', 'display_name'=>'All at Once'],
+    ]
 ];
 
 ?>
