@@ -379,4 +379,18 @@ class TicketController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
+
+    public function getCustomerAddresses($customerId)
+    {
+        try {
+            $getAddresses = CustomerLocations::where('customer_id',$customerId)->get();
+            if(empty($getAddresses)){
+                return RestResponse::warning('No any customer address found.');
+            }
+            return RestResponse::Success($getAddresses,'Customer addresses retrieve successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
 }
