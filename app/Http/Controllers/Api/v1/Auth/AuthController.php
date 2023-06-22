@@ -45,15 +45,15 @@ class AuthController extends Controller
                     return RestResponse::warning('Incorrect user OR password.', 422);
                 }
 
-                $getUser = User::where('email', '=', $credentials['email'])->first();
+                $getUser = User::with('role')->where('email', '=', $credentials['email'])->first();
                 if ($getUser['is_verified'] == 0){
                     return RestResponse::warning('An account has already been registered, but was never verified. please verify your account.', 422);
                 }
-                $user = Auth::user();
-                $response['access_token'] = $user->createToken('Api Token')->accessToken;
-                $response['user'] = $user;
-                $response['permissions'] = $user->getAllPermissions();
-                return RestResponse::success($response, 'User Successfully Logged In');
+                //$user = Auth::user();
+                $response['access_token'] = $getUser->createToken('Api Token')->accessToken;
+                $response['user'] = $getUser;
+                $response['permissions'] = $getUser->getAllPermissions();
+                return RestResponse::success($response, 'Access token successfully retrieved.');
             } else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
