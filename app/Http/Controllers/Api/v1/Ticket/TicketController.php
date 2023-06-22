@@ -177,12 +177,7 @@ class TicketController extends Controller
             /*$data['assign_engineer'] = User::with(['role'])->whereHas('role', function($qry){
                 $qry->where('role_slug','user');
             })->get();*/
-            $user = User::select('id','first_name','last_name','email')->get();
-            $engineers = $user->map(function ($item, $key) {
-                $item->full_name = $item->first_name.' '.$item->last_name;
-                return $item;
-            });
-            $data['assign_engineer'] = $engineers;
+            $data['assign_engineer'] =  User::all();
             $data['problem_types'] = ProblemType::all();
             $data['ticket_status'] = TicketStatus::all();
             $data['appointment_type'] = AppointmentTypes::all();
