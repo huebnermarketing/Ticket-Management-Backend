@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Repositories\Contract;
+use App\Models\Customers;
+use App\Models\Tickets;
 use App\Repositories\Contract\ContractRepositoryInterface;
 use App\Models\Contract;
 use App\Models\ContractServiceType;
@@ -10,8 +12,16 @@ use App\Models\customerContract;
 class ContractRepository implements ContractRepositoryInterface
 {
     public function getContracts(){
-        $contracts = Contract::with('customers')->where('is_active',1)->get();
-        return $contracts;
+        $customers = Customers::orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
+        foreach ($customers as $customer){
+            $customer['active_contracts'] = Contract::where('customer_id',$customer['id'])->count();
+        }
+        $data['list'] = $customers;
+        $data['active_contract'] = Contract::where('is_active',1)->count();
+        $data['paid_amount'] = Contract::where('is_active',1)->sum('amount');
+        $data['remaining_amount'] = Contract::where('is_active',1)->sum('amount');
+        $data['open_contract_ticket'] = Tickets::where(['ticket_status_id'=>1, 'ticket_type'=>'contract'])->count();
+        return $data;
     }
     public function storeContract($data){
         $contractPayload = [
