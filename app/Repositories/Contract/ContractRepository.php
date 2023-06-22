@@ -8,21 +8,37 @@ use App\Models\Contract;
 use App\Models\ContractServiceType;
 use App\Models\ContractProductService;
 use App\Models\customerContract;
+use App\Filters\CustomerFilter;
+use Pricecurrent\LaravelEloquentFilters\EloquentFilters;
 
 class ContractRepository implements ContractRepositoryInterface
 {
     public function getContracts(){
-        $customers = Customers::orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
-        foreach ($customers as $customer){
-            $customer['active_contracts'] = Contract::where('customer_id',$customer['id'])->count();
-        }
+        $customers = Customers::withCount(['contract' => function($query){
+            $query->where('is_active','1');
+        }])->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
         $data['list'] = $customers;
-        $data['active_contract'] = Contract::where('is_active',1)->count();
-        $data['paid_amount'] = Contract::where('is_active',1)->sum('amount');
-        $data['remaining_amount'] = Contract::where('is_active',1)->sum('amount');
-        $data['open_contract_ticket'] = Tickets::where(['ticket_status_id'=>1, 'ticket_type'=>'contract'])->count();
+        $data['active_contract'] = Contract::where('is_active','1')->count();
+        $data['paid_amount'] = Contract::where('is_active','1')->sum('amount');
+        $data['remaining_amount'] = Contract::where('is_active','1')->sum('amount');
+        $data['open_contract_ticket'] = Tickets::with(['contract' => function($query){
+            $query->where('is_active','1');
+        }])->where(['ticket_status_id'=>1, 'ticket_type'=>'contract'])->count();
         return $data;
     }
+
+    public function getClientContracts($data){
+        $contractsList = Contract::
+            select('id','customer_id','contract_title','customer_location_id','start_date','end_date','amount','remaining_amount')
+            ->with(['customerLocation:id,customer_id,company_name,address_line1,area,zipcode,city,state,country,is_primary',
+                'contractServicesTypes' => function ($query) {
+                $query->with('contractTypes:id,contract_name')
+                    ->select('id','contract_id','contract_type_id');
+            }])
+            ->where('customer_id',$data['customer_id'])->orderBy('id','asc')->paginate(config('constant.PAGINATION_RECORD'));
+        return $contractsList;
+    }
+
     public function storeContract($data){
         $contractPayload = [
             'customer_id' => $data['customer_id'],
@@ -30,6 +46,7 @@ class ContractRepository implements ContractRepositoryInterface
             'contract_title' => $data['contract_title'],
             'contract_details' => $data['contract_details'],
             'amount'=>$data['amount'],
+            'remaining_amount'=>$data['amount'],
             'duration_id' => $data['duration_id'],
             'payment_term_id' => $data['payment_term_id'],
             'start_date' => $data['start_date'],
@@ -72,5 +89,12 @@ class ContractRepository implements ContractRepositoryInterface
             'customer_id' => $customerId
         ];
         return customerContract::create($contractCostomerPayload);
+    }
+
+    public function getSearchClient($data){
+        $filters = EloquentFilters::make([new CustomerFilter($data)]);
+
+        $clients = Customers::filter($filters)->get();
+        return $clients;
     }
 }

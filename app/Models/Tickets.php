@@ -109,4 +109,9 @@ class Tickets extends Model
             $qry->whereNotIn('status_name',['Closed']);
         });
     }
+
+    public function contract()
+    {
+        return $this->belongsTo(Contract::class,'contract_id','id');
+    }
 }

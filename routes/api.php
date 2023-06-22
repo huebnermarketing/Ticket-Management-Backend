@@ -128,6 +128,8 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
         Route::group(['prefix' => 'contract', 'controller' => ContractController::class], function () {
             Route::post('create','store');
             Route::get('index','index');
+            Route::post('client-contract-list','clientContractList');
+            Route::post('search','searchClient');
         });
     });
 });
