@@ -9,6 +9,10 @@ use App\Models\customerContract;
 
 class ContractRepository implements ContractRepositoryInterface
 {
+    public function getContracts(){
+        $contracts = Contract::with('customers')->where('is_active',1)->get();
+        return $contracts;
+    }
     public function storeContract($data){
         $contractPayload = [
             'customer_id' => $data['customer_id'],

@@ -11,4 +11,10 @@ class Contract extends Model
 
     protected $fillable = ['customer_id','customer_location_id','contract_title','contract_details','amount','duration_id',
         'payment_term_id','start_date','end_date','is_auto_renew','is_active','is_archive','is_suspended'];
+
+
+    public function customers()
+    {
+        return $this->hasMany(Customers::class, 'id','customer_id');
+    }
 }

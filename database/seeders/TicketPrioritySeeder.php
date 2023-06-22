@@ -25,6 +25,7 @@ class TicketPrioritySeeder extends Seeder
             $chekExists = TicketPriority::where('priority_name',$type)->exists();
             if(!$chekExists){
                 $priority['priority_name'] = $type;
+                $priority['is_active'] = 1;
                 TicketPriority::create($priority);
             }
         }

@@ -11,6 +11,7 @@ use App\Models\Customers;
 use App\Models\PaymentTypes;
 use App\Models\ProblemType;
 use App\Models\TicketComments;
+use App\Models\TicketPriority;
 use App\Models\Tickets;
 use App\Models\TicketStatus;
 use App\Models\User;
@@ -42,7 +43,7 @@ class TicketController extends Controller
     {
         $digit = 5;
         $slugNumber = substr(str_shuffle("0123456789"), 0, $digit);
-        $checkSlugNumber = Tickets::where('url_slug', $slugNumber)->count();
+        $checkSlugNumber = Tickets::where('unique_id', $slugNumber)->count();
         if ($checkSlugNumber > 0) {
             $this->generateTicketUrlSlug();
         }
@@ -90,9 +91,10 @@ class TicketController extends Controller
                 'country' => 'required',
                 'primary_mobile' => 'required',
                 'problem_type_id' => 'required',
-                'problem_title' => 'required',
+                'problem_title' => 'required|max:50',
                 'due_date' => 'required',
                 'ticket_status_id' => 'required',
+                'description' => 'max:500',
                 'priority_id' => 'required',
                 'assigned_user_id' => 'required',
                 'appointment_type_id' => 'required',
@@ -106,10 +108,9 @@ class TicketController extends Controller
                 return RestResponse::validationError($validate->errors());
             }
             $splitCustomerName = explode(' ', $request['customer_name'], 2);
-            $ticketUrlSlug = $this->generateTicketUrlSlug();
+            //$ticketUrlSlug = $this->generateTicketUrlSlug();
             $request->merge(['first_name' => $splitCustomerName[0],
                 'last_name' => !empty($splitCustomerName[1]) ? $splitCustomerName[1] : '',
-                'url_slug' => $ticketUrlSlug
             ]);
 
             if($request['is_existing_customer'] == 1){
@@ -150,7 +151,7 @@ class TicketController extends Controller
             $authUser = Auth::user();
             $mailData = [
                 'assign_user_name' => $findUser['first_name'] .' '.$findUser['last_name'],
-                'ticket_id' => $ticketUrlSlug,
+                'ticket_id' => $createTicket['unique_id'],
                 'ticket_title' => $request['problem_title'],
                 'due_date' => $request['due_date'],
                 'description' => !empty($request['description']) ? $request['description'] : null,
@@ -176,17 +177,13 @@ class TicketController extends Controller
             /*$data['assign_engineer'] = User::with(['role'])->whereHas('role', function($qry){
                 $qry->where('role_slug','user');
             })->get();*/
-            $user = User::select('id','first_name','last_name','email')->get();
-            $engineers = $user->map(function ($item, $key) {
-                $item->full_name = $item->first_name.' '.$item->last_name;
-                return $item;
-            });
-            $data['assign_engineer'] = $engineers;
+            $data['assign_engineer'] =  User::all();
             $data['problem_types'] = ProblemType::all();
             $data['ticket_status'] = TicketStatus::all();
             $data['appointment_type'] = AppointmentTypes::all();
             $data['payment_status'] = PaymentTypes::all();
             $data['payment_mode'] = config('constant.PAYMENT_MODE');
+            $data['ticket_priorities'] = TicketPriority::where('is_active',1)->get();
             return RestResponse::Success($data, 'Ticket details retrieve successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
@@ -233,9 +230,10 @@ class TicketController extends Controller
                 'country' => 'required',
 
                 'problem_type_id' => 'required',
-                'problem_title' => 'required',
+                'problem_title' => 'required|max:50',
                 'due_date' => 'required',
                 'ticket_status_id' => 'required',
+                'description' => 'max:500',
                 'priority_id' => 'required',
                 'assigned_user_id' => 'required',
                 'appointment_type_id' => 'required',
@@ -380,4 +378,18 @@ class TicketController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
+
+    public function getCustomerAddresses($customerId)
+    {
+        try {
+            $getAddresses = CustomerLocations::where('customer_id',$customerId)->get();
+            if(empty($getAddresses)){
+                return RestResponse::warning('No any customer address found.');
+            }
+            return RestResponse::Success($getAddresses,'Customer addresses retrieve successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
 }

@@ -18,6 +18,24 @@ class ContractController extends Controller
         $this->contractRepository = $contractRepository;
         $this->perContractCRUD = config('constant.PERMISSION_CONTRACT_TYPE_CRUD');
     }
+
+    public function index(){
+        try{
+            if(Auth::user()->hasPermissionTo($this->perContractCRUD)) {
+                $contractList = $this->contractRepository->getContracts();
+                if(!$contractList){
+                    return RestResponse::warning('Contract List Not Found.');
+                }
+                DB::commit();
+                return RestResponse::Success($contractList,'Contracts retrieve successfully.');
+            }else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
+            }
+        }catch(\Exception $e){
+            DB::rollBack();
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
     public function store(Request $request){
         try{
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)) {
@@ -55,7 +73,6 @@ class ContractController extends Controller
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
         }catch (\Exception $e) {
-            dd($e->getLine());
             DB::rollBack();
             return RestResponse::error($e->getMessage(), $e);
         }
