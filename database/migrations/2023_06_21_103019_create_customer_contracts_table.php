@@ -13,13 +13,13 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('contract_service_types', function (Blueprint $table) {
+        Schema::create('customer_contracts', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('contract_id');
-            $table->unsignedBigInteger('contract_type_id');
+            $table->unsignedBigInteger('customer_id');
 
             $table->foreign('contract_id')->references('id')->on('contracts')->onDelete('cascade');
-            $table->foreign('contract_type_id')->references('id')->on('contract_types')->onDelete('cascade');
+            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->timestamps();
         });
     }
@@ -31,6 +31,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('contract_service_types');
+        Schema::dropIfExists('customer_contracts');
     }
 };

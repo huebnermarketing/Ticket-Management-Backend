@@ -9,6 +9,8 @@ use App\Repositories\Ticket\TicketRepositoryInterface;
 use App\Repositories\User\UserRepositoryInterface;
 use App\Repositories\User\UserRepository;
 use Illuminate\Support\ServiceProvider;
+use App\Repositories\Contract\ContractRepositoryInterface;
+use App\Repositories\Contract\ContractRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +24,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(UserRepositoryInterface::class, UserRepository::class);
         $this->app->bind(CustomerRepositoryInterface::class, CustomerRepository::class);
         $this->app->bind(TicketRepositoryInterface::class, TicketRepository::class);
+        $this->app->bind(ContractRepositoryInterface::class, ContractRepository::class);
     }
 
     /**

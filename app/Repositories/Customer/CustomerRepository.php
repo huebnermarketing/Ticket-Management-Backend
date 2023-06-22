@@ -57,11 +57,7 @@ class CustomerRepository implements CustomerRepositoryInterface
             ->where('customer_locations.is_primary',1)
             ->where('customer_phones.is_primary',1)
             ->orderBy($sortValue,$orderBy)->paginate($pageLimit);
-        $customerData = $customer->map(function ($item, $key){
-            $item->full_name = $item->first_name . ' ' . $item->last_name;
-            return $item;
-        });
-        return $customerData;
+        return $customer;
     }
 
     public function findCustomer($id)

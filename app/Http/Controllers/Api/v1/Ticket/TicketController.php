@@ -90,7 +90,6 @@ class TicketController extends Controller
                 'state' => 'required',
                 'country' => 'required',
                 'primary_mobile' => 'required',
-
                 'problem_type_id' => 'required',
                 'problem_title' => 'required|max:50',
                 'due_date' => 'required',
@@ -99,7 +98,6 @@ class TicketController extends Controller
                 'priority_id' => 'required',
                 'assigned_user_id' => 'required',
                 'appointment_type_id' => 'required',
-
                 'ticket_amount' => 'required|numeric|gt:0',
                 'payment_type_id' => 'required',
                 'collected_amount' => 'required|numeric|gte:0',
@@ -179,12 +177,7 @@ class TicketController extends Controller
             /*$data['assign_engineer'] = User::with(['role'])->whereHas('role', function($qry){
                 $qry->where('role_slug','user');
             })->get();*/
-            $user = User::select('id','first_name','last_name','email')->get();
-            $engineers = $user->map(function ($item, $key) {
-                $item->full_name = $item->first_name.' '.$item->last_name;
-                return $item;
-            });
-            $data['assign_engineer'] = $engineers;
+            $data['assign_engineer'] =  User::all();
             $data['problem_types'] = ProblemType::all();
             $data['ticket_status'] = TicketStatus::all();
             $data['appointment_type'] = AppointmentTypes::all();

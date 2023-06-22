@@ -23,7 +23,9 @@ class DatabaseSeeder extends Seeder
             TicketStatusSeeder::class,
             AppointmentTypesSeeder::class,
             PaymentStatusSeeder::class,
-            TicketPrioritySeeder::class
+            TicketPrioritySeeder::class,
+            ContractDurationSeeder::class,
+            ContractPaymentTermSeeder::class
             /*TicketContractTypes::class,
             TicketProblemTypes::class*/
         ]);
