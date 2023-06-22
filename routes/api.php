@@ -117,6 +117,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::post('change-status', 'changeStatus');
             Route::post('filters', 'filters');
             Route::get('get-customer-address/{id}', 'getCustomerAddresses');
+            Route::post('update-list-status', 'updateListStatus');
             Route::group(['prefix' => 'comment'], function () {
                 Route::post('add', 'addComment');
                 Route::post('update/{id}', 'updateComment');
