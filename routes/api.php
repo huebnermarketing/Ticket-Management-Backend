@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\v1\Ticket\TicketController;
 use App\Http\Controllers\Api\v1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\v1\Contract\ContractController;
 
 /*
 |--------------------------------------------------------------------------
@@ -121,6 +122,10 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
                 Route::post('update/{id}', 'updateComment');
                 Route::delete('delete/{id}', 'deleteComment');
             });
+        });
+
+        Route::group(['prefix' => 'contract', 'controller' => ContractController::class], function () {
+            Route::post('create','store');
         });
     });
 });

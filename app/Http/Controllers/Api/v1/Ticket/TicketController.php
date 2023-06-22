@@ -89,7 +89,6 @@ class TicketController extends Controller
                 'state' => 'required',
                 'country' => 'required',
                 'primary_mobile' => 'required',
-
                 'problem_type_id' => 'required',
                 'problem_title' => 'required',
                 'due_date' => 'required',
@@ -97,7 +96,6 @@ class TicketController extends Controller
                 'priority_id' => 'required',
                 'assigned_user_id' => 'required',
                 'appointment_type_id' => 'required',
-
                 'ticket_amount' => 'required|numeric|gt:0',
                 'payment_type_id' => 'required',
                 'collected_amount' => 'required|numeric|gte:0',
