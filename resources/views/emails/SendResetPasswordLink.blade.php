@@ -12,7 +12,7 @@
         <p>If you did not initiate this request or believe it to be an error, you can safely ignore this email. Your password will remain unchanged.</p>
     </div>
     <div class="content">
-        <p>Best regards,<br>{{ $resetData['user_name'] }}<br>{{$companyName['company_name']}}</p>
+        <p>Best regards,<br>{{$companyName['company_name']}}</p>
     </div>
 
 </div>

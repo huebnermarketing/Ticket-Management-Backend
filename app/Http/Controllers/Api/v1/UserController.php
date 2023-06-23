@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Str;
 use Storage;
 use RestResponse;
 use Validator;
@@ -61,7 +62,7 @@ class UserController extends Controller
                 $validate = Validator::make($request->all(), [
                     'first_name' => 'required',
                     'last_name' => 'required',
-                    'email' => 'required|email',
+                    'email' => 'required|email|unique:users,email',
                     'password' => 'required|min:6|confirmed',
                     'password_confirmation' => 'required',
                     'phone' => 'required|unique:users|min:3|max:15',
@@ -76,7 +77,7 @@ class UserController extends Controller
                 $createUser['email'] = $request['email'];
                 $createUser['phone'] = $request['phone'];
                 $createUser['password'] = app('hash')->make($request['password']);
-                if(array_key_exists('profile_photo',$request->all())){
+                if(array_key_exists('profile_photo',$request->all()) && !empty($request['profile_photo'])){
                     if ($request->hasFile('profile_photo')) {
                         $photo = $request->file('profile_photo');
                         if (File::size($photo) > 2097152) {
@@ -149,7 +150,7 @@ class UserController extends Controller
                 $validate = Validator::make($request->all(), [
                     'first_name' => 'required',
                     'last_name' => 'required',
-                    'email' => 'required|email',
+                    'email' => 'required|email|unique:users,email,'.$id,
                     'phone' => 'required|min:3|max:15|unique:users,phone,'.$id,
                     'role_id' => 'required',
                     'is_active' => 'required',
@@ -300,9 +301,21 @@ class UserController extends Controller
                     return RestResponse::warning('User not found.');
                 }
                 $updateData = $request->except('profile_photo');
-                if(array_key_exists('profile_photo',$request->all())){
+                $s3 = Storage::disk('s3');
+                if(array_key_exists('profile_photo',$request->all()) && !empty($request['profile_photo'])){
+                    $uploadImage = uploadImage($request,'profile_photo','user_profile',$getUser);
+                    if(!empty($uploadImage)){
+                        $updateData['profile_photo'] = $uploadImage;
+                    }
+                }else{
+                    if ($getUser->profile_photo != "") {
+                        $s3->delete('user_profile/' . $getUser->profile_photo);
+                    }
+                    $updateData['profile_photo'] = null;
+                }
+                /*$s3 = Storage::disk('s3');
+                if(array_key_exists('profile_photo',$request->all()) && !empty($request['profile_photo'])){
                     $profilePhoto = $request->file('profile_photo');
-
                     if (!empty($profilePhoto)) {
                         if (File::size($profilePhoto) > 2097152) {
                             return RestResponse::warning('Profile Image upto 2 Mb max.', 422);
@@ -311,17 +324,25 @@ class UserController extends Controller
                         if (!in_array(strtolower($ext), array("png", "jpeg", "jpg", "gif", "svg"))) {
                             return RestResponse::warning('Profile Image must be a PNG, JPEG, GIF, SVG file.', 422);
                         }
-                    }
 
-                    $imageName = time() . '-' . rand(0, 100) . '.' . $profilePhoto->getClientOriginalExtension();
-                    $s3 = Storage::disk('s3');
-                    $filePath = 'user_profile/' . $imageName;
-                    $s3->put($filePath, file_get_contents($profilePhoto),'public');
+                        $imageName = time() . '-' . rand(0, 100) . '.' . $profilePhoto->getClientOriginalExtension();
+                        $filePath = 'user_profile/' . $imageName;
+                        $s3->put($filePath, file_get_contents($profilePhoto),'public');
+                        if ($getUser->profile_photo != "") {
+                            $s3->delete('user_profile/' . $getUser->profile_photo);
+                        }
+                        $updateData['profile_photo'] = $imageName;
+                    }else {
+                        if (!Str::contains($request['profile_photo'], $getUser->getAttributes()['profile_photo'])) {
+                            return RestResponse::warning('Whoops something went wrong.');
+                        }
+                    }
+                }else{
                     if ($getUser->profile_photo != "") {
                         $s3->delete('user_profile/' . $getUser->profile_photo);
                     }
-                    $updateData['profile_photo'] = $imageName;
-                }
+                    $updateData['profile_photo'] = null;
+                }*/
                 User::where('id',$userId)->update($updateData);
                 return RestResponse::Success([],'User updated successfully.');
             }else {

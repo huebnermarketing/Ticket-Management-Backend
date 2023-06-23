@@ -50,13 +50,14 @@ class CustomerRepository implements CustomerRepositoryInterface
         $orderBy = (!empty($filters) && array_key_exists('order_by',$filters)) && !empty($filters['order_by']) ? $filters['order_by'] : 'DESC';
         $pageLimit = (!empty($filters) && array_key_exists('total_record',$filters)) && !empty($filters['total_record']) ? $filters['total_record'] : config('constant.PAGINATION_RECORD');
 
-        return Customers::select('customers.id','customers.first_name','customers.last_name',
-                'customer_phones.phone','customers.email','customer_locations.company_name')
+        $customer = Customers::select('customers.id','customers.first_name','customers.last_name',
+            'customer_phones.phone','customers.email','customer_locations.company_name')
             ->join('customer_locations', 'customers.id', 'customer_locations.customer_id')
             ->join('customer_phones', 'customers.id', 'customer_phones.customer_id')
             ->where('customer_locations.is_primary',1)
             ->where('customer_phones.is_primary',1)
             ->orderBy($sortValue,$orderBy)->paginate($pageLimit);
+        return $customer;
     }
 
     public function findCustomer($id)
@@ -127,17 +128,13 @@ class CustomerRepository implements CustomerRepositoryInterface
         if (empty($getAddress)) {
             return RestResponse::warning('Customer address not found.');
         }
-        if($getAddress->is_primary != 1){
-            $getAddress['address_line1'] = $data['address_line1'];
-            $getAddress['company_name'] = $data['company_name'];
-            $getAddress['area'] = $data['area'];
-            $getAddress['city'] = $data['city'];
-            $getAddress['zipcode'] = $data['zipcode'];
-            $getAddress['state'] = $data['state'];
-            $getAddress['country'] = $data['country'];
-            return $getAddress->save();
-        }else{
-            return false;
-        }
+        $getAddress['address_line1'] = $data['address_line1'];
+        $getAddress['company_name'] = $data['company_name'];
+        $getAddress['area'] = $data['area'];
+        $getAddress['city'] = $data['city'];
+        $getAddress['zipcode'] = $data['zipcode'];
+        $getAddress['state'] = $data['state'];
+        $getAddress['country'] = $data['country'];
+        return $getAddress->save();
     }
 }

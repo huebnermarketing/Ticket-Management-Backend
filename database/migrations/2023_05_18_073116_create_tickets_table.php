@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('tickets', function (Blueprint $table) {
             $table->bigIncrements('id');
-            $table->string('url_slug');
+            $table->string('unique_id');
             $table->enum('ticket_type',['adhoc','contract'])->default('adhoc')->comment('adhoc,contract');
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('customer_locations_id');
-            $table->unsignedBigInteger('problem_type_id');
+            //$table->unsignedBigInteger('problem_type_id');
             $table->unsignedBigInteger('ticket_status_id');
             $table->unsignedBigInteger('priority_id');
             $table->unsignedBigInteger('assigned_user_id');
@@ -36,7 +36,7 @@ return new class extends Migration
 
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->foreign('customer_locations_id')->references('id')->on('customer_locations');
-            $table->foreign('problem_type_id')->references('id')->on('problem_types');
+            //$table->foreign('problem_type_id')->references('id')->on('problem_types');
             $table->foreign('ticket_status_id')->references('id')->on('ticket_statuses');
             $table->foreign('priority_id')->references('id')->on('ticket_priorities');
             $table->foreign('assigned_user_id')->references('id')->on('users');
