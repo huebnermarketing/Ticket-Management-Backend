@@ -77,4 +77,38 @@ class ContractController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
+
+    public function clientContractList(Request $request){
+        try{
+            if(Auth::user()->hasPermissionTo($this->perContractCRUD)) {
+                $clientContractList = $this->contractRepository->getClientContracts($request);
+                if(!$clientContractList){
+                    return RestResponse::warning('Client Contract List Not Found.');
+                }
+                return RestResponse::Success($clientContractList,'Contracts retrieve successfully.');
+            }else {
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
+            }
+        }catch(\Exception $e){
+            DB::rollBack();
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function searchClient(Request $request){
+         try{
+                 if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                     $searchClient = $this->contractRepository->getSearchClient($request);
+                     if(!$searchClient){
+                         return RestResponse::warning('Client Not Found.');
+                     }
+                     return RestResponse::Success($searchClient, 'Client retrieve successfully.');
+                 }else{
+                     return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
+                 }
+         }catch(\Exception $e){
+             DB::rollBack();
+             return RestResponse::error($e->getMessage(), $e);
+         }
+    }
 }
