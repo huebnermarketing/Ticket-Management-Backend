@@ -15,8 +15,15 @@ class TicketPrioritySeeder extends Seeder
      */
     public function run()
     {
-        $priorityType = ['High','Low','Medium'];
-        $clientPriorityType = ['High','Low'];
+        $priorityType = [
+            ['priority_name' => 'High', 'text_color' => '#FFFFFF', 'background_color' => '#FF1C1C'],
+            ['priority_name' => 'Low', 'text_color' => '#FFFFFF', 'background_color' => '#F48200'],
+            ['priority_name' => 'Medium', 'text_color' => '#FFFFFF', 'background_color' => '#48AB1A']
+        ];
+        $clientPriorityType = [
+            ['priority_name' => 'High', 'text_color' => '#FFFFFF', 'background_color' => '#000000'],
+            ['priority_name' => 'Low', 'text_color' => '#FFFFFF', 'background_color' => '#000000']
+        ];
 
         $getSeederType = config('constant.SEEDER_TYPE');
         $priorityTypes = ($getSeederType == 'owner') ? $priorityType : $clientPriorityType;
@@ -24,7 +31,9 @@ class TicketPrioritySeeder extends Seeder
         foreach ($priorityTypes as $type){
             $chekExists = TicketPriority::where('priority_name',$type)->exists();
             if(!$chekExists){
-                $priority['priority_name'] = $type;
+                $priority['priority_name'] = $type['priority_name'];
+                $priority['text_color'] = $type['text_color'];
+                $priority['background_color'] = $type['background_color'];
                 $priority['is_active'] = 1;
                 TicketPriority::create($priority);
             }
