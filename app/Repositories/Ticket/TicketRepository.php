@@ -38,7 +38,7 @@ class TicketRepository implements TicketRepositoryInterface
 
     public function storeTicket($data)
     {
-        $paymentMode = (array_key_exists('payment_mode',$data->all()) && isset($data['payment_mode'])) ? $data['payment_mode'] : 'cash';
+        $paymentMode = (array_key_exists('payment_mode',$data->all()) && isset($data['payment_mode'])) ? $data['payment_mode'] : null;
         $ticketPayload = [
             'ticket_type' => $data['ticket_type'],
             'unique_id' => $data['unique_id'],
@@ -80,8 +80,7 @@ class TicketRepository implements TicketRepositoryInterface
     public function updateTicket($data,$ticketId)
     {
         $getTicket = $this->findTicket($ticketId);
-        $paymentMode = (array_key_exists('payment_mode',$data->all()) && isset($data['payment_mode'])) ? $data['payment_mode'] : 'cash';
-
+        $paymentMode = (array_key_exists('payment_mode',$data->all()) && isset($data['payment_mode'])) ? $data['payment_mode'] : null;
         $getTicket['ticket_type'] = $data['ticket_type'];
         $getTicket['customer_locations_id'] = $data['customer_locations_id'];
         $getTicket['problem_title'] = $data['problem_title'];
