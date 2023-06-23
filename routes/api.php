@@ -127,9 +127,10 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
 
         Route::group(['prefix' => 'contract', 'controller' => ContractController::class], function () {
             Route::post('create','store');
-            Route::get('index','index');
-            Route::post('client-contract-list','clientContractList');
+            Route::post('client-list','index');
+            Route::post('contract-list','contractList');
             Route::post('search','searchClient');
+            Route::post('archive-contract','archiveContract');
         });
     });
 });
