@@ -67,7 +67,7 @@ class ProblemTypeController extends Controller
                 if(!$create){
                     return RestResponse::warning('Problem type create failed.');
                 }
-                return RestResponse::success([], 'Problem type created successfully.');
+                return RestResponse::success($create, 'Problem type created successfully.');
             }else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
