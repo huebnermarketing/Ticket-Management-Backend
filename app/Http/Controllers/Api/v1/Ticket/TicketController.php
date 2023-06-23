@@ -102,7 +102,7 @@ class TicketController extends Controller
                 'payment_type_id' => 'required',
                 'collected_amount' => 'required|numeric|gte:0',
                 'remaining_amount' => 'required',
-                'payment_mode' => 'required'
+                //'payment_mode' => 'required'
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
@@ -242,7 +242,7 @@ class TicketController extends Controller
                 'payment_type_id' => 'required',
                 'collected_amount' => 'required|numeric|gte:0',
                 'remaining_amount' => 'required',
-                'payment_mode' => 'required',
+                //'payment_mode' => 'required',
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());

@@ -19,9 +19,9 @@ class TicketFilter extends AbstractEloquentFilter
                 'customer_location',
                 'assigned_engineer'=> function($qry){ $qry->select('id','first_name','last_name','profile_photo'); },
                 'appointment_type' => function($qry){ $qry->select('id','appointment_name'); },
-                'ticket_priority' => function($qry){ $qry->select('id','priority_name'); },
-                'ticket_status' => function($qry){ $qry->select('id','status_name'); },
-                'payment_status' => function($qry){ $qry->select('id','payment_type'); }]);
+                'ticket_priority' => function($qry){ $qry->select('id','priority_name','text_color','background_color'); },
+                'ticket_status' => function($qry){ $qry->select('id','status_name','text_color','background_color'); },
+                'payment_status' => function($qry){ $qry->select('id','payment_type','text_color','background_color'); }]);
 
         if(isset($this->request->customer_id) && (count($this->request->customer_id) > 0)){
             $ticketQuery = $ticketQuery->whereIn('customer_id',$this->request->customer_id);
