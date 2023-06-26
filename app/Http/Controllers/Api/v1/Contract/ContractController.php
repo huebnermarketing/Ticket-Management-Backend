@@ -19,10 +19,10 @@ class ContractController extends Controller
         $this->perContractCRUD = config('constant.PERMISSION_CONTRACT_TYPE_CRUD');
     }
 
-    public function index(){
+    public function index(Request $request){
         try{
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)) {
-                $contractList = $this->contractRepository->getContracts();
+                $contractList = $this->contractRepository->getContracts($request);
                 if(!$contractList){
                     return RestResponse::warning('Contract List Not Found.');
                 }
@@ -78,7 +78,7 @@ class ContractController extends Controller
         }
     }
 
-    public function clientContractList(Request $request){
+    public function contractList(Request $request){
         try{
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)) {
                 $clientContractList = $this->contractRepository->getClientContracts($request);
@@ -97,18 +97,36 @@ class ContractController extends Controller
 
     public function searchClient(Request $request){
          try{
-                 if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
-                     $searchClient = $this->contractRepository->getSearchClient($request);
-                     if(!$searchClient){
-                         return RestResponse::warning('Client Not Found.');
-                     }
-                     return RestResponse::Success($searchClient, 'Client retrieve successfully.');
-                 }else{
-                     return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
+             if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                 $searchClient = $this->contractRepository->getSearchClient($request);
+                 if(!$searchClient){
+                     return RestResponse::warning('Client Not Found.');
                  }
+                 return RestResponse::Success($searchClient, 'Client retrieve successfully.');
+             }else{
+                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
+             }
          }catch(\Exception $e){
              DB::rollBack();
              return RestResponse::error($e->getMessage(), $e);
          }
+    }
+
+    public function archiveContract(Request $request)
+    {
+        try{
+            if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                $archiveContract = $this->contractRepository->archiveNotarchiveContract($request);
+                if(!$archiveContract){
+                    return RestResponse::warning('Contract Not Found.');
+                }
+                return RestResponse::Success($archiveContract, 'Contract archived successfully.');
+            }else{
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
+            }
+        }catch(\Exception $e){
+            DB::rollBack();
+            return RestResponse::error($e->getMessage(), $e);
+        }
     }
 }
