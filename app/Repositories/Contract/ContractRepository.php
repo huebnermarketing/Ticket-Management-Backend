@@ -44,7 +44,7 @@ class ContractRepository implements ContractRepositoryInterface
             $data['client_name'] = $customerData['first_name'] . ' ' . $customerData['last_name'];
             $data['client_total_active_contract'] = $contractList->count();
             $data['active_contract_amount'] = $contractList->sum('amount');
-            $data['remaining_amount'] = $contractList->sum('remaining_amount');;
+            $data['remaining_amount'] = $contractList->sum('remaining_amount');
             $data['open_contract_ticket'] = Tickets::where(['customer_id' => $request['customer_id'], 'ticket_type' => 'contract'])->whereNot('ticket_status_id', 4)->count();
             return $data;
         }else{
@@ -53,9 +53,9 @@ class ContractRepository implements ContractRepositoryInterface
     }
 
     public function getContractDetails(){
-        $customers = Customers::join('customer_phones', 'customer_phones.customer_id', 'customers.id')
-            ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.customer_id','customer_phones.phone')->get();
-        $data['customers'] = $customers;
+//        $customers = Customers::join('customer_phones', 'customer_phones.customer_id', 'customers.id')
+//            ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.customer_id','customer_phones.phone')->get();
+//        $data['customers'] = $customers;
 
         $contractType = ContractType::select('id','contract_name')->get();
         $data['contract_services'] = $contractType;
