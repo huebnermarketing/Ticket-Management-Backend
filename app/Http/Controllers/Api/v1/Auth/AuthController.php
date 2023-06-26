@@ -29,7 +29,7 @@ class AuthController extends Controller
         try {
             if($request['permission'] == $this->perUserAuth){
                 $validate = Validator::make($request->all(), [
-                    'email' => 'required',
+                    'email' => 'required|email',
                     'password' => 'required|min:6'
                 ]);
 
@@ -42,7 +42,7 @@ class AuthController extends Controller
                 $credentials['is_active'] = 1;
                 $checkUser = Auth::attempt($credentials);
                 if (!$checkUser) {
-                    return RestResponse::warning('Incorrect user OR password.', 422);
+                    return RestResponse::warning('Incorrect credentials! Please try again.', 422);
                 }
 
                 $getUser = User::with('role')->where('email', '=', $credentials['email'])->first();
@@ -53,7 +53,7 @@ class AuthController extends Controller
                 $response['access_token'] = $getUser->createToken('Api Token')->accessToken;
                 $response['user'] = $getUser;
                 $response['permissions'] = $getUser->getAllPermissions();
-                return RestResponse::success($response, 'Access token successfully retrieved.');
+                return RestResponse::success($response, 'Login is successful!');
             } else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
@@ -67,7 +67,7 @@ class AuthController extends Controller
         try{
             if(Auth::user()->hasPermissionTo($this->perUserAuth)){
                 Auth::user()->token()->delete();
-                return RestResponse::success([], 'Token successfully removed.');
+                return RestResponse::success([], 'Logout is successful!');
             } else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
