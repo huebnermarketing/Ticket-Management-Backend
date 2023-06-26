@@ -31,12 +31,12 @@ class UserRepository implements UserRepositoryInterface
 
     public function findUser($id)
     {
-        return User::where(['is_active' => 1 ,'is_verified' =>1 ,'id' => $id])->find($id);
+        return User::find($id);
     }
 
     public function findUserWithRole($id)
     {
-        return User::with('role')->where(['is_active' => 1 ,'is_verified' =>1 ,'id' => $id])->find($id);
+        return User::with('role')->find($id);
     }
 
     public function updateUser($data, $id)
