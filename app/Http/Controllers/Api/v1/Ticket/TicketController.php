@@ -102,7 +102,7 @@ class TicketController extends Controller
                 'payment_type_id' => 'required',
                 'collected_amount' => 'required|numeric|gte:0',
                 'remaining_amount' => 'required',
-                'payment_mode' => 'required'
+                //'payment_mode' => 'required'
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
@@ -147,7 +147,8 @@ class TicketController extends Controller
                 return RestResponse::warning('Ticket create failed.');
             }
 
-            $findUser = $this->userRepository->findUser($request['assigned_user_id']);
+            //$findUser = $this->userRepository->findUser($request['assigned_user_id']);
+            $findUser = User::find($request['assigned_user_id']);
             $authUser = Auth::user();
             $mailData = [
                 'assign_user_name' => $findUser['first_name'] .' '.$findUser['last_name'],
@@ -171,12 +172,18 @@ class TicketController extends Controller
     public function show()
     {
         try{
-            $data['assign_engineer'] =  User::all();
-            $data['problem_types'] = ProblemType::all();
-            $data['ticket_status'] = TicketStatus::all();
-            $data['appointment_type'] = AppointmentTypes::all();
-            $data['payment_status'] = PaymentTypes::all();
-            $data['payment_mode'] = config('constant.PAYMENT_MODE');
+            $data['customers'] = Customers::join('customer_phones', 'customer_phones.customer_id', 'customers.id')
+                ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.customer_id','customer_phones.phone')->get();
+
+            /*$data['assign_engineer'] = User::with(['role'])->whereHas('role', function($qry){
+                $qry->where('role_slug','user');
+            })->get();*/
+            $data['assign_engineer'] =  User::where('is_active',1)->get();
+            $data['problem_types'] = ProblemType::get();
+            $data['ticket_status'] = TicketStatus::get();
+            $data['appointment_type'] = AppointmentTypes::get();
+            $data['payment_status'] = PaymentTypes::get();
+            $data['payment_mode'] = array_map('ucfirst', config('constant.PAYMENT_MODE'));
             $data['ticket_priorities'] = TicketPriority::where('is_active',1)->get();
             return RestResponse::Success($data, 'Ticket details retrieve successfully.');
         }catch (\Exception $e) {
@@ -236,7 +243,7 @@ class TicketController extends Controller
                 'payment_type_id' => 'required',
                 'collected_amount' => 'required|numeric|gte:0',
                 'remaining_amount' => 'required',
-                'payment_mode' => 'required',
+                //'payment_mode' => 'required',
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
@@ -386,4 +393,26 @@ class TicketController extends Controller
         }
     }
 
+    public function updateListStatus(Request $request,$ticketId)
+    {
+        try {
+            $getTicket = $this->ticketRepository->findTicket($ticketId);
+            if(array_key_exists('due_date',$request->all()) && !empty($request['due_date'])){
+                $getTicket['due_date'] = $request['due_date'];
+            }
+            if(array_key_exists('assigned_user_id',$request->all()) && !empty($request['assigned_user_id'])){
+                $getTicket['assigned_user_id'] = $request['assigned_user_id'];
+            }
+            if(array_key_exists('priority_id',$request->all()) && !empty($request['priority_id'])){
+                $getTicket['priority_id'] = $request['priority_id'];
+            }
+            if(array_key_exists('ticket_status_id',$request->all()) && !empty($request['ticket_status_id'])){
+                $getTicket['ticket_status_id'] = $request['ticket_status_id'];
+            }
+            $getTicket->save();
+            return RestResponse::Success($getTicket,'Ticket updated successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
 }

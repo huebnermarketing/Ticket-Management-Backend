@@ -33,6 +33,7 @@ Route::prefix('v1')->group(function () {
         Route::post('forgot-password', 'forgotPasswordLinkEmail');
         Route::post('reset-password-details', 'getResetPwdUserDetails');
         Route::post('reset-password', 'resetPassword');
+        Route::get('get-company-details', 'getCompanyDetails');
     });
 });
 Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function () {
@@ -118,6 +119,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::post('change-status', 'changeStatus');
             Route::post('filters', 'filters');
             Route::get('get-customer-address/{id}', 'getCustomerAddresses');
+            Route::post('update-list-status/{id}', 'updateListStatus');
             Route::group(['prefix' => 'comment'], function () {
                 Route::post('add', 'addComment');
                 Route::post('update/{id}', 'updateComment');
