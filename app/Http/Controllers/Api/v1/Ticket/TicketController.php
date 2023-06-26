@@ -102,7 +102,7 @@ class TicketController extends Controller
                 'payment_type_id' => 'required',
                 'collected_amount' => 'required|numeric|gte:0',
                 'remaining_amount' => 'required',
-                'payment_mode' => 'required'
+                //'payment_mode' => 'required'
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
@@ -242,7 +242,7 @@ class TicketController extends Controller
                 'payment_type_id' => 'required',
                 'collected_amount' => 'required|numeric|gte:0',
                 'remaining_amount' => 'required',
-                'payment_mode' => 'required',
+                //'payment_mode' => 'required',
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
@@ -392,4 +392,26 @@ class TicketController extends Controller
         }
     }
 
+    public function updateListStatus(Request $request,$ticketId)
+    {
+        try {
+            $getTicket = $this->ticketRepository->findTicket($ticketId);
+            if(array_key_exists('due_date',$request->all()) && !empty($request['due_date'])){
+                $getTicket['due_date'] = $request['due_date'];
+            }
+            if(array_key_exists('assigned_user_id',$request->all()) && !empty($request['assigned_user_id'])){
+                $getTicket['assigned_user_id'] = $request['assigned_user_id'];
+            }
+            if(array_key_exists('priority_id',$request->all()) && !empty($request['priority_id'])){
+                $getTicket['priority_id'] = $request['priority_id'];
+            }
+            if(array_key_exists('ticket_status_id',$request->all()) && !empty($request['ticket_status_id'])){
+                $getTicket['ticket_status_id'] = $request['ticket_status_id'];
+            }
+            $getTicket->save();
+            return RestResponse::Success($getTicket,'Ticket updated successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
 }

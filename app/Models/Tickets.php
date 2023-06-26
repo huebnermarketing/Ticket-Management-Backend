@@ -91,9 +91,9 @@ class Tickets extends Model
             'customer_location','problem_types',
             'assigned_engineer'=> function($qry){ $qry->select('id','first_name','last_name','profile_photo'); },
             'appointment_type' => function($qry){ $qry->select('id','appointment_name'); },
-            'ticket_priority' => function($qry){ $qry->select('id','priority_name'); },
-            'ticket_status' => function($qry){ $qry->select('id','status_name'); },
-            'payment_status' => function($qry){ $qry->select('id','payment_type'); }]);
+            'ticket_priority' => function($qry){ $qry->select('id','priority_name','text_color','background_color'); },
+            'ticket_status' => function($qry){ $qry->select('id','status_name','text_color','background_color'); },
+            'payment_status' => function($qry){ $qry->select('id','payment_type','text_color','background_color'); }]);
     }
 
     public function scopePaymentStatus($query,$status)

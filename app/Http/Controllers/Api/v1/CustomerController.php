@@ -144,7 +144,7 @@ class CustomerController extends Controller
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update the specified resource in  storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
@@ -294,9 +294,6 @@ class CustomerController extends Controller
                     return RestResponse::validationError($validate->errors());
                 }
                 $addAddress = $this->customerRepository->updateAddress($request->all(),$id);
-                if(!$addAddress){
-                    return RestResponse::warning("You can't update the primary address.");
-                }
                 return RestResponse::Success([],'Customer address updated successfully.');
             }else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
