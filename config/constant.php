@@ -55,6 +55,13 @@ return [
         ['slug' => 'qtr', 'display_name'=>'Qtr'],
         ['slug' => 'half-year', 'display_name'=>'Half Year'],
         ['slug' => 'all-at-once', 'display_name'=>'All at Once'],
+    ],
+
+    'CONTRACT_STATUS' => [
+        ['status_name' =>'Active'],
+        ['status_name' =>'Closed'],
+        ['status_name' =>'Upcoming'],
+        ['status_name' =>'Suspended'],
     ]
 ];
 

@@ -7,23 +7,24 @@ use App\Repositories\Contract\ContractRepositoryInterface;
 use App\Models\Contract;
 use App\Models\ContractServiceType;
 use App\Models\ContractProductService;
-use App\Models\customerContract;
+use App\Models\CustomerContract;
 use App\Filters\CustomerFilter;
 use Pricecurrent\LaravelEloquentFilters\EloquentFilters;
 
 class ContractRepository implements ContractRepositoryInterface
 {
-    public function getContracts(){
-        $customers = Customers::withCount(['contract' => function($query){
-            $query->where('is_active','1');
-        }])->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
+    public function getContracts($request){
+        $type = ($request['is_active'] == 'Active') ? '1' : '0';
+        $customers = Customers::withCount(['contract' => function($query) use($type){
+            $query->where('is_active',$type);
+        }])->having('contract_count', '>', 0)->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
         $data['list'] = $customers;
         $data['active_contract'] = Contract::where('is_active','1')->count();
         $data['paid_amount'] = Contract::where('is_active','1')->sum('amount');
         $data['remaining_amount'] = Contract::where('is_active','1')->sum('amount');
         $data['open_contract_ticket'] = Tickets::with(['contract' => function($query){
             $query->where('is_active','1');
-        }])->where(['ticket_status_id'=>1, 'ticket_type'=>'contract'])->count();
+        }])->where(['ticket_type'=>'contract'])->whereNot('ticket_status_id','4')->count();
         return $data;
     }
 
@@ -88,7 +89,7 @@ class ContractRepository implements ContractRepositoryInterface
             'contract_id'=>$contractId,
             'customer_id' => $customerId
         ];
-        return customerContract::create($contractCostomerPayload);
+        return CustomerContract::create($contractCostomerPayload);
     }
 
     public function getSearchClient($data){
@@ -96,5 +97,11 @@ class ContractRepository implements ContractRepositoryInterface
 
         $clients = Customers::filter($filters)->get();
         return $clients;
+    }
+
+    public function archiveNotarchiveContract($data){
+        $archive = ($data['archive'] == 'yes') ? 1 : 0;
+        $contractData = Contract::where(['id'=> $data['contract_id'], 'customer_id'=>$data['customer_id']])->update(['is_archive'=>$archive]);
+        return $contractData;
     }
 }
