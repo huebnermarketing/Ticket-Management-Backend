@@ -2,14 +2,14 @@
 
 namespace App\Models;
 
-use App\Traits\RolePermissionTrait;
+use App\Traits\CommonTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class AppointmentTypes extends Model
 {
-    use HasFactory,SoftDeletes,RolePermissionTrait;
+    use HasFactory,SoftDeletes,CommonTrait;
 
     protected $fillable = ['id','unique_id','appointment_name','deleted_at','created_at','updated_at'];
 
@@ -17,7 +17,7 @@ class AppointmentTypes extends Model
     {
         parent::boot();
         static::creating(function ($model) {
-            $model->unique_id = $this->generateId();
+            $model->unique_id = static::generateId();
         });
     }
     /*protected static function generateId()
