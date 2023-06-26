@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendPasswordVerificationLink;
+use App\Models\CompanySettings;
 use App\Models\PasswordVerificationEmail;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -203,6 +204,18 @@ class AuthController extends Controller
             } else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function getCompanyDetails(Request $request){
+        try{
+            $getCompanySetting = CompanySettings::select('id','company_name','company_logo','company_favicon')->first();
+            if(empty($getCompanySetting)){
+                return RestResponse::warning('Company Settings not found.');
+            }
+            return RestResponse::success($getCompanySetting, 'Company Setting retrieve successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
