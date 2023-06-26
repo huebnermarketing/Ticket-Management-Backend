@@ -29,18 +29,11 @@ class OwnerSeeder extends Seeder
         $companySetting = CompanySettings::create($setting);
 
         $ownerData = [
-          'first_name' => 'Sarah',
-          'last_name' => 'Danforth',
-          'email' => 'owner@gmail.com',
+          'first_name' => 'Sarah1',
+          'last_name' => 'Danforth1',
+          'email' => 'owner1@gmail.com',
           'password' => app('hash')->make('123456'),
-          'phone' => '9879205700 ',
-          'company_name' => 'Systune Systems Services',
-          'address' => '66, management enclave Shopping Center, Opp. Indraprasth bunglow',
-          'area' => 'Vastrapur',
-          'zipcode' => '380015',
-          'city' => 'Ahmedabad',
-          'state' => 'Gujarat',
-          'country' => 'India',
+          'phone' => '9879205701',
           'is_active' => 1,
           'is_verified' => 1,
           'role_id' => 1
