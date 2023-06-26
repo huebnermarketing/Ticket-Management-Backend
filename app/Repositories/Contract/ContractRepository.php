@@ -28,16 +28,21 @@ class ContractRepository implements ContractRepositoryInterface
         return $data;
     }
 
-    public function getClientContracts($data){
-        $contractsList = Contract::
-            select('id','customer_id','contract_title','customer_location_id','start_date','end_date','amount','remaining_amount')
-            ->with(['customerLocation:id,customer_id,company_name,address_line1,area,zipcode,city,state,country,is_primary',
-                'contractServicesTypes' => function ($query) {
-                $query->with('contractTypes:id,contract_name')
+    public function getClientContracts($request){
+        $contractQuery = Contract::select('id','customer_id','contract_title','customer_location_id','start_date','end_date','amount','is_auto_renew','remaining_amount')
+            ->where(['customer_id'=>$request['customer_id'],'is_active'=>1,'is_archive'=>0]);
+        $contractList = $contractQuery->with(['customerLocation:id,customer_id,company_name,address_line1,area,zipcode,city,state,country,is_primary',
+                'contractServicesTypes' => function ($request) {
+                    $request->with('contractTypes:id,contract_name')
                     ->select('id','contract_id','contract_type_id');
-            }])
-            ->where('customer_id',$data['customer_id'])->orderBy('id','asc')->paginate(config('constant.PAGINATION_RECORD'));
-        return $contractsList;
+            }])->orderBy('id','asc')->paginate(config('constant.PAGINATION_RECORD'));
+        $activeContractAmount = $contractQuery->sum('amount');
+        $remainingAmount = $contractQuery->sum('remaining_amount');
+        $data['contract_list'] = $contractList;
+        $data['active_contract_amount'] = $activeContractAmount;
+        $data['remaining_amount'] = $remainingAmount;
+        $data['open_contract_ticket'] = Tickets::where(['customer_id'=>$request['customer_id'], 'ticket_type'=>'contract'])->whereNot('ticket_status_id',4)->count();
+        return $data;
     }
 
     public function storeContract($data){
