@@ -183,7 +183,7 @@ class TicketController extends Controller
             $data['ticket_status'] = TicketStatus::get();
             $data['appointment_type'] = AppointmentTypes::get();
             $data['payment_status'] = PaymentTypes::get();
-            $data['payment_mode'] = config('constant.PAYMENT_MODE');
+            $data['payment_mode'] = array_map('ucfirst', config('constant.PAYMENT_MODE'));
             $data['ticket_priorities'] = TicketPriority::where('is_active',1)->get();
             return RestResponse::Success($data, 'Ticket details retrieve successfully.');
         }catch (\Exception $e) {
