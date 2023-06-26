@@ -132,6 +132,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::post('contract-list','contractList');
             Route::post('search','searchClient');
             Route::post('archive-contract','archiveContract');
+            Route::get('get-details','getDetails');
         });
     });
 });
