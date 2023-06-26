@@ -22,6 +22,6 @@ class Customers extends Model
     }
     public function contract()
     {
-        return $this->belongsToMany(Contract::class,customerContract::class, 'customer_id','contract_id');
+        return $this->belongsToMany(Contract::class,CustomerContract::class, 'customer_id','contract_id');
     }
 }
