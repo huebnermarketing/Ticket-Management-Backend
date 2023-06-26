@@ -38,6 +38,7 @@ class TicketRepository implements TicketRepositoryInterface
 
     public function storeTicket($data)
     {
+        $paymentMode = (array_key_exists('payment_mode',$data->all()) && isset($data['payment_mode'])) ? $data['payment_mode'] : null;
         $ticketPayload = [
             'ticket_type' => $data['ticket_type'],
             'unique_id' => $data['unique_id'],
@@ -57,7 +58,7 @@ class TicketRepository implements TicketRepositoryInterface
             'payment_type_id' => $data['payment_type_id'],
             'collected_amount' => $data['collected_amount'],
             'remaining_amount' => $data['remaining_amount'],
-            'payment_mode' => $data['payment_mode']
+            'payment_mode' => $paymentMode
         ];
         $createTicket = Tickets::create($ticketPayload);
 
@@ -79,6 +80,7 @@ class TicketRepository implements TicketRepositoryInterface
     public function updateTicket($data,$ticketId)
     {
         $getTicket = $this->findTicket($ticketId);
+        $paymentMode = (array_key_exists('payment_mode',$data->all()) && isset($data['payment_mode'])) ? $data['payment_mode'] : null;
         $getTicket['ticket_type'] = $data['ticket_type'];
         $getTicket['customer_locations_id'] = $data['customer_locations_id'];
         $getTicket['problem_title'] = $data['problem_title'];
@@ -93,7 +95,7 @@ class TicketRepository implements TicketRepositoryInterface
         $getTicket['payment_type_id'] = $data['payment_type_id'];
         $getTicket['collected_amount'] = $data['collected_amount'];
         $getTicket['remaining_amount'] = $data['remaining_amount'];
-        $getTicket['payment_mode'] = $data['payment_mode'];
+        $getTicket['payment_mode'] = $paymentMode;
         $updateTicket = $getTicket->save();
         $getTicket->problem_types()->sync($data['problem_type_id']);
         return $updateTicket;
