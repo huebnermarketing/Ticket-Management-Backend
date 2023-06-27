@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\v1\Auth\AuthController;
+use App\Http\Controllers\Api\v1\Contract\InvoiceController;
 use App\Http\Controllers\Api\v1\CustomerController;
 use App\Http\Controllers\Api\v1\Settings\ContractTypeController;
 use App\Http\Controllers\Api\v1\Settings\ProblemTypeController;
@@ -134,6 +135,12 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::post('search','searchClient');
             Route::post('archive-contract','archiveContract');
             Route::get('get-details','getDetails');
+
+            Route::group(['prefix' => 'invoices','controller' => InvoiceController::class], function () {
+                Route::get('get-details/{id}', 'getInvoiceDetails');
+                Route::get('create/{id}', 'createInvoices'); //optional remove it after invoice flow create
+                Route::post('pay-invoice', 'payInvoiceAmount');
+            });
         });
     });
 });

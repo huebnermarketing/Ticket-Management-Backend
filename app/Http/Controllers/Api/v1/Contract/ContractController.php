@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\v1\Contract;
 
 use App\Http\Controllers\Controller;
+use App\Models\Contract;
 use App\Models\ContractServiceType;
 use App\Models\ContractType;
 use App\Repositories\Contract\ContractRepositoryInterface;
@@ -83,6 +84,12 @@ class ContractController extends Controller
                     return RestResponse::warning('Contract Product Service Not created.');
                 }
                 $storeContractCostomer = $this->contractRepository->storeContractCostomer($storeContract['id'],$request->customer_id);
+
+                $invoiceController = new InvoiceController;
+                $createInvoices = $invoiceController->createInvoices($storeContract['id']);
+                if($createInvoices){
+                    return RestResponse::warning('Contract Product Service Not created.');
+                }
                 DB::commit();
                 return RestResponse::Success([],'Contract created successfully.');
             }else {

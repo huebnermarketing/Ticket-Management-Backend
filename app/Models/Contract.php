@@ -2,12 +2,13 @@
 
 namespace App\Models;
 
+use App\Traits\CommonTrait;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Pricecurrent\LaravelEloquentFilters\Filterable;
 class Contract extends Model
 {
-    use HasFactory,Filterable;
+    use HasFactory,Filterable,CommonTrait;
 
     protected $fillable = ['unique_id','customer_id','customer_location_id','contract_title','contract_details','amount','duration_id',
         'payment_term_id','start_date','end_date','is_auto_renew','is_active','is_archive','is_suspended','remaining_amount'];
@@ -16,32 +17,37 @@ class Contract extends Model
     {
         parent::boot();
         static::creating(function ($model) {
-            $model->unique_id = static::generateId();
+            $model->unique_id = static::generateId('contract');
         });
     }
-    protected static function generateId()
-    {
-        $lastRecord = static::query()->orderByDesc('id')->first();
 
-        if ($lastRecord) {
-            $newId = $lastRecord->unique_id + 1;
-        } else {
-            $newId = config('constant.CONTRACT_UNIQUE_ID');
-        }
-        return str_pad($newId, 5, '0', STR_PAD_LEFT);
-    }
     public function customers()
     {
-        return $this->hasMany(Customers::class, 'id','customer_id');
+        return $this->belongsTo(Customers::class,'customer_id','id');
     }
 
     public function customerLocation()
     {
-        return $this->belongsTo(CustomerLocations::class,'customer_id','customer_id');
+        return $this->belongsTo(CustomerLocations::class,'customer_location_id','id');
     }
 
     public function contractServicesTypes()
     {
         return $this->hasMany(ContractServiceType::class,'contract_id','id');
+    }
+
+    public function duration()
+    {
+        return $this->belongsTo(ContractDuration::class,'duration_id','id');
+    }
+
+    public function payment_term()
+    {
+        return $this->belongsTo(ContractPaymentTerm::class,'payment_term_id','id');
+    }
+
+    public function invoices()
+    {
+        return $this->hasMany(Invoices::class,'contract_id','id');
     }
 }

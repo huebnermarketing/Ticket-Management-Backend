@@ -65,7 +65,6 @@ class ProductServiceController extends Controller
                 }
                 $create = ProductServices::create([
                     'service_name' => $request['service_name'],
-
                 ]);
                 if(!$create){
                     return RestResponse::warning('Product service create failed.');
