@@ -63,7 +63,11 @@ class TicketStatusController extends Controller
                 if ($validate->fails()) {
                     return RestResponse::validationError($validate->errors());
                 }
-                $createTicketStatus = TicketStatus::create(['status_name' => $request['status_name']]);
+                $createTicketStatus = TicketStatus::create([
+                    'status_name' => $request['status_name'],
+                    'text_color' => $request['text_color'],
+                    'background_color' => $request['background_color']
+                ]);
                 if(!$createTicketStatus){
                     return RestResponse::warning('Ticket status create failed.');
                 }
@@ -138,6 +142,8 @@ class TicketStatusController extends Controller
                 }
 
                 $findTicketStatus['status_name'] = $request['status_name'];
+                $findTicketStatus['text_color'] = $request['text_color'];
+                $findTicketStatus['background_color'] = $request['background_color'];
                 $findTicketStatus->save();
                 return RestResponse::success([], 'Ticket status updated successfully.');
             }else {

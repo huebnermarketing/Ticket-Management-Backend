@@ -136,7 +136,8 @@ class TicketController extends Controller
                 return RestResponse::warning('Ticket create failed.');
             }
 
-            $findUser = $this->userRepository->findUser($request['assigned_user_id']);
+            //$findUser = $this->userRepository->findUser($request['assigned_user_id']);
+            $findUser = User::find($request['assigned_user_id']);
             $authUser = Auth::user();
             $mailData = [
                 'assign_user_name' => $findUser['first_name'] .' '.$findUser['last_name'],
@@ -166,12 +167,12 @@ class TicketController extends Controller
             /*$data['assign_engineer'] = User::with(['role'])->whereHas('role', function($qry){
                 $qry->where('role_slug','user');
             })->get();*/
-            $data['assign_engineer'] =  User::all();
-            $data['problem_types'] = ProblemType::all();
-            $data['ticket_status'] = TicketStatus::all();
-            $data['appointment_type'] = AppointmentTypes::all();
-            $data['payment_status'] = PaymentTypes::all();
-            $data['payment_mode'] = config('constant.PAYMENT_MODE');
+            $data['assign_engineer'] =  User::where('is_active',1)->get();
+            $data['problem_types'] = ProblemType::get();
+            $data['ticket_status'] = TicketStatus::get();
+            $data['appointment_type'] = AppointmentTypes::get();
+            $data['payment_status'] = PaymentTypes::get();
+            $data['payment_mode'] = array_map('ucfirst', config('constant.PAYMENT_MODE'));
             $data['ticket_priorities'] = TicketPriority::where('is_active',1)->get();
             return RestResponse::Success($data, 'Ticket details retrieve successfully.');
         }catch (\Exception $e) {
