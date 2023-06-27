@@ -20,15 +20,36 @@ use App\Filters\ContractStatusFilter;
 
 class ContractRepository implements ContractRepositoryInterface
 {
+    public function getContractDetails(){
+//        $customers = Customers::join('customer_phones', 'customer_phones.customer_id', 'customers.id')
+//            ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.customer_id','customer_phones.phone')->get();
+//        $data['customers'] = $customers;
+
+        $contractType = ContractType::select('id','contract_name')->get();
+        $data['contract_services'] = $contractType;
+
+        $productService = ProductServices::select('id','service_name')->get();
+        $data['product_services'] = $productService;
+
+        $contractDuration = ContractDuration::select('id','slug','display_name')->get();
+        $data['contract_duration'] = $contractDuration;
+
+        $contractPaymentTerms = ContractPaymentTerm::select('id','slug','display_name')->get();
+        $data['contract_payment_terms'] = $contractPaymentTerms;
+        return $data;
+    }
+
     public function getContracts($request){
-        $type = ($request['is_active'] == 'Active') ? '1' : '0';
+        $type = ($request['type'] == 'Active') ? '1' : '0';
         $customers = Customers::withCount(['contract' => function($query) use($type){
             $query->where('is_active',$type);
         }])->having('contract_count', '>', 0)->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
+        $contracts = Contract::where('is_active','1');
+
         $data['list'] = $customers;
-        $data['active_contract'] = Contract::where('is_active','1')->count();
-        $data['paid_amount'] = Contract::where('is_active','1')->sum('amount');
-        $data['remaining_amount'] = Contract::where('is_active','1')->sum('remaining_amount');
+        $data['active_contract'] = $contracts->count();
+        $data['paid_amount'] = $contracts->sum('amount');
+        $data['remaining_amount'] = $contracts->sum('remaining_amount');
         $data['open_contract_ticket'] = Tickets::with(['contract' => function($query){
             $query->where('is_active','1');
         }])->where(['ticket_type'=>'contract'])->whereNot('ticket_status_id','4')->count();
@@ -48,27 +69,8 @@ class ContractRepository implements ContractRepositoryInterface
             $data['open_contract_ticket'] = Tickets::where(['customer_id' => $request['customer_id'], 'ticket_type' => 'contract'])->whereNot('ticket_status_id', 4)->count();
             return $data;
         }else{
-            return 'customer contract not found';
+            return false;
         }
-    }
-
-    public function getContractDetails(){
-//        $customers = Customers::join('customer_phones', 'customer_phones.customer_id', 'customers.id')
-//            ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.customer_id','customer_phones.phone')->get();
-//        $data['customers'] = $customers;
-
-        $contractType = ContractType::select('id','contract_name')->get();
-        $data['contract_services'] = $contractType;
-
-        $productService = ProductServices::select('id','service_name')->get();
-        $data['product_services'] = $productService;
-
-        $contractDuration = ContractDuration::select('id','slug','display_name')->get();
-        $data['contract_duration'] = $contractDuration;
-
-        $contractPaymentTerms = ContractPaymentTerm::select('id','slug','display_name')->get();
-        $data['contract_payment_terms'] = $contractPaymentTerms;
-        return $data;
     }
 
     public function storeContract($data){
@@ -107,21 +109,13 @@ class ContractRepository implements ContractRepositoryInterface
         foreach($data['product_service_id'] as $service){
             $contractProductServicePayload = [
                 'contract_id' => $productServiceId,
-                'product_service_id' => $service['service_id'],
-                'product_qty'=>$service['qty'],
+                'product_service_id' => $service['product_service_id'],
+                'product_qty'=>$service['product_qty'],
                 'product_amount'=> $service['product_amount']
             ];
             $productTypes = ContractProductService::create($contractProductServicePayload);
         }
         return $productTypes;
-    }
-
-    public function storeContractCostomer($contractId, $customerId){
-        $contractCostomerPayload = [
-            'contract_id'=>$contractId,
-            'customer_id' => $customerId
-        ];
-        return CustomerContract::create($contractCostomerPayload);
     }
 
     public function getSearchClient($data){
@@ -136,5 +130,21 @@ class ContractRepository implements ContractRepositoryInterface
         return $contractData;
     }
 
-
+    public function updateContract($data){
+        $checkContract = Contract::find($data['contract_id']);
+        if(!empty($checkContract)){
+            $updateContract = $checkContract->update([
+                'contract_title'=>$data['contract_title'],
+                'contract_details'=>$data['contract_details'],
+                'amount'=>$data['amount'],
+                'is_auto_renew'=>$data['is_auto_renew']
+            ]);
+            $checkContract->manyServiceType()->sync($data['contract_type_id']);
+            $checkContract->contractProductServices()->sync($data['contract_product_service_id']);
+            return $updateContract;
+        }
+        else{
+            return false;
+        }
+    }
 }

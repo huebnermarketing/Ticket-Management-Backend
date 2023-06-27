@@ -62,9 +62,9 @@ class ContractController extends Controller
                     'duration_id' => 'required',
                     'payment_term_id' => 'required',
                     'start_date' => 'required',
-                    'product_service_id.*service_id' => 'required',
-                    'product_service_id.*qty' => 'required|numeric|gt:0',
-                    'product_service_id.*product_amount' => 'required|numeric|gt:0'
+                    'contract_product_service_id.*.product_service_id' => 'required',
+                    'contract_product_service_id.*.product_qty' => 'required|numeric|gt:0',
+                    'contract_product_service_id.*.product_amount' => 'required|numeric|gt:0'
                 ]);
 
                 if ($validate->fails()) {
@@ -82,7 +82,7 @@ class ContractController extends Controller
                 if(!$storeContractProductService){
                     return RestResponse::warning('Contract Product Service Not created.');
                 }
-                $storeContractCostomer = $this->contractRepository->storeContractCostomer($storeContract['id'],$request->customer_id);
+//                $storeContractCostomer = $this->contractRepository->storeContractCostomer($storeContract['id'],$request->customer_id);
                 DB::commit();
                 return RestResponse::Success([],'Contract created successfully.');
             }else {
@@ -137,6 +137,34 @@ class ContractController extends Controller
                     return RestResponse::warning('Contract Not Found.');
                 }
                 return RestResponse::Success($archiveContract, 'Contract archived successfully.');
+            }else{
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
+            }
+        }catch(\Exception $e){
+            DB::rollBack();
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function updateContract(Request $request){
+        try{
+            DB::beginTransaction();
+            if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                $validate = Validator::make($request->all(), [
+                    "contract_id" => 'required',
+                    'contract_product_service_id.*.product_service_id' => 'required',
+                    'contract_product_service_id.*.product_qty' => 'required|numeric|gt:0',
+                    'contract_product_service_id.*.product_amount' => 'required|numeric|gt:0'
+                ]);
+                if ($validate->fails()) {
+                    return RestResponse::validationError($validate->errors());
+                }
+                $updateContract = $this->contractRepository->updateContract($request);
+                if(!$updateContract){
+                    return RestResponse::warning('Contract Not Updated.');
+                }
+                DB::commit();
+                return RestResponse::Success($updateContract, 'Contract updated successfully.');
             }else{
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }

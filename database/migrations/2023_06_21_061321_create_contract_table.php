@@ -19,7 +19,7 @@ return new class extends Migration
             $table->unsignedBigInteger('customer_location_id');
             $table->string('contract_title');
             $table->string('contract_details')->nullable();
-            $table->unsignedDouble('amount',8,2);
+            $table->unsignedDouble('amount');
             $table->unsignedBigInteger('duration_id');
             $table->unsignedBigInteger('payment_term_id');
             $table->date('start_date');
