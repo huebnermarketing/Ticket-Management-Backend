@@ -9,6 +9,7 @@ use App\Repositories\Contract\ContractRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use mysql_xdevapi\Warning;
 use Validator;
 use RestResponse;
 
@@ -25,19 +26,20 @@ class ContractController extends Controller
         try{
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)) {
                 $details = $this->contractRepository->getContractDetails();
-                return RestResponse::Success($details,'Contracts Details.');
+                return RestResponse::Success($details,'Contracts details.');
             }
         }catch(\Exception $e){
             DB::rollBack();
             return RestResponse::error($e->getMessage(), $e);
         }
     }
+
     public function index(Request $request){
         try{
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)) {
                 $contractList = $this->contractRepository->getContracts($request);
                 if(!$contractList){
-                    return RestResponse::warning('Contract List Not Found.');
+                    return RestResponse::warning('Contract list not found.');
                 }
                 DB::commit();
                 return RestResponse::Success($contractList,'Contracts retrieve successfully.');
@@ -49,6 +51,7 @@ class ContractController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
+
     public function store(Request $request){
         try{
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)) {
@@ -72,15 +75,15 @@ class ContractController extends Controller
                 }
                 $storeContract = $this->contractRepository->storeContract($request);
                 if(!$storeContract){
-                    return RestResponse::warning('Contract Not created.');
+                    return RestResponse::warning('Contract not created.');
                 }
                 $storeContractService = $this->contractRepository->storeContractService($storeContract['id'],$request);
                 if(!$storeContractService){
-                    return RestResponse::warning('Contract Service Not created.');
+                    return RestResponse::warning('Contract service not created.');
                 }
                 $storeContractProductService = $this->contractRepository->storeContractProductService($storeContract['id'],$request);
                 if(!$storeContractProductService){
-                    return RestResponse::warning('Contract Product Service Not created.');
+                    return RestResponse::warning('Contract product service not created.');
                 }
 //                $storeContractCostomer = $this->contractRepository->storeContractCostomer($storeContract['id'],$request->customer_id);
                 DB::commit();
@@ -99,7 +102,7 @@ class ContractController extends Controller
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)) {
                 $clientContractList = $this->contractRepository->getClientContracts($request);
                 if(!$clientContractList){
-                    return RestResponse::warning('Client Contract List Not Found.');
+                    return RestResponse::warning('Client contract list not found.');
                 }
                 return RestResponse::Success($clientContractList,'Contracts retrieve successfully.');
             }else {
@@ -111,12 +114,30 @@ class ContractController extends Controller
         }
     }
 
+    public function viewContract(Request $request){
+        try{
+            if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                $viewContract = $this->contractRepository->viewContract($request);
+                if(!$viewContract){
+                    return RestResponse::warning('Contract not found');
+                }
+                return RestResponse::Success($viewContract,'Contracts retrieve successfully.');
+            }else{
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
+            }
+
+        }catch(\Exception $e){
+            DB::rollBack();
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
     public function searchClient(Request $request){
          try{
              if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
                  $searchClient = $this->contractRepository->getSearchClient($request);
                  if(!$searchClient){
-                     return RestResponse::warning('Client Not Found.');
+                     return RestResponse::warning('Client not found.');
                  }
                  return RestResponse::Success($searchClient, 'Client retrieve successfully.');
              }else{
@@ -134,7 +155,7 @@ class ContractController extends Controller
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
                 $archiveContract = $this->contractRepository->archiveNotarchiveContract($request);
                 if(!$archiveContract){
-                    return RestResponse::warning('Contract Not Found.');
+                    return RestResponse::warning('Contract not found.');
                 }
                 return RestResponse::Success($archiveContract, 'Contract archived successfully.');
             }else{
@@ -161,7 +182,7 @@ class ContractController extends Controller
                 }
                 $updateContract = $this->contractRepository->updateContract($request);
                 if(!$updateContract){
-                    return RestResponse::warning('Contract Not Updated.');
+                    return RestResponse::warning('Contract not updated.');
                 }
                 DB::commit();
                 return RestResponse::Success($updateContract, 'Contract updated successfully.');
@@ -179,7 +200,7 @@ class ContractController extends Controller
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
                 $suspendContract = $this->contractRepository->suspendContract($request);
                 if(!$suspendContract){
-                    return RestResponse::warning('Contract Not Suspended.');
+                    return RestResponse::warning('Contract not suspended.');
                 }
                 return RestResponse::Success($suspendContract, 'Contract successfully Suspended.');
             }else{

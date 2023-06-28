@@ -72,6 +72,45 @@ class ContractRepository implements ContractRepositoryInterface
         }
     }
 
+    public function viewContract($data){
+
+        $contractDetails = Contract::with([
+            'customers' => function ($qry) {
+                $qry->with('phones', function ($query){
+                    $query->where("is_primary",1);
+                    $query->select('id','customer_id','phone','is_primary');
+                });
+                $qry->select('id','first_name','last_name','email');
+            },'customerLocation:id,customer_id,company_name,address_line1,area,zipcode,city,state,country',
+            'contractServicesTypes' => function ($request) {
+                $request->with('contractTypes:id,contract_name')
+                    ->select('id','contract_id','contract_type_id');
+            },'productService' => function($query){
+                $query->with('productService:id,unique_id,service_name')
+                ->select('id','contract_id','product_service_id','product_qty','product_amount');
+            },'duration:id,slug,display_name','paymentTerm:id,slug,display_name'
+            ])->select('id','unique_id','customer_id','customer_location_id','contract_title','contract_details','amount','duration_id',
+            'payment_term_id','start_date','end_date','is_auto_renew','is_active','is_archive','is_suspended')
+            ->where('id',$data['contract_id'])->first();
+
+        /*suspend button logic
+        first check contract active or archive
+        then check contract ticket all are closed*/
+        $contractstatus = Contract::where(['id' => $data['contract_id'],'is_active'=>1,'is_archive' => 0])->first();
+        if($contractstatus != null){
+            $checkTicketStatus = Tickets::with('ticket_status')
+                ->whereHas('ticket_status', function($qry){
+                    $qry->whereNot('unique_id',10004);
+                })->where(['contract_id'=> $data['contract_id']])->whereNull('deleted_at')->count();
+            $isSuspended = ($checkTicketStatus == 0) ? true : false;
+        }else{
+            $isSuspended = false;
+        }
+        $contractData['suspend_flag'] = $isSuspended;
+        $contractData['contract_details'] = $contractDetails;
+        return $contractData;
+    }
+
     public function storeContract($data){
         $contractPayload = [
             'unique_id' => $data['unique_id'],

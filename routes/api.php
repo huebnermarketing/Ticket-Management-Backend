@@ -136,6 +136,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::get('get-details','getDetails');
             Route::put('update','updateContract');
             Route::post('suspend-contract','suspendContract');
+            Route::get('view','viewContract');
         });
     });
 });
