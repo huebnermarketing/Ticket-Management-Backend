@@ -44,6 +44,18 @@ class InvoiceController extends Controller
         }
     }
 
+    public function updateInvoices($contractId){
+        try{
+            $getContract = Contract::find($contractId);
+            if(empty($getContract)){
+                return RestResponse::warning('Contract not found.');
+            }
+            dd($getContract);
+            return RestResponse::Success('Contract invoices updated successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
     public function getContractDuration($duration){
         if($duration == 'year'){
             return 12;

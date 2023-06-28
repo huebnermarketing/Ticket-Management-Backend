@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Repositories\Contract;
+use App\Http\Controllers\Api\v1\Contract\InvoiceController;
 use App\Models\ContractDuration;
 use App\Models\ContractPaymentTerm;
 use App\Models\ContractType;
@@ -170,6 +171,10 @@ class ContractRepository implements ContractRepositoryInterface
 
     public function updateContract($data){
         $checkContract = Contract::find($data['contract_id']);
+        $isAmountChanged = 0;
+        if($checkContract['amount'] != $data['amount']){
+            $isAmountChanged = 1;
+        }
         if(!empty($checkContract)){
             $updateContract = $checkContract->update([
                 'contract_title'=>$data['contract_title'],
@@ -179,6 +184,13 @@ class ContractRepository implements ContractRepositoryInterface
             ]);
             $checkContract->manyServiceType()->sync($data['contract_type_id']);
             $checkContract->contractProductServices()->sync($data['contract_product_service_id']);
+            if($isAmountChanged == 1){
+                $invoiceController = new InvoiceController;
+                $updateInvoice = $invoiceController->updateInvoices($data['contract_id']);
+                dd($updateInvoice);
+            }
+
+
             return $updateContract;
         }
         else{
