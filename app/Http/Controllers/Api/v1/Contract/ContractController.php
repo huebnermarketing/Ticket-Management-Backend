@@ -29,7 +29,6 @@ class ContractController extends Controller
                 return RestResponse::Success($details,'Contracts details.');
             }
         }catch(\Exception $e){
-            DB::rollBack();
             return RestResponse::error($e->getMessage(), $e);
         }
     }
@@ -41,13 +40,11 @@ class ContractController extends Controller
                 if(!$contractList){
                     return RestResponse::warning('Contract list not found.');
                 }
-                DB::commit();
                 return RestResponse::Success($contractList,'Contracts retrieve successfully.');
             }else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
         }catch(\Exception $e){
-            DB::rollBack();
             return RestResponse::error($e->getMessage(), $e);
         }
     }
@@ -109,7 +106,6 @@ class ContractController extends Controller
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
         }catch(\Exception $e){
-            DB::rollBack();
             return RestResponse::error($e->getMessage(), $e);
         }
     }
@@ -127,7 +123,6 @@ class ContractController extends Controller
             }
 
         }catch(\Exception $e){
-            DB::rollBack();
             return RestResponse::error($e->getMessage(), $e);
         }
     }
@@ -144,7 +139,6 @@ class ContractController extends Controller
                  return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
              }
          }catch(\Exception $e){
-             DB::rollBack();
              return RestResponse::error($e->getMessage(), $e);
          }
     }
@@ -153,10 +147,12 @@ class ContractController extends Controller
     {
         try{
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                DB::beginTransaction();
                 $archiveContract = $this->contractRepository->archiveNotarchiveContract($request);
                 if(!$archiveContract){
                     return RestResponse::warning('Contract not found.');
                 }
+                DB::commit();
                 return RestResponse::Success($archiveContract, 'Contract archived successfully.');
             }else{
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
@@ -169,8 +165,8 @@ class ContractController extends Controller
 
     public function updateContract(Request $request){
         try{
-            DB::beginTransaction();
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                DB::beginTransaction();
                 $validate = Validator::make($request->all(), [
                     "contract_id" => 'required',
                     'contract_product_service_id.*.product_service_id' => 'required',
@@ -198,10 +194,12 @@ class ContractController extends Controller
     public function suspendContract(Request $request){
         try{
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                DB::beginTransaction();
                 $suspendContract = $this->contractRepository->suspendContract($request);
                 if(!$suspendContract){
                     return RestResponse::warning('Contract not suspended.');
                 }
+                DB::commit();
                 return RestResponse::Success($suspendContract, 'Contract successfully Suspended.');
             }else{
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
