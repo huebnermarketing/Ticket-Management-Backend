@@ -150,10 +150,14 @@ class ContractRepository implements ContractRepositoryInterface
     public function suspendContract($data){
         $checkActiveContract = Contract::where(['is_active'=>1,'id'=>$data['contract_id'],'is_archive'=>0])->first();
         if(!empty($checkActiveContract)){
-            $checkTicketStatus = Tickets::where(['contract_id'=> $data['contract_id']])->whereNotIn('ticket_status_id', [1, 2, 3])->whereNull('deleted_at')->existsNot();
-            dd($checkTicketStatus);
-            if($checkTicketStatus === true){
+            $checkTicketStatus = Tickets::with('ticket_status')
+                ->whereHas('ticket_status', function($qry){
+                $qry->whereNot('unique_id',10004);
+            })->where(['contract_id'=> $data['contract_id']])->whereNull('deleted_at')->count();
+            if($checkTicketStatus == 0){
                 return Contract::where('id',$data['contract_id'])->update(['is_suspended'=>1]);
+            }else{
+                return false;
             }
         }else{
             return false;
