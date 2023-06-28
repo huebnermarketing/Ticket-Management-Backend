@@ -114,6 +114,7 @@ class ContractRepository implements ContractRepositoryInterface
     public function storeContract($data){
         $contractPayload = [
             'unique_id' => $data['unique_id'],
+            'parent_id' => array_key_exists('parent_id',$data['parent_id']) ? $data['parent_id'] : null,
             'customer_id' => $data['customer_id'],
             'customer_location_id' => $data['customer_location_id'],
             'contract_title' => $data['contract_title'],

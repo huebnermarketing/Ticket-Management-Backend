@@ -3,6 +3,9 @@
 namespace App\Console\Commands;
 
 use App\Models\Contract;
+use App\Models\ContractProductService;
+use App\Models\ContractServiceType;
+use App\Repositories\Contract\ContractRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 
@@ -27,15 +30,46 @@ class AutoRenewContract extends Command
      *
      * @return int
      */
-    public function handle()
+    private $contractRepository;
+
+    public function handle(ContractRepositoryInterface $contractRepository)
     {
         try{
+            $this->contractRepository = $contractRepository;
             $this->info('~~~~~~Auto Renew Start Execution ~~~~~~~~');
             Log::info('~~~~~~Auto Renew Start Execution ~~~~~~~~');
 
-            $contracts = Contract::wehre(['is_active'=>1,'is_archive'=>0])->get();
-//            foreach($contract )
+            $contracts = Contract::with('duration','contractServicesTypes','productService')->where(['is_active'=>1,'is_archive'=>0,'is_auto_renew'=>1])->get();
+            foreach($contracts as $contract){
+                $todayDate = date('Y-m-d');
+                $startDate = date('Y-m-d', strtotime($contract->end_date.' + 1 days'));
 
+                if($contract->duration->slug == 'year' || $contract->duration->slug == 'half-year' || $contract->duration->slug == 'qtr'){
+                    $getBeforeDate = date('Y-m-d', strtotime($contract->end_date.' - 30 days'));
+                }elseif($contract->duration->slug == 'month'){
+                    $getBeforeDate = date('Y-m-d', strtotime($contract->end_date.' - 10 days'));
+                }
+
+                if($contract->duration->slug == 'year'){
+                    $endData = date('Y-m-d', strtotime($contract->end_date.' + 365 days'));
+                }elseif($contract->duration->slug == 'half-year'){
+                    $endData = date('Y-m-d', strtotime($contract->end_date.' + 180 days'));
+                }elseif($contract->duration->slug == 'qtr'){
+                    $endData = date('Y-m-d', strtotime($contract->end_date.' + 120 days'));
+                }elseif($contract->duration->slug == 'month'){
+                    $endData = date('Y-m-d', strtotime($contract->end_date.' + 30 days'));
+                }
+                if($todayDate == $getBeforeDate){
+                    $contract->start_date = $startDate;
+                    $contract->end_date = $endData;
+                    $contract->parent_id = array($contract->id);
+                    $contract->contract_status_id = 3;
+                    $contract->is_active = 0;
+                    $storeContract = $this->contractRepository->storeContract($contract);
+                    $this->contractRepository->storeContractService($storeContract['id'],$contract->contractServicesTypes);
+                    $this->contractRepository->storeContractProductService($storeContract['id'],$contract->productService);
+                }
+            }
             Log::info('~~~~~~Auto Renew End Execution ~~~~~~~~');
             $this->info('~~~~~~Auto Renew End Execution ~~~~~~~~');
         }catch (\Exception $e){
