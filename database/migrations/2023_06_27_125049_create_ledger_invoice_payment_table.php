@@ -13,7 +13,7 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ledger_invoice_payment', function (Blueprint $table) {
+        Schema::create('ledger_invoice_payments', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('invoice_id');
             $table->unsignedBigInteger('ledger_invoice_id');
@@ -33,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ledger_invoice_payment');
+        Schema::dropIfExists('ledger_invoice_payments');
     }
 };
