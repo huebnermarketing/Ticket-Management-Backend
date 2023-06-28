@@ -16,11 +16,9 @@ use Validator;
 
 class InvoiceController extends Controller
 {
-
     public function createInvoices($contractId)
     {
         try{
-            $contractId = 4;
             $getContract = Contract::with(['duration','payment_term'])->find($contractId);
             if(empty($getContract)){
                 return RestResponse::warning('Contract not found.');

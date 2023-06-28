@@ -33,7 +33,33 @@ class Contract extends Model
 
     public function contractServicesTypes()
     {
-        return $this->hasMany(ContractServiceType::class,'contract_id','id');
+       return $this->hasMany(ContractServiceType::class,'contract_id','id');
+    }
+
+    public function manyServiceType()
+    {
+        return $this->belongsToMany(ContractType::class, ContractServiceType::class, 'contract_id', 'contract_type_id');
+    }
+
+    public function tickets()
+    {
+        return $this->hasMany(Tickets::class, 'contract_id','id');
+    }
+
+    public function contractProductServices(){
+        return $this->belongsToMany(ProductServices::class, ContractProductService::class, 'contract_id', 'product_service_id');
+    }
+
+    public function productService(){
+        return $this->hasMany(ContractProductService::class,'contract_id','id');
+    }
+
+    public function duration(){
+        return $this->belongsTo(ContractDuration::class,'duration_id','id');
+    }
+
+    public function paymentTerm(){
+        return $this->belongsTo(ContractPaymentTerm::class,'payment_term_id','id');
     }
 
     public function duration()
