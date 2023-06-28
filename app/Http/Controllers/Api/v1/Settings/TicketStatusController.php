@@ -58,7 +58,9 @@ class TicketStatusController extends Controller
         try{
             if(Auth::user()->hasPermissionTo($this->perTicketStatus)) {
                 $validate = Validator::make($request->all(), [
-                    'status_name' => 'required|unique:ticket_statuses,status_name,NULL,id,deleted_at,NULL'
+                    'status_name' => 'required|unique:ticket_statuses,status_name,NULL,id,deleted_at,NULL',
+                    'text_color' => 'required',
+                    'background_color' => 'required',
                 ]);
                 if ($validate->fails()) {
                     return RestResponse::validationError($validate->errors());
@@ -126,7 +128,9 @@ class TicketStatusController extends Controller
         try{
             if(Auth::user()->hasPermissionTo($this->perTicketStatus)) {
                 $validate = Validator::make($request->all(), [
-                    'status_name' => 'required|unique:ticket_statuses,status_name,'.$id.'NULL,id,deleted_at,NULL'
+                    'status_name' => 'required|unique:ticket_statuses,status_name,'.$id.'NULL,id,deleted_at,NULL',
+                    'text_color' => 'required',
+                    'background_color' => 'required'
                 ]);
                 if ($validate->fails()) {
                     return RestResponse::validationError($validate->errors());
