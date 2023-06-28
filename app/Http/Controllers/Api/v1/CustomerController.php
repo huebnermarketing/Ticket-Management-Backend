@@ -72,7 +72,7 @@ class CustomerController extends Controller
                DB::beginTransaction();
                $validate = Validator::make($request->all(), [
                    'first_name' => 'required',
-                   'email' => 'required|email',
+                   'email' => 'email',
                    'primary_mobile' => 'required',
                    'addresses.*.address_line1' => 'required',
                    'addresses.*.company_name' => 'required',
@@ -157,7 +157,7 @@ class CustomerController extends Controller
                 DB::beginTransaction();
                 $validate = Validator::make($request->all(), [
                     'first_name' => 'required',
-                    'email' => 'required|email',
+                    'email' => 'email',
                     'primary_mobile' => 'required',
                     'primary_address_id' => 'required'
                 ]);
