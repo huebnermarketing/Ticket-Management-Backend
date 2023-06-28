@@ -19,12 +19,12 @@ class InvoiceController extends Controller
     public function createInvoices($contractId)
     {
         try{
-            $getContract = Contract::with(['duration','payment_term'])->find($contractId);
+            $getContract = Contract::with(['duration','paymentTerm'])->find($contractId);
             if(empty($getContract)){
                 return RestResponse::warning('Contract not found.');
             }
             $getDuration = $this->getContractDuration($getContract['duration']['slug']);
-            $getPaymentTerm = $this->getPaymentTerm($getContract['payment_term']['slug'],$getDuration);
+            $getPaymentTerm = $this->getPaymentTerm($getContract['paymentTerm']['slug'],$getDuration);
 
             $totalInvoices = $getDuration / $getPaymentTerm;
             $perInvoiceAmount = $getContract['amount'] / $totalInvoices;
@@ -135,7 +135,7 @@ class InvoiceController extends Controller
     }
 
     public function adjustInvoiceAmount($contractId,$requestPayAmount,$ledgerInvoiceId){
-        $getUnpaidInvoice = Invoices::where(['contract_id' => $contractId,'is_invoice_paid' => 0])->first();
+        $getUnpaidInvoice = Invoices::where(['contract_id' => $contractId,'is_invoice_paid' => 0])->whereNot('status','Uncollectible')->first();
        if(empty($getUnpaidInvoice)){
             return RestResponse::warning('Contract invoice not found.');
         }
@@ -179,5 +179,10 @@ class InvoiceController extends Controller
                 $createLedgerInvoicePayment = LedgerInvoicePayments::create($ledgerPivot);
             }
         }
+    }
+
+    public function changeInvoiceStatus($contractId){
+        return Invoices::where(['contract_id' => $contractId,'is_invoice_paid' => 0])
+            ->update(['status' => 'Uncollectible']);
     }
 }

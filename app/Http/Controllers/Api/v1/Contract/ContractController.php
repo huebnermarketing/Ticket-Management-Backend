@@ -16,10 +16,12 @@ use RestResponse;
 class ContractController extends Controller
 {
     private $contractRepository;
+    private $invoiceController;
     public function __construct(ContractRepositoryInterface $contractRepository)
     {
         $this->contractRepository = $contractRepository;
         $this->perContractCRUD = config('constant.PERMISSION_CONTRACT_TYPE_CRUD');
+        $this->invoiceController = new InvoiceController;
     }
 
     public function getDetails(){
@@ -86,8 +88,7 @@ class ContractController extends Controller
                     return RestResponse::warning('Contract product service not created.');
                 }
 //                $storeContractCostomer = $this->contractRepository->storeContractCostomer($storeContract['id'],$request->customer_id);
-                $invoiceController = new InvoiceController;
-                $createInvoices = $invoiceController->createInvoices($storeContract['id']);
+                $createInvoices = $this->invoiceController->createInvoices($storeContract['id']);
                 if($createInvoices){
                     return RestResponse::warning('Contract Product Service Not created.');
                 }
@@ -207,7 +208,13 @@ class ContractController extends Controller
                 if(!$suspendContract){
                     return RestResponse::warning('Contract not suspended.');
                 }
-                return RestResponse::Success($suspendContract, 'Contract successfully Suspended.');
+                //Change contract invoice status
+                $updateInvoiceStatus = $this->invoiceController->changeInvoiceStatus($request['contract_id']);
+                if($updateInvoiceStatus){
+                    return RestResponse::Success('Contract suspended successfully.');
+                }else{
+                    return RestResponse::warning('Contract not updated successfully.');
+                }
             }else{
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }

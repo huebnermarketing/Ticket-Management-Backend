@@ -62,16 +62,6 @@ class Contract extends Model
         return $this->belongsTo(ContractPaymentTerm::class,'payment_term_id','id');
     }
 
-    public function duration()
-    {
-        return $this->belongsTo(ContractDuration::class,'duration_id','id');
-    }
-
-    public function payment_term()
-    {
-        return $this->belongsTo(ContractPaymentTerm::class,'payment_term_id','id');
-    }
-
     public function invoices()
     {
         return $this->hasMany(Invoices::class,'contract_id','id');
