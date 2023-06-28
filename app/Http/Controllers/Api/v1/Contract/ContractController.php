@@ -173,4 +173,21 @@ class ContractController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
+
+    public function suspendContract(Request $request){
+        try{
+            if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
+                $suspendContract = $this->contractRepository->suspendContract($request);
+                if(!$suspendContract){
+                    return RestResponse::warning('Contract Not Suspended.');
+                }
+                return RestResponse::Success($suspendContract, 'Contract successfully Suspended.');
+            }else{
+                return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
+            }
+        }catch(\Exception $e){
+            DB::rollBack();
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
 }

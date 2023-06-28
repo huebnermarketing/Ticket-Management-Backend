@@ -14,6 +14,7 @@ Interface ContractRepositoryInterface{
     public function getSearchClient($data);
     public function archiveNotarchiveContract($data);
     public function updateContract($data);
+    public function suspendContract($data);
 
 
 }

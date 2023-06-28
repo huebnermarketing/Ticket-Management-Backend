@@ -12,7 +12,6 @@ use App\Repositories\Contract\ContractRepositoryInterface;
 use App\Models\Contract;
 use App\Models\ContractServiceType;
 use App\Models\ContractProductService;
-use App\Models\CustomerContract;
 use App\Filters\CustomerFilter;
 use App\RestResource\RestResponse;
 use Pricecurrent\LaravelEloquentFilters\EloquentFilters;
@@ -144,6 +143,19 @@ class ContractRepository implements ContractRepositoryInterface
             return $updateContract;
         }
         else{
+            return false;
+        }
+    }
+
+    public function suspendContract($data){
+        $checkActiveContract = Contract::where(['is_active'=>1,'id'=>$data['contract_id'],'is_archive'=>0])->first();
+        if(!empty($checkActiveContract)){
+            $checkTicketStatus = Tickets::where(['contract_id'=> $data['contract_id']])->whereNotIn('ticket_status_id', [1, 2, 3])->whereNull('deleted_at')->existsNot();
+            dd($checkTicketStatus);
+            if($checkTicketStatus === true){
+                return Contract::where('id',$data['contract_id'])->update(['is_suspended'=>1]);
+            }
+        }else{
             return false;
         }
     }
