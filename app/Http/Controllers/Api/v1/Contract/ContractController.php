@@ -3,23 +3,25 @@
 namespace App\Http\Controllers\Api\v1\Contract;
 
 use App\Http\Controllers\Controller;
+use App\Models\Contract;
 use App\Models\ContractServiceType;
 use App\Models\ContractType;
 use App\Repositories\Contract\ContractRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use mysql_xdevapi\Warning;
 use Validator;
 use RestResponse;
 
 class ContractController extends Controller
 {
     private $contractRepository;
+    private $invoiceController;
     public function __construct(ContractRepositoryInterface $contractRepository)
     {
         $this->contractRepository = $contractRepository;
         $this->perContractCRUD = config('constant.PERMISSION_CONTRACT_TYPE_CRUD');
+        $this->invoiceController = new InvoiceController;
     }
 
     public function getDetails(){
@@ -83,6 +85,10 @@ class ContractController extends Controller
                     return RestResponse::warning('Contract product service not created.');
                 }
 //                $storeContractCostomer = $this->contractRepository->storeContractCostomer($storeContract['id'],$request->customer_id);
+                $createInvoices = $this->invoiceController->createInvoices($storeContract['id']);
+                if($createInvoices){
+                    return RestResponse::warning('Contract Product Service Not created.');
+                }
                 DB::commit();
                 return RestResponse::Success([],'Contract created successfully.');
             }else {
@@ -198,6 +204,13 @@ class ContractController extends Controller
                 $suspendContract = $this->contractRepository->suspendContract($request);
                 if(!$suspendContract){
                     return RestResponse::warning('Contract not suspended.');
+                }
+                //Change contract invoice status
+                $updateInvoiceStatus = $this->invoiceController->changeInvoiceStatus($request['contract_id']);
+                if($updateInvoiceStatus){
+                    return RestResponse::Success('Contract suspended successfully.');
+                }else{
+                    return RestResponse::warning('Contract not updated successfully.');
                 }
                 DB::commit();
                 return RestResponse::Success($suspendContract, 'Contract successfully Suspended.');

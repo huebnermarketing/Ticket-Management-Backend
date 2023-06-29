@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\v1\Auth\AuthController;
+use App\Http\Controllers\Api\v1\Contract\InvoiceController;
 use App\Http\Controllers\Api\v1\CustomerController;
 use App\Http\Controllers\Api\v1\Settings\ContractTypeController;
 use App\Http\Controllers\Api\v1\Settings\ProblemTypeController;
@@ -137,6 +138,12 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::put('update','updateContract');
             Route::post('suspend-contract','suspendContract');
             Route::get('view','viewContract');
+
+            Route::group(['prefix' => 'invoices','controller' => InvoiceController::class], function () {
+                Route::get('get-details/{id}', 'getInvoiceDetails');
+                Route::get('create/{id}', 'createInvoices'); //optional remove it after invoice flow create
+                Route::post('pay-invoice', 'payInvoiceAmount');
+            });
         });
     });
 });

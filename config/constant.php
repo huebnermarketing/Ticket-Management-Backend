@@ -12,6 +12,7 @@ return [
     'TICKET_UNIQUE_ID' =>  10001,
     'CONTRACT_UNIQUE_ID' =>  10001,
     'STATUSES_UNIQUE_ID' => 10001,
+    'INVOICE_ID' => 001,
     'SOMETHING_WENT_WRONG_ERROR' => 'Whoops something went wrong.',
     'USER_DONT_HAVE_PERMISSION'  =>  "You don't have permission to access this api.",
 
