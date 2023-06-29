@@ -16,7 +16,7 @@ class ContractStatusFilter extends AbstractEloquentFilter{
 
     public function apply(Builder $builder): Builder{
         $contractQuery = $builder->select('id','unique_id','customer_id','contract_title','customer_location_id','start_date','end_date','amount','is_auto_renew','remaining_amount')
-            ->where(['customer_id'=>$this->request['customer_id'],'is_active'=>1]);
+            ->where(['customer_id'=>$this->request['customer_id'],'open_ticket_contract'=>1]);
         $contractQuery = $contractQuery->withCount(['tickets' => function($qry){
             $qry->where("ticket_type",'contract');
         },'tickets AS open_tickets' => function($query){
@@ -30,7 +30,7 @@ class ContractStatusFilter extends AbstractEloquentFilter{
             },]);
         if(isset($this->request->status_type)){
             $statusId = ContractStatus::where('status_name',$this->request['status_type'])->first();
-            $contractList = $contractList->where('contract_status_id',$statusId);
+            $contractList = $contractList->where('contract_status_id',$statusId['id']);
         }
         return $contractList;
     }

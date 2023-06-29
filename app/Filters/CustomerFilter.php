@@ -15,7 +15,7 @@ class CustomerFilter extends AbstractEloquentFilter {
     public function apply(Builder $builder): Builder{
 
         $customers = $builder->withCount(['contract' => function($query){
-            $query->where('is_active','1');
+            $query->where('open_ticket_contract','1');
         }])->where('first_name', 'like', "{$this->request->search_text}%")->orWhere('last_name','like',"{$this->request->search_text}%");
         return $customers;
     }
