@@ -87,7 +87,7 @@ class Tickets extends Model
 
     public function scopeTicketRelations($query)
     {
-        return $query->with(['customer.phones'=> function($qry){ $qry->select('id','customer_id','phone'); },
+        return $query->with(['customer.phones'=> function($qry){ $qry->select('id','customer_id','phone','is_primary'); },
             'customer_location','problem_types',
             'assigned_engineer'=> function($qry){ $qry->select('id','first_name','last_name','profile_photo'); },
             'appointment_type' => function($qry){ $qry->select('id','appointment_name'); },
