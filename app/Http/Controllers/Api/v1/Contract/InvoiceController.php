@@ -43,19 +43,53 @@ class InvoiceController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
-
-    public function updateInvoices($contractId){
+    public function updateInvoices($contractId,$updatedAmount,$invoicePaidAmount){
         try{
-            $getContract = Contract::find($contractId);
-            if(empty($getContract)){
-                return RestResponse::warning('Contract not found.');
+            $remainingInvoiceAmount = $updatedAmount - $invoicePaidAmount;
+            $partiallyPaidInvoices = Invoices::where(['contract_id' => $contractId, 'status'=>'Partially Paid'])->first();
+            if(!empty($partiallyPaidInvoices)){
+                if($remainingInvoiceAmount == 0){
+                    $partiallyPaidInvoices['total_amount'] = $partiallyPaidInvoices['paid_amount'];
+                }else if($partiallyPaidInvoices['outstanding_amount'] <= $remainingInvoiceAmount){
+                    $remainingInvoiceAmount -= $partiallyPaidInvoices['outstanding_amount'];
+                    $partiallyPaidInvoices['paid_amount'] = $partiallyPaidInvoices['paid_amount'] + $partiallyPaidInvoices['outstanding_amount'];
+                    $ledgerPaymentPivot = [
+                        'invoice_id' => $partiallyPaidInvoices['id'],
+                        'contract_id' => $contractId,
+                        'adjustable_amount' => $partiallyPaidInvoices['outstanding_amount'],
+                        'is_contract_update' => 1
+                    ];
+                    $createLedgerInvoicePayment = LedgerInvoicePayments::create($ledgerPaymentPivot);
+                }else{
+                    $partiallyPaidInvoices['total_amount'] = $partiallyPaidInvoices['paid_amount'];
+                }
+                $partiallyPaidInvoices['outstanding_amount'] = 0;
+                $partiallyPaidInvoices['status'] = 'Paid';
+                $partiallyPaidInvoices['is_invoice_paid'] = 1;
+                $partiallyPaidInvoices->save();
             }
-            dd($getContract);
-            return RestResponse::Success('Contract invoices updated successfully.');
+
+            $getUnpaidInvoices = Invoices::where(['contract_id' => $contractId, 'status'=>'Unpaid','is_invoice_paid' => 0])->get();
+            if(count($getUnpaidInvoices) > 0){
+                if($remainingInvoiceAmount == 0){
+                    $this->changeInvoiceStatus($contractId);
+                }else{
+                    $perInvoiceAmount = (int) round($remainingInvoiceAmount / count($getUnpaidInvoices),0);
+                    foreach ($getUnpaidInvoices as $invoices){
+                        $invoices['total_amount'] = $perInvoiceAmount;
+                        $invoices['outstanding_amount'] = $perInvoiceAmount;
+                        $invoices->save();
+                    }
+                }
+            }
+            $getRemainingInvoiceSum = Invoices::where(['contract_id' => $contractId,'is_invoice_paid' => 0 ,'status' => 'Unpaid'])->sum('outstanding_amount');
+            $updateContract = Contract::where('id',$contractId)->update(['remaining_amount' => $getRemainingInvoiceSum]);
+            return true;
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
     }
+
     public function getContractDuration($duration){
         if($duration == 'year'){
             return 12;
@@ -148,6 +182,8 @@ class InvoiceController extends Controller
 
     public function adjustInvoiceAmount($contractId,$requestPayAmount,$ledgerInvoiceId){
         $getUnpaidInvoice = Invoices::where(['contract_id' => $contractId,'is_invoice_paid' => 0])->whereNot('status','Uncollectible')->first();
+        info('$getUnpaidInvoice---');
+        info($getUnpaidInvoice);
        if(empty($getUnpaidInvoice)){
             return RestResponse::warning('Contract invoice not found.');
         }
@@ -157,6 +193,7 @@ class InvoiceController extends Controller
             return false;
         }else {
             if($requestedAmount > $getUnpaidInvoice['outstanding_amount']){
+                info('inside if--1');
                 $ledgerPivot = [
                     'invoice_id' => $getUnpaidInvoice['id'],
                     'ledger_invoice_id' => $ledgerInvoiceId,
@@ -172,13 +209,15 @@ class InvoiceController extends Controller
                 $getUnpaidInvoice->save();
                 $this->adjustInvoiceAmount($contractId,$requestedAmount,$ledgerInvoiceId);
             }else{
+                info('inside else--1');
+                info($requestPayAmount);
                 if($requestedAmount == $getUnpaidInvoice['outstanding_amount']){
                     $getUnpaidInvoice['status'] = 'Paid';
                     $getUnpaidInvoice['is_invoice_paid'] = 1;
                 }else{
                     $getUnpaidInvoice['status'] = 'Partially Paid';
                 }
-                $getUnpaidInvoice['paid_amount'] = $requestPayAmount;
+                $getUnpaidInvoice['paid_amount'] = $getUnpaidInvoice['paid_amount'] + $requestPayAmount;
                 $getUnpaidInvoice['outstanding_amount'] = $getUnpaidInvoice['outstanding_amount'] - $requestPayAmount;
                 $getUnpaidInvoice->save();
                 $requestedAmount = 0;
