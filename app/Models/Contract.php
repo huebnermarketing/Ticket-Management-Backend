@@ -10,7 +10,7 @@ class Contract extends Model
     use HasFactory,Filterable;
 
     protected $fillable = ['unique_id','customer_id','customer_location_id','contract_title','contract_details','amount','duration_id',
-        'payment_term_id','start_date','end_date','is_auto_renew','is_active','is_archive','is_suspended','remaining_amount'];
+        'payment_term_id','start_date','end_date','is_auto_renew','is_active','is_suspended','remaining_amount'];
 
     protected static function boot()
     {

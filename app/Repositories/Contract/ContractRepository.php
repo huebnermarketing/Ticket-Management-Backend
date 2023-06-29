@@ -90,13 +90,13 @@ class ContractRepository implements ContractRepositoryInterface
                 ->select('id','contract_id','product_service_id','product_qty','product_amount');
             },'duration:id,slug,display_name','paymentTerm:id,slug,display_name'
             ])->select('id','unique_id','customer_id','customer_location_id','contract_title','contract_details','amount','duration_id',
-            'payment_term_id','start_date','end_date','is_auto_renew','is_active','is_archive','is_suspended')
+            'payment_term_id','start_date','end_date','is_auto_renew','is_active','is_suspended')
             ->where('id',$data['contract_id'])->first();
 
         /*suspend button logic
         first check contract active or archive
         then check contract ticket all are closed*/
-        $contractstatus = Contract::where(['id' => $data['contract_id'],'is_active'=>1,'is_archive' => 0])->first();
+        $contractstatus = Contract::where(['id' => $data['contract_id'],'is_active'=>1])->first();
         if($contractstatus != null){
             $checkTicketStatus = Tickets::with('ticket_status')
                 ->whereHas('ticket_status', function($qry){
@@ -112,6 +112,7 @@ class ContractRepository implements ContractRepositoryInterface
     }
 
     public function storeContract($data){
+        info($data);
         $contractPayload = [
             'unique_id' => $data['unique_id'],
             'parent_id' => array_key_exists('parent_id',$data['parent_id']) ? $data['parent_id'] : null,
@@ -127,7 +128,6 @@ class ContractRepository implements ContractRepositoryInterface
             'end_date' => $data['end_date'],
             'is_auto_renew' => 1,
             'is_active' => 1,
-            'is_archive' => 0,
             'is_suspended' => 0
         ];
         return Contract::create($contractPayload);

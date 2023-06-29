@@ -8,9 +8,11 @@ use App\Models\ContractServiceType;
 use App\Repositories\Contract\ContractRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
+use App\Traits\CommonTrait;
 
 class AutoRenewContract extends Command
 {
+    use CommonTrait;
     /**
      * The name and signature of the console command.
      *
@@ -39,7 +41,7 @@ class AutoRenewContract extends Command
             $this->info('~~~~~~Auto Renew Start Execution ~~~~~~~~');
             Log::info('~~~~~~Auto Renew Start Execution ~~~~~~~~');
 
-            $contracts = Contract::with('duration','contractServicesTypes','productService')->where(['is_active'=>1,'is_archive'=>0,'is_auto_renew'=>1])->get();
+            $contracts = Contract::with('duration','contractServicesTypes','productService')->where(['is_active'=>1,'is_auto_renew'=>1,'id'=>2])->get();
             foreach($contracts as $contract){
                 $todayDate = date('Y-m-d');
                 $startDate = date('Y-m-d', strtotime($contract->end_date.' + 1 days'));
@@ -65,14 +67,15 @@ class AutoRenewContract extends Command
                     $contract->parent_id = array($contract->id);
                     $contract->contract_status_id = 3;
                     $contract->is_active = 0;
-                    $storeContract = $this->contractRepository->storeContract($contract);
-                    $this->contractRepository->storeContractService($storeContract['id'],$contract->contractServicesTypes);
-                    $this->contractRepository->storeContractProductService($storeContract['id'],$contract->productService);
+                    $storeContract = $this->contractRepository->storeContract(array($contract));
+                    $this->contractRepository->storeContractService($storeContract['id'],array($contract));
+                    $this->contractRepository->storeContractProductService($storeContract['id'],array($contract));
                 }
             }
             Log::info('~~~~~~Auto Renew End Execution ~~~~~~~~');
             $this->info('~~~~~~Auto Renew End Execution ~~~~~~~~');
         }catch (\Exception $e){
+            $this->info($e->getLine());
             $this->info($e->getMessage());
         }
     }

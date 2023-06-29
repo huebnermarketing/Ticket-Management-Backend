@@ -26,7 +26,7 @@ return new class extends Migration
             $table->date('end_date')->nullable();
             $table->tinyInteger('is_auto_renew')->default(1)->comment('0=NotAutoRenew, 1=AutoRenew');
             $table->tinyInteger('is_active')->default(1)->comment('0=Inactive, 1=Active');
-            $table->tinyInteger('is_archive')->default(0)->comment('0=NotArchive, 1=Archive');
+//            $table->tinyInteger('is_archive')->default(0)->comment('0=NotArchive, 1=Archive');
             $table->tinyInteger('is_suspended')->default(0)->comment('0=NotSuspended, 1=Suspended');
 
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
