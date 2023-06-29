@@ -113,10 +113,8 @@ class ContractRepository implements ContractRepositoryInterface
     }
 
     public function storeContract($data){
-        info($data);
         $contractPayload = [
-            'unique_id' => $data['unique_id'],
-            'parent_id' => array_key_exists('parent_id',$data['parent_id']) ? $data['parent_id'] : null,
+            'parent_id' => array_key_exists('parent_id',$data->toArray()) ? $data['parent_id'] : null,
             'customer_id' => $data['customer_id'],
             'customer_location_id' => $data['customer_location_id'],
             'contract_title' => $data['contract_title'],
@@ -146,7 +144,7 @@ class ContractRepository implements ContractRepositoryInterface
     }
 
     public function storeContractProductService($productServiceId, $data){
-        foreach($data['product_service_id'] as $service){
+        foreach($data['contract_product_service_id'] as $service){
             $contractProductServicePayload = [
                 'contract_id' => $productServiceId,
                 'product_service_id' => $service['product_service_id'],

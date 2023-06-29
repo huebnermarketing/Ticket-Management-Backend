@@ -62,14 +62,30 @@ class AutoRenewContract extends Command
                     $endData = date('Y-m-d', strtotime($contract->end_date.' + 30 days'));
                 }
                 if($todayDate == $getBeforeDate){
+                    Log::info('called'.$todayDate);
                     $contract->start_date = $startDate;
                     $contract->end_date = $endData;
-                    $contract->parent_id = array($contract->id);
+                    $contract->parent_id = $contract['id'];
                     $contract->contract_status_id = 3;
                     $contract->is_active = 0;
-                    $storeContract = $this->contractRepository->storeContract(array($contract));
-                    $this->contractRepository->storeContractService($storeContract['id'],array($contract));
-                    $this->contractRepository->storeContractProductService($storeContract['id'],array($contract));
+                    $storeContract = $this->contractRepository->storeContract($contract);
+                    Log::info('New Contract Id: '.$storeContract['id']);
+                    $types['contract_type_id'] = [];
+                    foreach($contract->contractServicesTypes as $type){
+                        array_push($types['contract_type_id'],$type->contract_type_id);
+                    }
+                    $this->contractRepository->storeContractService($storeContract['id'],$types);
+
+                    $productTypes['contract_product_service_id'] = [];
+                    foreach($contract->productService as $types){
+                        $productserviceType =  [
+                            'product_service_id'=>$types->product_service_id,
+                            'product_qty'=>$types->product_qty,
+                            'product_amount'=>$types->product_amount,
+                        ];
+                        array_push($productTypes['contract_product_service_id'],$productserviceType);
+                    }
+                    $this->contractRepository->storeContractProductService($storeContract['id'],$productTypes);
                 }
             }
             Log::info('~~~~~~Auto Renew End Execution ~~~~~~~~');

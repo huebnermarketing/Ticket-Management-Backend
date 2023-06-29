@@ -14,7 +14,7 @@ return new class extends Migration
     public function up()
     {
         Schema::table('contracts', function (Blueprint $table) {
-            $table->unsignedDouble('remaining_amount',8,2)->after('is_suspended');
+            $table->unsignedDouble('remaining_amount')->after('is_suspended');
         });
     }
 

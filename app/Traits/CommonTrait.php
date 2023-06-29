@@ -3,9 +3,13 @@ namespace App\Traits;
 
 trait CommonTrait
 {
-    public static function generateId($type = null)
+    public static function generateId($type = null,$isSoftDeleted = null)
     {
-        $lastRecord = static::query()->withTrashed()->orderByDesc('id')->first();
+        if($isSoftDeleted == 1){
+            $lastRecord = static::query()->withTrashed()->orderByDesc('id')->first();
+        }else{
+            $lastRecord = static::query()->orderByDesc('id')->first();
+        }
         $length = 5;
         if ($lastRecord) {
             $newId = $lastRecord->unique_id + 1;

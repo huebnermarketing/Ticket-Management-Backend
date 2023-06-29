@@ -17,7 +17,7 @@ class Contract extends Model
     {
         parent::boot();
         static::creating(function ($model) {
-            $model->unique_id = static::generateId('contract');
+            $model->unique_id = static::generateId('contract',0);
         });
     }
 
