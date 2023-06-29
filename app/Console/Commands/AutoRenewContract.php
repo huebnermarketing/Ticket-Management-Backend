@@ -41,7 +41,7 @@ class AutoRenewContract extends Command
             $this->info('~~~~~~Auto Renew Start Execution ~~~~~~~~');
             Log::info('~~~~~~Auto Renew Start Execution ~~~~~~~~');
 
-            $contracts = Contract::with('duration','contractServicesTypes','productService')->where(['is_active'=>1,'is_auto_renew'=>1,'id'=>2])->get();
+            $contracts = Contract::with('duration','contractServicesTypes','productService')->where(['is_active'=>1,'is_auto_renew'=>1])->get();
             foreach($contracts as $contract){
                 $todayDate = date('Y-m-d');
                 $startDate = date('Y-m-d', strtotime($contract->end_date.' + 1 days'));

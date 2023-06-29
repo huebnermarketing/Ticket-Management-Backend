@@ -123,6 +123,7 @@ class ContractRepository implements ContractRepositoryInterface
             'remaining_amount'=>$data['amount'],
             'duration_id' => $data['duration_id'],
             'payment_term_id' => $data['payment_term_id'],
+            'contract_status_id' => 1,
             'start_date' => $data['start_date'],
             'end_date' => $data['end_date'],
             'is_auto_renew' => 1,
@@ -186,7 +187,6 @@ class ContractRepository implements ContractRepositoryInterface
             if($isAmountChanged == 1){
                 $invoiceController = new InvoiceController;
                 $updateInvoice = $invoiceController->updateInvoices($data['contract_id']);
-                dd($updateInvoice);
             }
 
 
@@ -205,7 +205,7 @@ class ContractRepository implements ContractRepositoryInterface
                 $qry->whereNot('unique_id',10004);
             })->where(['contract_id'=> $data['contract_id']])->whereNull('deleted_at')->count();
             if($checkTicketStatus == 0){
-                return Contract::where('id',$data['contract_id'])->update(['is_suspended'=>1]);
+                return Contract::where('id',$data['contract_id'])->update(['is_suspended'=>1,'contract_status_id'=>4]);
             }else{
                 return false;
             }
