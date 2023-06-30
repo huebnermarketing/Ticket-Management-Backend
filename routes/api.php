@@ -110,9 +110,9 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
         });
 
         Route::group(['prefix' => 'ticket', 'controller' => TicketController::class], function () {
-            Route::get('get-detail', 'show');
+            Route::post('get-detail', 'show');
             Route::post('create', 'store');
-            Route::get('list', 'index');
+            Route::post('list', 'index');
             Route::get('view/{id}', 'view');
             Route::post('update/{id}', 'update');
             Route::delete('delete/{id}', 'destroy');
