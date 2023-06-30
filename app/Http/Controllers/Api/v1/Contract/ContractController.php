@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Contract;
 use App\Models\ContractServiceType;
 use App\Models\ContractType;
+use App\Models\Invoices;
 use App\Repositories\Contract\ContractRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -182,12 +183,22 @@ class ContractController extends Controller
                 if ($validate->fails()) {
                     return RestResponse::validationError($validate->errors());
                 }
+
+                $getPaidInvoiceSum = Invoices::where(['contract_id'=>$request['contract_id']])->whereIn('status',['Paid','Partially Paid'])->sum('paid_amount');
+                if($getPaidInvoiceSum > $request['amount']){
+                    return RestResponse::warning("You can't update contract amount less than the paid amount.");
+                }
+
                 $updateContract = $this->contractRepository->updateContract($request);
-                if(!$updateContract){
+                if(!$updateContract['is_updated']){
                     return RestResponse::warning('Contract not updated.');
                 }
+                if($updateContract['is_amount_change'] == 1){
+                    $invoiceController = new InvoiceController;
+                    $updateInvoice = $invoiceController->updateInvoices($request['contract_id'],$request['amount'],$getPaidInvoiceSum);
+                }
                 DB::commit();
-                return RestResponse::Success($updateContract, 'Contract updated successfully.');
+                return RestResponse::Success('Contract updated successfully.');
             }else{
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }

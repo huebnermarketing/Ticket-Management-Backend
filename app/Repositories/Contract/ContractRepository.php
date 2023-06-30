@@ -14,7 +14,6 @@ use App\Models\Contract;
 use App\Models\ContractServiceType;
 use App\Models\ContractProductService;
 use App\Filters\CustomerFilter;
-use App\RestResource\RestResponse;
 use Pricecurrent\LaravelEloquentFilters\EloquentFilters;
 use App\Filters\ContractStatusFilter;
 
@@ -176,10 +175,7 @@ class ContractRepository implements ContractRepositoryInterface
 
     public function updateContract($data){
         $checkContract = Contract::find($data['contract_id']);
-        $isAmountChanged = 0;
-        if($checkContract['amount'] != $data['amount']){
-            $isAmountChanged = 1;
-        }
+        $isAmountChanged = ($checkContract['amount'] != $data['amount']) ? 1 : 0;
         if(!empty($checkContract)){
             $updateContract = $checkContract->update([
                 'contract_title'=>$data['contract_title'],
@@ -189,16 +185,12 @@ class ContractRepository implements ContractRepositoryInterface
             ]);
             $checkContract->manyServiceType()->sync($data['contract_type_id']);
             $checkContract->contractProductServices()->sync($data['contract_product_service_id']);
-            if($isAmountChanged == 1){
-                $invoiceController = new InvoiceController;
-                $updateInvoice = $invoiceController->updateInvoices($data['contract_id']);
-            }
-
-
-            return $updateContract;
-        }
-        else{
-            return false;
+            $response['is_updated'] = $updateContract;
+            $response['is_amount_change'] = $isAmountChanged;
+            return $response;
+        }else{
+            $response['is_updated'] = false;
+            return $response;
         }
     }
 

@@ -16,9 +16,10 @@ return new class extends Migration
         Schema::create('ledger_invoice_payments', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->unsignedBigInteger('invoice_id');
-            $table->unsignedBigInteger('ledger_invoice_id');
+            $table->unsignedBigInteger('ledger_invoice_id')->nullable();
             $table->unsignedBigInteger('contract_id');
             $table->double('adjustable_amount');
+            $table->tinyInteger('is_contract_update')->default(0)->comment('0=Not update, 1=Contract Update');
             $table->foreign('invoice_id')->references('id')->on('invoices');
             $table->foreign('ledger_invoice_id')->references('id')->on('ledger_invoices');
             $table->foreign('contract_id')->references('id')->on('contracts');
