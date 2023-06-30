@@ -87,7 +87,7 @@ class ContractController extends Controller
 //                $storeContractCostomer = $this->contractRepository->storeContractCostomer($storeContract['id'],$request->customer_id);
                 $createInvoices = $this->invoiceController->createInvoices($storeContract['id']);
                 if($createInvoices){
-                    return RestResponse::warning('Contract Product Service Not created.');
+                    return RestResponse::warning('Contract Invoices Not created.');
                 }
                 DB::commit();
                 return RestResponse::Success([],'Contract created successfully.');

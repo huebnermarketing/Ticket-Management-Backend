@@ -48,14 +48,14 @@ class ContractRepository implements ContractRepositoryInterface
 //        $customers = Customers::withCount(['contract' => function($query) use($type){
 //            $query->where('is_active',$type);
 //        }])->having('contract_count', '>', 0)->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
-        $contracts = Contract::where('contract_status_id','1');
+        $contracts = Contract::where('contract_status_id',getStatusId(10001)->id);
 
         $data['list'] = $customers;
         $data['active_contract'] = $contracts->count();
         $data['paid_amount'] = $contracts->sum('amount');
         $data['remaining_amount'] = $contracts->sum('remaining_amount');
         $data['open_contract_ticket'] = Tickets::with(['contract' => function($query){
-            $query->where('contract_status_id','1');
+            $query->where('contract_status_id',getStatusId(10001)->id);
         }])->where(['ticket_type'=>'contract'])->whereNot('ticket_status_id','4')->count();
         return $data;
     }
@@ -101,7 +101,7 @@ class ContractRepository implements ContractRepositoryInterface
         /*suspend button logic
         first check contract active or archive
         then check contract ticket all are closed*/
-        $contractstatus = Contract::where(['id' => $data['contract_id'],'contract_status_id'=>1])->first();
+        $contractstatus = Contract::where(['id' => $data['contract_id'],'contract_status_id'=>getStatusId(10001)->id])->first();
         if($contractstatus != null){
             $checkTicketStatus = Tickets::with('ticket_status')
                 ->whereHas('ticket_status', function($qry){
@@ -117,6 +117,7 @@ class ContractRepository implements ContractRepositoryInterface
     }
 
     public function storeContract($data){
+        $statusId = ($data['contract_status_id'] != null) ? $data['contract_status_id'] : getStatusId(10001)->id;
         $contractPayload = [
             'parent_id' => array_key_exists('parent_id',$data->toArray()) ? $data['parent_id'] : null,
             'customer_id' => $data['customer_id'],
@@ -127,7 +128,7 @@ class ContractRepository implements ContractRepositoryInterface
             'remaining_amount'=>$data['amount'],
             'duration_id' => $data['duration_id'],
             'payment_term_id' => $data['payment_term_id'],
-            'contract_status_id' => 1,
+            'contract_status_id' => $statusId,
             'start_date' => $data['start_date'],
             'end_date' => $data['end_date'],
             'is_auto_renew' => 1,
@@ -202,14 +203,14 @@ class ContractRepository implements ContractRepositoryInterface
     }
 
     public function suspendContract($data){
-        $checkActiveContract = Contract::where(['contract_status_id'=>1,'id'=>$data['contract_id']])->first();
+        $checkActiveContract = Contract::where(['contract_status_id'=>getStatusId(10001)->id,'id'=>$data['contract_id']])->first();
         if(!empty($checkActiveContract)){
             $checkTicketStatus = Tickets::with('ticket_status')
                 ->whereHas('ticket_status', function($qry){
                 $qry->whereNot('unique_id',10004);
             })->where(['contract_id'=> $data['contract_id']])->whereNull('deleted_at')->count();
             if($checkTicketStatus == 0){
-                return Contract::where('id',$data['contract_id'])->update(['is_suspended'=>1,'contract_status_id'=>4]);
+                return Contract::where('id',$data['contract_id'])->update(['is_suspended'=>1,'contract_status_id'=>getStatusId(10004)->id]);
             }else{
                 return false;
             }
