@@ -188,7 +188,7 @@ class ContractController extends Controller
                     return RestResponse::validationError($validate->errors());
                 }
 
-                $getPaidInvoiceSum = Invoices::where(['contract_id'=>$request['contract_id'],'status' => 'Paid','is_invoice_paid' =>1])->sum('paid_amount');
+                $getPaidInvoiceSum = Invoices::where(['contract_id'=>$request['contract_id']])->whereIn('status',['Paid','Partially Paid'])->sum('paid_amount');
                 if($getPaidInvoiceSum > $request['amount']){
                     return RestResponse::warning("You can't update contract amount less than the paid amount.");
                 }
