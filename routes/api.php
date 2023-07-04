@@ -122,6 +122,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::post('update-list-status/{id}', 'updateListStatus');
             Route::group(['prefix' => 'comment'], function () {
                 Route::post('add', 'addComment');
+                Route::get('{id}/list','listComment');
                 Route::post('update/{id}', 'updateComment');
                 Route::delete('delete/{id}', 'deleteComment');
             });
