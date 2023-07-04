@@ -87,9 +87,9 @@ class TicketController extends Controller
                 'priority_id' => 'required',
                 'assigned_user_id' => 'required',
                 'appointment_type_id' => 'required',
-                'ticket_amount' => 'required|numeric|gt:0',
+                'ticket_amount' => 'numeric|gt:0|"required_if:ticket_type,==,adhoc"',
                 'payment_type_id' => 'required',
-                'remaining_amount' => 'required',
+                'remaining_amount' => "required_if:ticket_type,==,adhoc",
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
