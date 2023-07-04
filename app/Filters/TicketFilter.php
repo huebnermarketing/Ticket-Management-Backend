@@ -27,7 +27,10 @@ class TicketFilter extends AbstractEloquentFilter
             $ticketQuery = $ticketQuery->whereIn('customer_id',$this->request->customer_id);
         }
         if(isset($this->request->problem_type_id) && (count($this->request->problem_type_id) > 0)){
-            $ticketQuery = $ticketQuery->whereIn('problem_type_id',$this->request->problem_type_id);
+            $ticketQuery = $builder->with(['ticketProblemTypes' => function($qry){
+                $qry->where('problem_type_id',$this->request->problem_type_id);
+            }]);
+//            $ticketQuery = $ticketQuery->whereIn('problem_type_id',$this->request->problem_type_id);
         }
         if(isset($this->request->ticket_status_id) && (count($this->request->ticket_status_id) > 0)){
             $ticketQuery = $ticketQuery->whereIn('ticket_status_id',$this->request->ticket_status_id);
