@@ -17,6 +17,7 @@ use RestResponse;
 use Validator;
 use File;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Http;
 
 class UserController extends Controller
 {
@@ -97,6 +98,9 @@ class UserController extends Controller
                 $createUser['is_active'] = 1;
                 $createUser['is_verified'] = 1;
                 $createUser['role_id'] = $request['role_id'];
+                $ipInfo = Http::get('http://ip-api.com/json/' . $request->ip());
+                $timezone = $ipInfo->json()['timezone'] ?? config('app.timezone');
+                $createUser['timezone'] = $timezone;
                 $storeUser = $this->userRepository->storeUser($createUser);
                 if(!$storeUser){
                     return RestResponse::warning('User create failed.');

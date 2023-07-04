@@ -16,7 +16,7 @@ class TicketComments extends Model
         if(auth()->user()){
             return $this->created_at->setTimezone(auth()->user()->timezone)->diffForHumans();
         }
-        return $this->created_at->diffForHumans();
+        return $this->created_at->setTimezone(config('app.timezone'))->diffForHumans();
     }
     public function users(){
         return $this->belongsTo(User::class, 'user_id','id');
