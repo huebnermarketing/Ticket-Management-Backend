@@ -111,7 +111,7 @@ class InvoiceController extends Controller
     }
 
     public function getContractDuration($duration){
-        if($duration == 'year'){
+        /*if($duration == 'year'){
             return 12;
         }else if($duration == 'half-year'){
             return 6;
@@ -119,11 +119,18 @@ class InvoiceController extends Controller
             return 3;
         }else if($duration == 'month'){
             return 1;
-        }
+        }*/
+        $mapping = [
+            'year' => 12,
+            'half-year' => 6,
+            'qtr' => 3,
+            'month' => 1,
+        ];
+        return $mapping[$duration]?? null;
     }
 
     public function getPaymentTerm($paymentTerm,$duration){
-        if($paymentTerm == 'month'){
+        /*if($paymentTerm == 'month'){
             return 1;
         }else if($paymentTerm == 'qtr'){
             return 3;
@@ -131,7 +138,15 @@ class InvoiceController extends Controller
             return 6;
         }else if($paymentTerm == 'all-at-once'){
             return $duration;
-        }
+        }*/
+        $paymentTermMap = [
+            'month' => 1,
+            'qtr' => 3,
+            'half-year' => 6,
+            'all-at-once' => $duration,
+        ];
+
+        return $paymentTermMap[$paymentTerm]?? null;
     }
 
     public function getInvoiceDetails($contractId)

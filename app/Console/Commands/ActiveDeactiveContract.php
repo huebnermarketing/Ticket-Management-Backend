@@ -61,7 +61,8 @@ class ActiveDeactiveContract extends Command
                 }
                 Log::info('successfully activate contract Id: '.$contract['id']. 'and Invoices are created');
             }else{
-                Contract::where('id',$contract->id)->delete();
+//                Contract::where('id',$contract->id)->delete();
+                $contract->delete();
             }
         }
     }
@@ -74,7 +75,8 @@ class ActiveDeactiveContract extends Command
                     $qry->whereNot('unique_id',10004);
                 })->where(['contract_id'=> $contract['id']])->whereNull('deleted_at')->count();
             if($contract->remaining_amount == 0 && $checkOpenTicketCount == 0 && $contract['end_date'] <= $todayDate){
-                Contract::where('id',$contract['id'])->update(['open_ticket_contract'=>0]);
+//                Contract::where('id',$contract['id'])->update(['open_ticket_contract'=>0]);
+                $contract->update(['open_ticket_contract' => 0]);
             }
         }
     }

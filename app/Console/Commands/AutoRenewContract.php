@@ -41,7 +41,7 @@ class AutoRenewContract extends Command
             $this->info('~~~~~~Auto Renew Start Execution ~~~~~~~~');
             Log::info('~~~~~~Auto Renew Start Execution ~~~~~~~~');
 
-            $contracts = Contract::with('duration','contractServicesTypes','productService')->where(['contract_status_id'=>getStatusId(1000)->id,'is_auto_renew'=>1])->get();
+            $contracts = Contract::with('duration','contractServicesTypes','productService')->where(['contract_status_id'=>getStatusId(10001)->id,'is_auto_renew'=>1])->get();
             foreach($contracts as $contract){
                 $todayDate = date('Y-m-d');
                 $startDate = date('Y-m-d', strtotime($contract->end_date.' + 1 days'));
@@ -52,7 +52,7 @@ class AutoRenewContract extends Command
                     $getBeforeDate = date('Y-m-d', strtotime($contract->end_date.' - 10 days'));
                 }
 
-                if($contract->duration->slug == 'year'){
+                /*if($contract->duration->slug == 'year'){
                     $endData = date('Y-m-d', strtotime($contract->end_date.' + 365 days'));
                 }elseif($contract->duration->slug == 'half-year'){
                     $endData = date('Y-m-d', strtotime($contract->end_date.' + 180 days'));
@@ -60,7 +60,10 @@ class AutoRenewContract extends Command
                     $endData = date('Y-m-d', strtotime($contract->end_date.' + 120 days'));
                 }elseif($contract->duration->slug == 'month'){
                     $endData = date('Y-m-d', strtotime($contract->end_date.' + 30 days'));
-                }
+                }*/
+                $durationSlugs = ['year' => 365, 'half-year' => 180, 'qtr' => 120, 'month' => 30];
+                $endData = date('Y-m-d', strtotime($contract->end_date. ' '. $durationSlugs[$contract->duration->slug]. 'days'));
+
                 if($todayDate == $getBeforeDate){
                     Log::info('called Job: '.$todayDate);
                     $contract->start_date = $startDate;
@@ -76,7 +79,7 @@ class AutoRenewContract extends Command
                     }
                     $this->contractRepository->storeContractService($storeContract['id'],$types);
 
-                    $productTypes['contract_product_service_id'] = [];
+                    /*$productTypes['contract_product_service_id'] = [];
                     foreach($contract->productService as $types){
                         $productserviceType =  [
                             'product_service_id'=>$types->product_service_id,
@@ -84,7 +87,14 @@ class AutoRenewContract extends Command
                             'product_amount'=>$types->product_amount,
                         ];
                         array_push($productTypes['contract_product_service_id'],$productserviceType);
-                    }
+                    }*/
+                    $productTypes = $contract->productService->map(function ($types) {
+                        return [
+                            'product_service_id' => $types->product_service_id,
+                            'product_qty' => $types->product_qty,
+                            'product_amount' => $types->product_amount,
+                        ];
+                    })->toArray();
                     $this->contractRepository->storeContractProductService($storeContract['id'],$productTypes);
                 }
             }
