@@ -293,6 +293,19 @@ class TicketController extends Controller
         }
     }
 
+    public function listComment($ticketId){
+        try{
+            $commentLists = TicketComments::with('users:id,first_name,last_name,profile_photo')->where('ticket_id',$ticketId)->get();
+            /*foreach($commentLists as $commentList){
+                $commentList['lable'] = $commentList->created_at->setTimezone(auth()->user()->timezone)->diffForHumans();
+            }*/
+
+            return RestResponse::Success($commentLists,'Ticket comment List.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
     public function addComment(Request $request)
     {
         try {
