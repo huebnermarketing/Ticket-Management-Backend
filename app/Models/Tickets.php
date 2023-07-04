@@ -114,4 +114,7 @@ class Tickets extends Model
     {
         return $this->belongsTo(Contract::class,'contract_id','id');
     }
+    public function ticketProblemTypes(){
+        return $this->belongsTo(TicketProblemType::class, 'ticket_id','id');
+    }
 }
