@@ -15,8 +15,12 @@ return new class extends Migration
     {
         Schema::create('ticket_priorities', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('unique_id');
             $table->string('priority_name');
+            $table->string('text_color');
+            $table->string('background_color');
             $table->tinyInteger('is_active')->default(0)->comment('0=Inactive, 1=Active');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

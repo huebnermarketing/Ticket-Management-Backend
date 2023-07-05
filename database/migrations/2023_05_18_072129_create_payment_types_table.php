@@ -15,7 +15,10 @@ return new class extends Migration
     {
         Schema::create('payment_types', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('unique_id');
             $table->string('payment_type');
+            $table->string('text_color');
+            $table->string('background_color');
             $table->softDeletes();
             $table->timestamps();
         });

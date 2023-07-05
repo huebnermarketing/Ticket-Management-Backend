@@ -15,7 +15,10 @@ return new class extends Migration
     {
         Schema::create('ticket_statuses', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('unique_id');
             $table->string('status_name');
+            $table->string('text_color');
+            $table->string('background_color');
             $table->tinyInteger('is_lock')->default(0)->comment('0=Unlock, 1=Lock');
             $table->softDeletes();
             $table->timestamps();
