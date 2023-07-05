@@ -41,6 +41,9 @@ class TicketFilter extends AbstractEloquentFilter
         if(isset($this->request->payment_type_id) && (count($this->request->payment_type_id) > 0)){
             $ticketQuery = $ticketQuery->whereIn('payment_type_id',$this->request->payment_type_id);
         }
+        if(isset($this->request->contract_id) && (count($this->request->contract_id) > 0)){
+            $ticketQuery = $ticketQuery->whereIn('contract_id',$this->request->contract_id);
+        }
         if(isset($this->request->priority_id) && (count($this->request->priority_id) > 0)){
             $ticketQuery = $ticketQuery->whereIn('priority_id',$this->request->priority_id);
         }
