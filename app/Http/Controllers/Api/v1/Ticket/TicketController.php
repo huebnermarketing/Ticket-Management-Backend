@@ -219,7 +219,6 @@ class TicketController extends Controller
             $validate = Validator::make($request->all(), [
                 'ticket_type' => 'required',
                 'customer_id' => 'required',
-//                'customer_locations_id' => 'required',
                 'address_line1' => 'required',
                 'area' => 'required',
                 'state' => 'required',
@@ -228,7 +227,6 @@ class TicketController extends Controller
                 'customer_name' => 'required',
                 'city' => 'required',
                 'country' => 'required',
-
                 'problem_type_id' => 'required',
                 'problem_title' => 'required|max:50',
                 'due_date' => 'required',
@@ -245,13 +243,27 @@ class TicketController extends Controller
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
             }
-
             $updateCustomer = Customers::where('id',$request['customer_id'])->update([
                'email' => $request['email']
             ]);
             $customerAddressPayload = $request->only(['address_line1','company_name','area','city','zipcode','state','country']);
-            $updateCustomerLocation = $this->customerRepository->updateAddress($customerAddressPayload,$request['customer_locations_id']);
-
+            if($request['customer_locations_id'] == ''){
+                $newAddress = [
+                    'customer_id'=> $id,
+                    'address_line1' => $request['address_line1'],
+                    'company_name' => $request['company_name'],
+                    'area' => $request['area'],
+                    'city' => $request['city'],
+                    'state' => $request['state'],
+                    'zipcode' => $request['zipcode'],
+                    'country' => $request['country'],
+                    'is_primary' => 0,
+                ];
+                $newCustomerLocation = $this->customerRepository->addAddress($newAddress);
+                $request['customer_locations_id'] = $newCustomerLocation['id'];
+            }else{
+                $updateCustomerLocation = $this->customerRepository->updateAddress($customerAddressPayload,$request['customer_locations_id']);
+            }
             $updateTicket = $this->ticketRepository->updateTicket($request,$id);
             if (empty($updateTicket)) {
                 return RestResponse::warning('Ticket update failed.');
