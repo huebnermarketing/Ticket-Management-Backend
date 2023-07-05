@@ -14,7 +14,11 @@ class TicketComments extends Model
 
     public function getCommentTimeAttribute(){
         if(auth()->user()){
-            return $this->created_at->setTimezone(auth()->user()->timezone)->diffForHumans();
+            if(date("Y-m-d") < $this->created_at){
+                return $this->created_at->setTimezone(auth()->user()->timezone)->diffForHumans();
+            }else{
+                return $this->comment_date;
+            }
         }
         return $this->created_at->setTimezone(config('app.timezone'))->diffForHumans();
     }
