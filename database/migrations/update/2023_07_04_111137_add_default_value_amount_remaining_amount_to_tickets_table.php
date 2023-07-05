@@ -14,8 +14,9 @@ return new class extends Migration
     public function up()
     {
         Schema::table('tickets', function (Blueprint $table) {
-            $table->unsignedDouble('amount')->default(0)->change();
-            $table->unsignedDouble('remaining_amount')->default(0)->change();
+            $table->unsignedDouble('amount')->nullable()->change();
+            $table->unsignedDouble('remaining_amount')->nullable()->change();
+            $table->unsignedDouble('collected_amount')->nullable()->change();
         });
     }
 
@@ -29,6 +30,7 @@ return new class extends Migration
         Schema::table('tickets', function (Blueprint $table) {
             $table->unsignedDouble('amount')->change();
             $table->unsignedDouble('remaining_amount')->change();
+            $table->unsignedDouble('collected_amount')->nullable()->change();
         });
     }
 };
