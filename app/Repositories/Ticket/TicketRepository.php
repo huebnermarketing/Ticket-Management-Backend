@@ -55,6 +55,7 @@ class TicketRepository implements TicketRepositoryInterface
             'payment_type_id' => $data['payment_type_id'],
             'collected_amount' => $data['collected_amount'],
             'remaining_amount' => $data['remaining_amount'],
+            'contract_id' => $data['contract_id'],
             'payment_mode' => $paymentMode
         ];
         $createTicket = Tickets::create($ticketPayload);

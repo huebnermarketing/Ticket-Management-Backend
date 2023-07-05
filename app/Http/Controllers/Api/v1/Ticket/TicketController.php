@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api\v1\Ticket;
 use App\Http\Controllers\Controller;
 use App\Mail\SendTicketCreateEmailNotification;
 use App\Models\AppointmentTypes;
+use App\Models\Contract;
 use App\Models\CustomerLocations;
 use App\Models\CustomerPhones;
 use App\Models\Customers;
@@ -87,9 +88,10 @@ class TicketController extends Controller
                 'priority_id' => 'required',
                 'assigned_user_id' => 'required',
                 'appointment_type_id' => 'required',
-                'ticket_amount' => 'numeric|gt:0|"required_if:ticket_type,==,adhoc"',
+                'ticket_amount' => 'numeric|gt:0|required_if:ticket_type,==,adhoc',
                 'payment_type_id' => 'required',
                 'remaining_amount' => "required_if:ticket_type,==,adhoc",
+                'contract_id' => "required_if:ticket_type,==,contract",
             ]);
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
@@ -396,6 +398,27 @@ class TicketController extends Controller
             }
             $getTicket->save();
             return RestResponse::Success($getTicket,'Ticket updated successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function CustomerContract(Request $request){
+        try{
+            $validate = Validator::make($request->all(), [
+                'customer_id' => 'required',
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $contracts = Contract::select('id','customer_id','contract_title','contract_status_id','end_date')
+                ->where(['customer_id'=>$request->customer_id,'contract_status_id'=>1])
+                ->where('end_date','>',date('Y-m-d'))
+                ->orderBy('created_at','DESC')->get();
+            if(!$contracts){
+                return RestResponse::warning('No any contract found');
+            }
+            return RestResponse::success($contracts,'Customer contract list');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }

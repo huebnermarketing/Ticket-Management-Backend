@@ -16,7 +16,7 @@ class Tickets extends Model
 //    protected $casts = ['ticket_type' => TicketTypesEnum::class];
     protected $fillable = ['id','unique_id','ticket_type','customer_id','customer_locations_id',
         'ticket_status_id','priority_id','assigned_user_id','appointment_type_id','payment_type_id','problem_title','due_date',
-        'description','amount','collected_amount','remaining_amount','payment_mode','created_at','updated_at','deleted_at'];
+        'description','amount','collected_amount','remaining_amount','payment_mode','contract_id','created_at','updated_at','deleted_at'];
 
 //    public static function getTicketTypeValues()
 //    {
