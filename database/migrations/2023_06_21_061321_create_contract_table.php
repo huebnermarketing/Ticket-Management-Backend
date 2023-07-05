@@ -28,6 +28,7 @@ return new class extends Migration
             $table->tinyInteger('is_active')->default(1)->comment('0=Inactive, 1=Active');
             $table->tinyInteger('is_archive')->default(0)->comment('0=NotArchive, 1=Archive');
             $table->tinyInteger('is_suspended')->default(0)->comment('0=NotSuspended, 1=Suspended');
+            $table->unsignedDouble('remaining_amount',8,2);
 
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->foreign('customer_location_id')->references('id')->on('customer_locations')->onDelete('cascade');
