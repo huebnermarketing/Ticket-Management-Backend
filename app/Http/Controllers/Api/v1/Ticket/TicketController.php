@@ -219,7 +219,7 @@ class TicketController extends Controller
             $validate = Validator::make($request->all(), [
                 'ticket_type' => 'required',
                 'customer_id' => 'required',
-                'customer_locations_id' => 'required',
+//                'customer_locations_id' => 'required',
                 'address_line1' => 'required',
                 'area' => 'required',
                 'state' => 'required',
