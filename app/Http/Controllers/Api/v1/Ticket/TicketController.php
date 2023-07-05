@@ -249,7 +249,7 @@ class TicketController extends Controller
             $customerAddressPayload = $request->only(['address_line1','company_name','area','city','zipcode','state','country']);
             if($request['customer_locations_id'] == ''){
                 $newAddress = [
-                    'customer_id'=> $id,
+                    'customer_id'=> $request['customer_id'],
                     'address_line1' => $request['address_line1'],
                     'company_name' => $request['company_name'],
                     'area' => $request['area'],
