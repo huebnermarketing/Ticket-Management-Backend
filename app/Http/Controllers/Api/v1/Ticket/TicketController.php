@@ -167,12 +167,13 @@ class TicketController extends Controller
         }
     }
 
-    public function show()
+    public function show(Request $request)
     {
         try{
-//            $data['customers'] = Customers::join('customer_phones', 'customer_phones.customer_id', 'customers.id')
-//                ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.customer_id','customer_phones.phone')->get();
-
+            if(isset($request->is_filter)){
+                $data['customers'] = Customers::join('customer_phones', 'customer_phones.customer_id', 'customers.id')
+                    ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.customer_id','customer_phones.phone')->get();
+            }
             /*$data['assign_engineer'] = User::with(['role'])->whereHas('role', function($qry){
                 $qry->where('role_slug','user');
             })->get();*/
@@ -218,7 +219,6 @@ class TicketController extends Controller
             $validate = Validator::make($request->all(), [
                 'ticket_type' => 'required',
                 'customer_id' => 'required',
-                'customer_locations_id' => 'required',
                 'address_line1' => 'required',
                 'area' => 'required',
                 'state' => 'required',
@@ -227,7 +227,6 @@ class TicketController extends Controller
                 'customer_name' => 'required',
                 'city' => 'required',
                 'country' => 'required',
-
                 'problem_type_id' => 'required',
                 'problem_title' => 'required|max:50',
                 'due_date' => 'required',
@@ -244,13 +243,27 @@ class TicketController extends Controller
             if ($validate->fails()) {
                 return RestResponse::validationError($validate->errors());
             }
-
             $updateCustomer = Customers::where('id',$request['customer_id'])->update([
                'email' => $request['email']
             ]);
             $customerAddressPayload = $request->only(['address_line1','company_name','area','city','zipcode','state','country']);
-            $updateCustomerLocation = $this->customerRepository->updateAddress($customerAddressPayload,$request['customer_locations_id']);
-
+            if($request['customer_locations_id'] == ''){
+                $newAddress = [
+                    'customer_id'=> $request['customer_id'],
+                    'address_line1' => $request['address_line1'],
+                    'company_name' => $request['company_name'],
+                    'area' => $request['area'],
+                    'city' => $request['city'],
+                    'state' => $request['state'],
+                    'zipcode' => $request['zipcode'],
+                    'country' => $request['country'],
+                    'is_primary' => 0,
+                ];
+                $newCustomerLocation = $this->customerRepository->addAddress($newAddress);
+                $request['customer_locations_id'] = $newCustomerLocation['id'];
+            }else{
+                $updateCustomerLocation = $this->customerRepository->updateAddress($customerAddressPayload,$request['customer_locations_id']);
+            }
             $updateTicket = $this->ticketRepository->updateTicket($request,$id);
             if (empty($updateTicket)) {
                 return RestResponse::warning('Ticket update failed.');
@@ -287,6 +300,18 @@ class TicketController extends Controller
             }
             $findTicket->delete();*/
             return RestResponse::Success([],'Filter applied successfully.');
+        }catch (\Exception $e) {
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
+    public function listComment($ticketId){
+        try{
+            $commentLists = TicketComments::with('users:id,first_name,last_name,profile_photo')->where('ticket_id',$ticketId)->get();
+            if(!$commentLists){
+                return RestResponse::warning('Ticket comment not found.');
+            }
+            return RestResponse::Success($commentLists,'Ticket comment List.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
         }
