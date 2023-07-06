@@ -63,11 +63,14 @@ class ContractRepository implements ContractRepositoryInterface
             $filterQuery = EloquentFilters::make([new ContractStatusFilter($request)]);
             $contractList = Contract::filter($filterQuery)->orderBy('id', 'asc')->get();
             $data['contract_list'] = $contractList;
-            $data['client_name'] = $customerData['first_name'] . ' ' . $customerData['last_name'];
-            $data['client_total_active_contract'] = $contractList->count();
-            $data['active_contract_amount'] = $contractList->sum('amount');
-            $data['remaining_amount'] = $contractList->sum('remaining_amount');
-            $data['open_contract_ticket'] = Tickets::where(['customer_id' => $request['customer_id'], 'ticket_type' => 'contract'])->whereNot('ticket_status_id', 4)->count();
+            $contractDashboard = [
+                'client_name'=> $customerData['first_name'] . ' ' . $customerData['last_name'],
+                'client_total_active_contract' => $contractList->count(),
+                'active_contract_amount' => $contractList->sum('amount'),
+                'remaining_amount' => $contractList->sum('remaining_amount'),
+                'open_contract_ticket' => Tickets::where(['customer_id' => $request['customer_id'], 'ticket_type' => 'contract'])->whereNot('ticket_status_id', 4)->count()
+            ];
+            $data['contract_dashboard'] = $contractDashboard;
             return $data;
         }else{
             return false;
