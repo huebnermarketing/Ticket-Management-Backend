@@ -40,20 +40,20 @@ class ContractRepository implements ContractRepositoryInterface
 
     public function getContracts($request){
         $type = ($request['type'] == 'Active') ? [1] : [2,3,4];
+        $contracts = Contract::where('contract_status_id',getStatusId(10001)->id);
         $customers = Customers::withCount(['contract' => function($query) use($type){
             $query->whereIn('contract_status_id',$type);
         }])->having('contract_count', '>', 0)->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
-        return $customers;
-    }
-
-    public function clientListDashboard(){
-        $contracts = Contract::where('contract_status_id',getStatusId(10001)->id);
-        $data['active_contract'] = $contracts->count();
-        $data['paid_amount'] = $contracts->sum('amount');
-        $data['remaining_amount'] = $contracts->sum('remaining_amount');
-        $data['open_contract_ticket'] = Tickets::with(['contract' => function($query){
-            $query->where('contract_status_id',getStatusId(10001)->id);
-        }])->where(['ticket_type'=>'contract'])->whereNot('ticket_status_id','4')->count();
+        $data['allClient'] = $customers;
+        $clientDashboard = [
+            'active_contract' => $contracts->count(),
+            'paid_amount' => $contracts->sum('amount'),
+            'remaining_amount' => $contracts->sum('remaining_amount'),
+            'open_contract_ticket' => Tickets::with(['contract' => function($query){
+                    $query->where('contract_status_id',getStatusId(10001)->id);
+                    }])->where(['ticket_type'=>'contract'])->whereNot('ticket_status_id','4')->count()
+        ];
+        $data['client_dashboard'] = $clientDashboard;
         return $data;
     }
 
@@ -166,12 +166,6 @@ class ContractRepository implements ContractRepositoryInterface
         $filters = EloquentFilters::make([new CustomerFilter($data)]);
         $clients = Customers::filter($filters)->get();
         return $clients;
-    }
-
-    public function archiveNotarchiveContract($data){
-        $archive = ($data['archive'] == 'yes') ? 1 : 0;
-        $contractData = Contract::where(['id'=> $data['contract_id'], 'customer_id'=>$data['customer_id']])->update(['is_archive'=>$archive]);
-        return $contractData;
     }
 
     public function updateContract($data){
