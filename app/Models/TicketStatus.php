@@ -19,4 +19,9 @@ class TicketStatus extends Model
             $model->unique_id = static::generateId();
         });
     }
+
+    public function Tickets()
+    {
+        return $this->hasMany(Tickets::class);
+    }
 }
