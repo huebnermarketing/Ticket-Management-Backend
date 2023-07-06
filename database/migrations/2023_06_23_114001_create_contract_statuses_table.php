@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('contract_statuses', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('unique_id');
             $table->string('status_name');
             $table->softDeletes();
             $table->timestamps();
