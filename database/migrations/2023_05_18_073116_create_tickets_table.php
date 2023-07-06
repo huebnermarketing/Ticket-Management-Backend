@@ -29,10 +29,11 @@ return new class extends Migration
             $table->string('problem_title');
             $table->date('due_date');
             $table->longText('description')->nullable();
-            $table->unsignedDouble('amount', 8, 2);
-            $table->unsignedDouble('collected_amount', 8, 2);
-            $table->unsignedDouble('remaining_amount', 8, 2);
-            $table->enum('payment_mode',['card','cash','online'])->default('card')->comment('card,cash,online');
+            $table->unsignedDouble('amount');
+            $table->unsignedDouble('collected_amount')->default(0);
+            $table->unsignedDouble('remaining_amount');
+//            $table->unsignedBigInteger('contract_id')->nullable();
+            $table->enum('payment_mode',['card','cash','online'])->comment('card,cash,online')->nullable();
 
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->foreign('customer_locations_id')->references('id')->on('customer_locations');
@@ -42,6 +43,7 @@ return new class extends Migration
             $table->foreign('assigned_user_id')->references('id')->on('users');
             $table->foreign('appointment_type_id')->references('id')->on('appointment_types');
             $table->foreign('payment_type_id')->references('id')->on('payment_types');
+//            $table->foreign('contract_id')->references('id')->on('contracts')->onDelete('cascade');
 
             $table->timestamps();
             $table->softDeletes();

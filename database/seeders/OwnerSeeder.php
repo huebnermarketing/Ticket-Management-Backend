@@ -31,7 +31,7 @@ class OwnerSeeder extends Seeder
         $ownerData = [
           'first_name' => 'Sarah1',
           'last_name' => 'Danforth1',
-          'email' => 'owner1@gmail.com',
+          'email' => 'owner@gmail.com',
           'password' => app('hash')->make('123456'),
           'phone' => '9879205701',
           'is_active' => 1,
