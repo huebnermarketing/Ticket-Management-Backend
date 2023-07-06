@@ -60,6 +60,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::group(['prefix' => 'company', 'controller' => SettingsController::class], function () {
                 Route::get('get', 'getCompanySettings');
                 Route::post('update', 'updateCompanySettings');
+                Route::get('get-currency','getCurrency');
             });
 
             Route::group(['prefix' => 'contract-type', 'controller' => ContractTypeController::class], function () {

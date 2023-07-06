@@ -11,9 +11,7 @@ Interface ContractRepositoryInterface{
     public function storeContract($data);
     public function storeContractService($contractId,$data);
     public function storeContractProductService($contractId,$data);
-//    public function storeContractCostomer($contractId, $data);
     public function getSearchClient($data);
-    public function archiveNotarchiveContract($data);
     public function updateContract($data);
     public function suspendContract($data);
 

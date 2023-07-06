@@ -69,7 +69,7 @@ class ProductServiceController extends Controller
                 if(!$create){
                     return RestResponse::warning('Product service create failed.');
                 }
-                return RestResponse::success([], 'Product service created successfully.');
+                return RestResponse::success($create, 'Product service created successfully.');
             }else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
