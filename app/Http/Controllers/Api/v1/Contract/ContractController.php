@@ -43,7 +43,9 @@ class ContractController extends Controller
                 if(!$contractList){
                     return RestResponse::warning('Contract list not found.');
                 }
-                return RestResponse::Success($contractList,'Contracts retrieve successfully.');
+                $clients['allClient'] = $contractList;
+                $clients['clientDashboard'] = $this->contractRepository->clientListDashboard();
+                return RestResponse::Success($clients,'Contracts retrieve successfully.');
             }else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
@@ -85,9 +87,8 @@ class ContractController extends Controller
                 if(!$storeContractProductService){
                     return RestResponse::warning('Contract product service not created.');
                 }
-//                $storeContractCostomer = $this->contractRepository->storeContractCostomer($storeContract['id'],$request->customer_id);
                 $createInvoices = $this->invoiceController->createInvoices($storeContract['id']);
-                if($createInvoices){
+                if(!$createInvoices){
                     return RestResponse::warning('Contract Invoices Not created.');
                 }
                 DB::commit();

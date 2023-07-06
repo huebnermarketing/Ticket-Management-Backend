@@ -43,13 +43,11 @@ class ContractRepository implements ContractRepositoryInterface
         $customers = Customers::withCount(['contract' => function($query) use($type){
             $query->whereIn('contract_status_id',$type);
         }])->having('contract_count', '>', 0)->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
+        return $customers;
+    }
 
-//        $customers = Customers::withCount(['contract' => function($query) use($type){
-//            $query->where('is_active',$type);
-//        }])->having('contract_count', '>', 0)->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
+    public function clientListDashboard(){
         $contracts = Contract::where('contract_status_id',getStatusId(10001)->id);
-
-        $data['list'] = $customers;
         $data['active_contract'] = $contracts->count();
         $data['paid_amount'] = $contracts->sum('amount');
         $data['remaining_amount'] = $contracts->sum('remaining_amount');

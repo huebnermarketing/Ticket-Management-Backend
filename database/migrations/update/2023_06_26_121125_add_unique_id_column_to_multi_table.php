@@ -24,11 +24,6 @@ return new class extends Migration
                 $table->string('unique_id')->after('id');
             });
         }
-        if(Schema::hasTable('contract_statuses')){
-            Schema::table('contract_statuses', function (Blueprint $table){
-                $table->string('unique_id')->after('id');
-            });
-        }
     }
 
     /**
@@ -42,9 +37,6 @@ return new class extends Migration
             $table->dropColumn('unique_id');
         });
         Schema::table('problem_types', function (Blueprint $table) {
-            $table->dropColumn('unique_id');
-        });
-        Schema::table('contract_statuses', function (Blueprint $table) {
             $table->dropColumn('unique_id');
         });
     }
