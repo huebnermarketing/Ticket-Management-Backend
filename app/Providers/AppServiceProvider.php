@@ -11,6 +11,8 @@ use App\Repositories\User\UserRepository;
 use Illuminate\Support\ServiceProvider;
 use App\Repositories\Contract\ContractRepositoryInterface;
 use App\Repositories\Contract\ContractRepository;
+use App\Repositories\Dashboard\DashboardRepositoryInterface;
+use App\Repositories\Dashboard\DashboardRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -25,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CustomerRepositoryInterface::class, CustomerRepository::class);
         $this->app->bind(TicketRepositoryInterface::class, TicketRepository::class);
         $this->app->bind(ContractRepositoryInterface::class, ContractRepository::class);
+        $this->app->bind(DashboardRepositoryInterface::class, DashboardRepository::class);
     }
 
     /**

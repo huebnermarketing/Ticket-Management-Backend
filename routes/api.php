@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\v1\UserController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\v1\Contract\ContractController;
+use App\Http\Controllers\Api\v1\Dashboard\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -146,6 +147,11 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
                 Route::get('create/{id}', 'createInvoices'); //optional remove it after invoice flow create
                 Route::post('pay-invoice', 'payInvoiceAmount');
             });
+        });
+
+        Route::group(['prefix' => 'dashboard','controller' => DashboardController::class], function(){
+            Route::get('ticket-details','ticketDetails');
+            Route::get('ticket-status','ticketStatus');
         });
     });
 });
