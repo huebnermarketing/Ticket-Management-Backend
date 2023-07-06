@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use RestResponse;
@@ -50,8 +51,11 @@ class AuthController extends Controller
                 if ($getUser['is_verified'] == 0){
                     return RestResponse::warning('An account has already been registered, but was never verified. please verify your account.', 422);
                 }
-                //$user = Auth::user();
                 $response['access_token'] = $getUser->createToken('Api Token')->accessToken;
+                $ipInfo = Http::get('http://ip-api.com/json/' . $request->ip());
+                $timezone = $ipInfo->json()['timezone'] ?? config('app.timezone');
+                $getUser->timezone = $timezone;
+                $getUser->save();
                 $response['user'] = $getUser;
                 $response['permissions'] = $getUser->getAllPermissions();
                 return RestResponse::success($response, 'Login is successful!');

@@ -31,7 +31,10 @@ return new class extends Migration
             $table->string('profile_photo')->nullable();
             $table->tinyInteger('is_active')->default(0)->comment('0=Inactive, 1=Active');
             $table->tinyInteger('is_verified')->default(0)->comment('0=Not Verify, 1=Verify');
+            $table->unsignedBigInteger('role_id');
+            $table->string('timezone')->default('UTC');
             $table->rememberToken();
+//            $table->foreign('role_id')->references('id')->on('roles')->onDelete('cascade');
             $table->timestamps();
         });
     }
