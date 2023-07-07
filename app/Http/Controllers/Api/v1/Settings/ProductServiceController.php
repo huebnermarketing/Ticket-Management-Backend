@@ -63,11 +63,13 @@ class ProductServiceController extends Controller
                 if ($validate->fails()) {
                     return RestResponse::validationError($validate->errors());
                 }
-                $create = ProductServices::create(['service_name' => $request['service_name']]);
+                $create = ProductServices::create([
+                    'service_name' => $request['service_name'],
+                ]);
                 if(!$create){
                     return RestResponse::warning('Product service create failed.');
                 }
-                return RestResponse::success([], 'Product service created successfully.');
+                return RestResponse::success($create, 'Product service created successfully.');
             }else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }

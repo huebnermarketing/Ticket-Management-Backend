@@ -13,13 +13,14 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('customer_contracts', function (Blueprint $table) {
+        Schema::create('ledger_invoices', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('ledger_unique_id');
             $table->unsignedBigInteger('contract_id');
-            $table->unsignedBigInteger('customer_id');
-
-            $table->foreign('contract_id')->references('id')->on('contracts')->onDelete('cascade');
-            $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
+            $table->date('date');
+            $table->double('ledger_amount');
+            $table->foreign('contract_id')->references('id')->on('contracts');
+            $table->softDeletes();
             $table->timestamps();
         });
     }
@@ -31,6 +32,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('customer_contracts');
+        Schema::dropIfExists('ledger_invoices');
     }
 };

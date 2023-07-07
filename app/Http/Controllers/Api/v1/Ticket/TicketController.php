@@ -39,17 +39,6 @@ class TicketController extends Controller
         $this->userRepository = $userRepository;
     }
 
-    private function generateTicketUrlSlug()
-    {
-        $digit = 5;
-        $slugNumber = substr(str_shuffle("0123456789"), 0, $digit);
-        $checkSlugNumber = Tickets::where('unique_id', $slugNumber)->count();
-        if ($checkSlugNumber > 0) {
-            $this->generateTicketUrlSlug();
-        }
-        return $slugNumber;
-    }
-
     public function index(Request $request)
     {
         try{

@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('product_services', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('unique_id');
             $table->string('service_name');
             $table->tinyInteger('is_lock')->default(0)->comment('0=Unlock, 1=Lock');
             $table->softDeletes();

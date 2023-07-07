@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\ContractStatus;
 use Illuminate\Support\Str;
 
 if (!function_exists('uploadImage')) {
@@ -29,6 +30,13 @@ if (!function_exists('uploadImage')) {
             }
         }
         return $uploadedPhoto;
+    }
+}
+
+if (!function_exists('getStatusId')) {
+    function getStatusId($value){
+        $statusId = ContractStatus::where('unique_id',$value)->first();
+        return $statusId;
     }
 }
 ?>

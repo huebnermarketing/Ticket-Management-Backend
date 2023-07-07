@@ -141,4 +141,11 @@ class SettingsController extends Controller
             return RestResponse::error($e->getMessage(), $e);
         }
     }
+
+    public function getCurrency(){
+        $defaultCurrency =  CompanySettings::select('id','currency_id')->with(['currency'=> function($q){
+            $q->select('id','name','symbol');
+        }])->first();
+        return RestResponse::success($defaultCurrency, 'Company currency');
+    }
 }
