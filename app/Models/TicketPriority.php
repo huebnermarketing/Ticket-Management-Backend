@@ -18,4 +18,7 @@ class TicketPriority extends Model
             $model->unique_id = static::generateId();
         });
     }
+    public function tickets(){
+        return $this->belongsTo(Tickets::class, 'id','priority_id');
+    }
 }

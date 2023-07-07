@@ -153,6 +153,11 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
         Route::group(['prefix' => 'dashboard','controller' => DashboardController::class], function(){
             Route::get('ticket-details','ticketDetails');
             Route::get('ticket-status','ticketStatus');
+            Route::get('ticket-problem','ticketProblem');
+            Route::get('ticket-payment','ticketPayment');
+            Route::get('ticket-priority','ticketPriority');
+            Route::get('ticket-assignee','ticketAssignee');
+            Route::get('ticket-revenue','ticketRevenue');
         });
     });
 });

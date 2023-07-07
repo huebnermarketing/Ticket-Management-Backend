@@ -53,4 +53,8 @@ class User extends Authenticatable
     {
         return $this->hasOne(Role::class,'id','role_id');
     }
+    public function tickets(){
+        return $this->belongsTo(Tickets::class, 'id','assigned_user_id');
+    }
+
 }

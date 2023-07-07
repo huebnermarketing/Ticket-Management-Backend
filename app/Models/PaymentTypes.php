@@ -19,4 +19,8 @@ class PaymentTypes extends Model
             $model->unique_id = static::generateId();
         });
     }
+
+    public function tickets(){
+        return $this->belongsTo(Tickets::class, 'id','payment_type_id');
+    }
 }

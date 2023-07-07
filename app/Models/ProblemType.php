@@ -18,4 +18,9 @@ class ProblemType extends Model
             $model->unique_id = static::generateId();
         });
     }
+
+    public function ticketsProblem()
+    {
+        return $this->belongsTo(TicketProblemType::class,'id','problem_type_id');
+    }
 }
