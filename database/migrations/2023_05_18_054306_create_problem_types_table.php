@@ -15,6 +15,7 @@ return new class extends Migration
     {
         Schema::create('problem_types', function (Blueprint $table) {
             $table->bigIncrements('id');
+            $table->string('unique_id');
             $table->string('problem_name');
             $table->softDeletes();
             $table->timestamps();

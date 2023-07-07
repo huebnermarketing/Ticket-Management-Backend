@@ -19,7 +19,6 @@ return new class extends Migration
             $table->enum('ticket_type',['adhoc','contract'])->default('adhoc')->comment('adhoc,contract');
             $table->unsignedBigInteger('customer_id');
             $table->unsignedBigInteger('customer_locations_id');
-            //$table->unsignedBigInteger('problem_type_id');
             $table->unsignedBigInteger('ticket_status_id');
             $table->unsignedBigInteger('priority_id');
             $table->unsignedBigInteger('assigned_user_id');
@@ -29,21 +28,20 @@ return new class extends Migration
             $table->string('problem_title');
             $table->date('due_date');
             $table->longText('description')->nullable();
-            $table->unsignedDouble('amount');
-            $table->unsignedDouble('collected_amount')->default(0);
-            $table->unsignedDouble('remaining_amount');
-//            $table->unsignedBigInteger('contract_id')->nullable();
+            $table->unsignedDouble('amount')->nullable();
+            $table->unsignedDouble('collected_amount')->nullable();
+            $table->unsignedDouble('remaining_amount')->nullable();
+            $table->unsignedBigInteger('contract_id')->nullable();
             $table->enum('payment_mode',['card','cash','online'])->comment('card,cash,online')->nullable();
 
             $table->foreign('customer_id')->references('id')->on('customers');
             $table->foreign('customer_locations_id')->references('id')->on('customer_locations');
-            //$table->foreign('problem_type_id')->references('id')->on('problem_types');
             $table->foreign('ticket_status_id')->references('id')->on('ticket_statuses');
             $table->foreign('priority_id')->references('id')->on('ticket_priorities');
             $table->foreign('assigned_user_id')->references('id')->on('users');
             $table->foreign('appointment_type_id')->references('id')->on('appointment_types');
             $table->foreign('payment_type_id')->references('id')->on('payment_types');
-//            $table->foreign('contract_id')->references('id')->on('contracts')->onDelete('cascade');
+            $table->foreign('contract_id')->references('id')->on('contracts')->onDelete('cascade');
 
             $table->timestamps();
             $table->softDeletes();

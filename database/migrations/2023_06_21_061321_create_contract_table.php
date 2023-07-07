@@ -30,7 +30,7 @@ return new class extends Migration
             $table->tinyInteger('is_auto_renew')->default(1)->comment('0=NotAutoRenew, 1=AutoRenew');
             $table->tinyInteger('open_ticket_contract')->default(1)->comment('0=CloseAllTicketContract, 1=OpenTicketContract');
             $table->tinyInteger('is_suspended')->default(0)->comment('0=NotSuspended, 1=Suspended');
-            $table->unsignedDouble('remaining_amount',8,2);
+            $table->unsignedDouble('remaining_amount');
             $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->foreign('customer_location_id')->references('id')->on('customer_locations')->onDelete('cascade');
             $table->foreign('duration_id')->references('id')->on('contract_durations')->onDelete('cascade');
