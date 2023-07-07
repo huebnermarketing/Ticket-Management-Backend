@@ -28,9 +28,9 @@ return new class extends Migration
             $table->string('problem_title');
             $table->date('due_date');
             $table->longText('description')->nullable();
-            $table->unsignedDouble('amount');
-            $table->unsignedDouble('collected_amount')->default(0);
-            $table->unsignedDouble('remaining_amount');
+            $table->unsignedDouble('amount')->nullable();
+            $table->unsignedDouble('collected_amount')->nullable();
+            $table->unsignedDouble('remaining_amount')->nullable();
             $table->unsignedBigInteger('contract_id')->nullable();
             $table->enum('payment_mode',['card','cash','online'])->comment('card,cash,online')->nullable();
 
