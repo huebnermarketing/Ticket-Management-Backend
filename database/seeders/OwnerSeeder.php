@@ -26,20 +26,22 @@ class OwnerSeeder extends Seeder
         $setting['state'] = 'Gujarat';
         $setting['country'] = 'India';
         $setting['currency_id'] = (!empty($getCurrency)) ? $getCurrency['id'] : null;
-        $companySetting = CompanySettings::create($setting);
+        $companySetting = CompanySettings::updateOrCreate($setting);
 
-        $ownerData = [
-          'first_name' => 'Sarah1',
-          'last_name' => 'Danforth1',
-          'email' => 'owner@gmail.com',
-          'password' => app('hash')->make('123456'),
-          'phone' => '9879205701',
-          'is_active' => 1,
-          'is_verified' => 1,
-          'role_id' => 1
-        ];
-        $createUser = User::create($ownerData);
-        $getRole = Role::where('name','owner')->first();
-        $createUser->assignRole($getRole);
+        if (!User::where('email', 'owner@gmail.com')->exists()) {
+            $ownerData = [
+                'first_name' => 'Sarah1',
+                'last_name' => 'Danforth1',
+                'email' => 'owner@gmail.com',
+                'password' => app('hash')->make('123456'),
+                'phone' => '9879205701',
+                'is_active' => 1,
+                'is_verified' => 1,
+                'role_id' => 1
+            ];
+            $createUser = User::create($ownerData);
+            $getRole = Role::where('name', 'owner')->first();
+            $createUser->assignRole($getRole);
+        }
     }
 }

@@ -60,7 +60,7 @@ class ContractController extends Controller
                     'customer_id' => 'required',
                     'customer_location_id' => 'required',
                     'contract_title' => 'required|max:50',
-                    'contract_details' => 'required|max:500',
+                    'contract_details' => 'max:500',
                     'amount' => 'required|numeric|gt:0',
                     'duration_id' => 'required',
                     'payment_term_id' => 'required',
