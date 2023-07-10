@@ -58,7 +58,7 @@ class ContractController extends Controller
                 DB::beginTransaction();
                 $validate = Validator::make($request->all(), [
                     'customer_id' => 'required',
-                    'customer_location_id' => 'required',
+//                    'customer_location_id' => 'required',
                     'contract_title' => 'required|max:50',
                     'contract_details' => 'max:500',
                     'amount' => 'required|numeric|gt:0',
