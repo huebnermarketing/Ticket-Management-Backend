@@ -145,6 +145,7 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
                 Route::get('get-details/{id}', 'getInvoiceDetails');
                 Route::get('create/{id}', 'createInvoices'); //optional remove it after invoice flow create
                 Route::post('pay-invoice', 'payInvoiceAmount');
+                Route::post('add-adhoc-ticket-amount','addAdhocTicketAmount');
             });
         });
     });

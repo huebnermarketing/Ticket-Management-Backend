@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\v1\Contract;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdhocTicketAmount;
 use App\Models\Contract;
 use App\Models\Invoices;
 use App\Models\LedgerInvoicePayments;
@@ -266,4 +267,31 @@ class InvoiceController extends Controller
         return Invoices::where(['contract_id' => $contractId,'is_invoice_paid' => 0])
             ->update(['status' => 'Uncollectible']);
     }
+
+    public function addAdhocTicketAmount(Request $request){
+        try{
+            DB::beginTransaction();
+            $validate = Validator::make($request->all(), [
+                'ticket_id' => 'required',
+                'amount' => 'required',
+                'payment_mode' => 'required',
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $addTicketAmount = [
+                'ticket_id' => $request->ticket_id,
+                'amount' => $request->amount,
+                'payment_mode' => $request->payment_mode
+            ];
+
+            $addAmount = AdhocTicketAmount::create($addTicketAmount);
+            DB::commit();
+            return RestResponse::Success($addAmount,'Successfully Added Amount.');
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
 }
