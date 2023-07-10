@@ -7,6 +7,7 @@ use App\Models\ContractProductService;
 use App\Models\ContractServiceType;
 use App\Repositories\Contract\ContractRepositoryInterface;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Traits\CommonTrait;
 
@@ -42,6 +43,7 @@ class AutoRenewContract extends Command
             Log::info('~~~~~~Auto Renew Start Execution ~~~~~~~~');
 
             $contracts = Contract::with('duration','contractServicesTypes','productService')->where(['contract_status_id'=>getStatusId(10001)->id,'is_auto_renew'=>1])->get();
+
             foreach($contracts as $contract){
                 $todayDate = date('Y-m-d');
                 $startDate = date('Y-m-d', strtotime($contract->end_date.' + 1 days'));
@@ -65,6 +67,7 @@ class AutoRenewContract extends Command
                 $endData = date('Y-m-d', strtotime($contract->end_date. ' '. $durationSlugs[$contract->duration->slug]. 'days'));
 
                 if($todayDate == $getBeforeDate){
+                    DB::beginTransaction();
                     Log::info('called Job: '.$todayDate);
                     $contract->start_date = $startDate;
                     $contract->end_date = $endData;
@@ -79,7 +82,7 @@ class AutoRenewContract extends Command
                     }
                     $this->contractRepository->storeContractService($storeContract['id'],$types);
 
-                    /*$productTypes['contract_product_service_id'] = [];
+                    $productTypes['contract_product_service_id'] = [];
                     foreach($contract->productService as $types){
                         $productserviceType =  [
                             'product_service_id'=>$types->product_service_id,
@@ -87,20 +90,15 @@ class AutoRenewContract extends Command
                             'product_amount'=>$types->product_amount,
                         ];
                         array_push($productTypes['contract_product_service_id'],$productserviceType);
-                    }*/
-                    $productTypes = $contract->productService->map(function ($types) {
-                        return [
-                            'product_service_id' => $types->product_service_id,
-                            'product_qty' => $types->product_qty,
-                            'product_amount' => $types->product_amount,
-                        ];
-                    })->toArray();
+                    }
                     $this->contractRepository->storeContractProductService($storeContract['id'],$productTypes);
+                    DB::commit();
                 }
             }
             Log::info('~~~~~~Auto Renew End Execution ~~~~~~~~');
             $this->info('~~~~~~Auto Renew End Execution ~~~~~~~~');
         }catch (\Exception $e){
+            DB::rollBack();
             $this->info($e->getLine());
             $this->info($e->getMessage());
         }

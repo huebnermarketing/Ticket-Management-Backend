@@ -4,6 +4,8 @@ namespace App\Console;
 
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
+use App\Console\Commands\AutoRenewContract;
+use App\Console\Commands\ActiveDeactiveContract;
 
 class Kernel extends ConsoleKernel
 {
@@ -15,6 +17,8 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->command(AutoRenewContract::class)->dailyAt("00:30");
+        $schedule->command(ActiveDeactiveContract::class)->dailyAt("00:40");
         // $schedule->command('inspire')->hourly();
     }
 
