@@ -37,11 +37,31 @@ class ContractRepository implements ContractRepositoryInterface
     }
 
     public function getContracts($request){
-        $type = ($request['type'] == 'Active') ? [1] : [2,3,4];
+        $type = $request['type'];
         $contracts = Contract::where('contract_status_id',getStatusId(10001)->id);
-        $customers = Customers::withCount(['contract' => function($query) use($type){
+
+
+        $customers = Customers::with(['contract' => function($q) use($type){
+            $q->whereIn('contract_status_id', $type == 'Active'? [1,3] : [2,4]);
+        }])->withCount(['contract' => function($q) use($type){
+            $q->whereIn('contract_status_id', $type == 'Active'? [1] : [2,3,4]);
+        }])->whereHas('contract')->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
+
+        $customers->makeHidden('contract');
+
+
+      /* $customers = Customers::withCount(['contract' => function($query) use($type){
+            if($type == 'Active'){
+                $query->whereIn('contract_status_id',[1]);
+            }else{
+                $query->whereIn('contract_status_id',[2,3,4]);
+            }
+        }])->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));*/
+
+
+        /*$customers = Customers::withCount(['contract' => function($query) use($type){
             $query->whereIn('contract_status_id',$type);
-        }])->having('contract_count', '>', 0)->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
+        }])->having('contract_count', '>', 0)->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));*/
         $clientDashboard = [
             'active_contract' => $contracts->count(),
             'paid_amount' => $contracts->sum('amount'),
