@@ -31,8 +31,9 @@ class UserCreateSendPassword extends Mailable
      */
     public function envelope()
     {
+//        dd($this->mailData['system_name']);
         return new Envelope(
-            subject: 'Your Account Password.',
+            subject: 'Account Creation Confirmation: Access your'. $this->mailData->system_name .'Account',
         );
     }
 

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1;
 
 use App\Http\Controllers\Controller;
 use App\Mail\UserCreateSendPassword;
+use App\Models\CompanySettings;
 use App\Models\User;
 use App\Repositories\User\UserRepositoryInterface;
 use App\Traits\RolePermissionTrait;
@@ -112,7 +113,8 @@ class UserController extends Controller
                 $mailData = [
                     'first_name' => $request['first_name'],
                     'last_name' => $request['last_name'],
-                    'password' => $request['password']
+                    'password' => $request['password'],
+                    'system_name' => CompanySettings::select('company_name')->first()
                 ];
                 Mail::to($request['email'])->send(new UserCreateSendPassword($mailData));
 
