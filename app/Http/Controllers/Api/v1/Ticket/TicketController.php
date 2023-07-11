@@ -162,7 +162,7 @@ class TicketController extends Controller
         try{
             if(isset($request->is_filter)){
                 $data['customers'] = Customers::join('customer_phones', 'customer_phones.customer_id', 'customers.id')
-                    ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.customer_id','customer_phones.phone')->get();
+                    ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.phone')->get();
             }
             /*$data['assign_engineer'] = User::with(['role'])->whereHas('role', function($qry){
                 $qry->where('role_slug','user');
