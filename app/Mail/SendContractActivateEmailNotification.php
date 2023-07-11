@@ -9,7 +9,7 @@ use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
 
-class UserCreateSendPassword extends Mailable
+class SendContractActivateEmailNotification extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -32,7 +32,7 @@ class UserCreateSendPassword extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Account Creation Confirmation: Access your '. $this->mailData['system_name']['company_name'] .' Account',
+            subject: 'Send Contract Activate Email Notification',
         );
     }
 
@@ -44,7 +44,7 @@ class UserCreateSendPassword extends Mailable
     public function content()
     {
         return new Content(
-            view: 'emails.UserCreateSendPassword',
+            view: 'emails.ContractActivateEmailNotification',
         );
     }
 

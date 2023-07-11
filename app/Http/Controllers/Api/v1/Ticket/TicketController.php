@@ -146,7 +146,15 @@ class TicketController extends Controller
                 'due_date' => $request['due_date'],
                 'description' => !empty($request['description']) ? $request['description'] : null,
                 'assigned_by' => $authUser['first_name'] .' '. $authUser['last_name'],
-                'ticket_detail_url' => 'd'
+                'ticket_detail_url' => 'd',
+                'problem_title' => $createTicket['problem_title'],
+                'problem_types' => $createTicket->problem_types,
+                'appointment_type' => AppointmentTypes::select('appointment_name')->where('id',$createTicket['appointment_type_id'])->first(),
+                'status_type' => TicketStatus::select('status_name')->where('id',$createTicket['ticket_status_id'])->first(),
+                'priority' => TicketPriority::select('priority_name')->where('id',$createTicket['priority_id'])->first(),
+                'customer_name' => Customers::select('first_name','last_name')->where('id',$createTicket['customer_id'])->first(),
+                'customer_phone' => CustomerPhones::select('phone')->where('customer_id',$createTicket['customer_id'])->first(),
+                'customer_location' => CustomerLocations::where('id',$createTicket['customer_locations_id'])->first()
             ];
             Mail::to($findUser['email'])->send(new SendTicketCreateEmailNotification($mailData));
 

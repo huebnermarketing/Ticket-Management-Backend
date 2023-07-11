@@ -3,10 +3,15 @@
 namespace App\Console\Commands;
 
 use App\Http\Controllers\Api\v1\Contract\InvoiceController;
+use App\Mail\SendContractActivateEmailNotification;
 use App\Models\Contract;
+use App\Models\CustomerLocations;
+use App\Models\Customers;
 use App\Models\Tickets;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use RestResponse;
 use DB;
 
@@ -56,6 +61,15 @@ class ActiveDeactiveContract extends Command
             if($contract->is_auto_renew == 1){
                 Contract::where('id',$contract['id'])->update(['contract_status_id'=>getStatusId(10001)->id]);
                 $createInvoices = $this->invoiceController->createInvoices($contract['id']);
+                $customerLocation = CustomerLocations::where('customer_id',$contract['customer_id'])->first();
+                $mailData = [
+                    'contract' => $contract,
+                    'auth_name' => 'Sarah1 Danforth1',
+                    'customer_location' => $customerLocation,
+                    'customer_name' => Customers::select('first_name','last_name')->where('id',$contract['customer_id'])->first(),
+                    'contract_detail_url' => 'd'
+                ];
+                Mail::to('owner@gmail.com')->send(new SendContractActivateEmailNotification($mailData));
                 if($createInvoices){
                     return RestResponse::warning('Contract Invoices Not created.');
                 }
