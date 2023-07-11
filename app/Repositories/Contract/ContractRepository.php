@@ -118,18 +118,18 @@ class ContractRepository implements ContractRepositoryInterface
             'duration:id,slug,display_name',
             'paymentTerm:id,slug,display_name'
         ])->select('id', 'unique_id', 'customer_id', 'customer_location_id', 'contract_title', 'contract_details', 'amount', 'duration_id', 'payment_term_id', 'contract_status_id', 'start_date', 'end_date', 'is_auto_renew', 'open_ticket_contract', 'is_suspended')
-            ->where('id', $data['contract_id'])
+            ->where('id', $data)
             ->first();
 
         /*suspend button logic
         first check contract active
         then check contract ticket all are closed*/
-        $contractstatus = Contract::where(['id' => $data['contract_id'],'contract_status_id'=>getStatusId(10001)->id])->first();
+        $contractstatus = Contract::where(['id' => $data,'contract_status_id'=>getStatusId(10001)->id])->first();
         if($contractstatus != null){
             $checkTicketStatus = Tickets::with('ticket_status')
                 ->whereHas('ticket_status', function($qry){
                     $qry->whereNot('unique_id',10004);
-                })->where(['contract_id'=> $data['contract_id']])->whereNull('deleted_at')->count();
+                })->where(['contract_id'=> $data])->whereNull('deleted_at')->count();
             $isSuspended = ($checkTicketStatus == 0) ? true : false;
         }else{
             $isSuspended = false;

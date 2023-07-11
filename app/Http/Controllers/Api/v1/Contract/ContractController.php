@@ -116,10 +116,10 @@ class ContractController extends Controller
         }
     }
 
-    public function viewContract(Request $request){
+    public function viewContract($contractId){
         try{
             if(Auth::user()->hasPermissionTo($this->perContractCRUD)){
-                $viewContract = $this->contractRepository->viewContract($request);
+                $viewContract = $this->contractRepository->viewContract($contractId);
                 if(!$viewContract){
                     return RestResponse::warning('Contract not found');
                 }
