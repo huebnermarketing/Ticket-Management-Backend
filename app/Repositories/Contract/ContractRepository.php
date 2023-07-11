@@ -4,6 +4,7 @@ namespace App\Repositories\Contract;
 use App\Http\Controllers\Api\v1\Contract\InvoiceController;
 use App\Models\ContractDuration;
 use App\Models\ContractPaymentTerm;
+use App\Models\ContractStatus;
 use App\Models\ContractType;
 use App\Models\CustomerLocations;
 use App\Models\Customers;
@@ -23,16 +24,13 @@ class ContractRepository implements ContractRepositoryInterface
 //        $customers = Customers::join('customer_phones', 'customer_phones.customer_id', 'customers.id')
 //            ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.customer_id','customer_phones.phone')->get();
 //        $data['customers'] = $customers;
-        $contractType = ContractType::select('id', 'contract_name')->get();
-        $productService = ProductServices::select('id', 'service_name')->get();
-        $contractDuration = ContractDuration::select('id', 'slug', 'display_name')->get();
-        $contractPaymentTerms = ContractPaymentTerm::select('id', 'slug', 'display_name')->get();
 
         return [
-            'contract_services' => $contractType,
-            'product_services' => $productService,
-            'contract_duration' => $contractDuration,
-            'contract_payment_terms' => $contractPaymentTerms,
+            'contract_services' => ContractType::select('id', 'contract_name')->get(),
+            'product_services' => ProductServices::select('id', 'service_name')->get(),
+            'contract_duration' => ContractDuration::select('id', 'slug', 'display_name')->get(),
+            'contract_payment_terms' => ContractPaymentTerm::select('id', 'slug', 'display_name')->get(),
+            'contract_statuses' => ContractStatus::select('id','status_name')->get()
         ];
     }
 
