@@ -139,12 +139,13 @@ Route::group(['prefix' => 'v1', 'middleware' => ['throttle:600,1']], function ()
             Route::get('get-details','getDetails');
             Route::put('update','updateContract');
             Route::post('suspend-contract','suspendContract');
-            Route::get('view','viewContract');
+            Route::get('view/{id}','viewContract');
 
             Route::group(['prefix' => 'invoices','controller' => InvoiceController::class], function () {
                 Route::get('get-details/{id}', 'getInvoiceDetails');
                 Route::get('create/{id}', 'createInvoices'); //optional remove it after invoice flow create
                 Route::post('pay-invoice', 'payInvoiceAmount');
+                Route::post('add-adhoc-ticket-amount','addAdhocTicketAmount');
             });
         });
     });

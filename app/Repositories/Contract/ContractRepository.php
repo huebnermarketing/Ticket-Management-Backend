@@ -4,6 +4,7 @@ namespace App\Repositories\Contract;
 use App\Http\Controllers\Api\v1\Contract\InvoiceController;
 use App\Models\ContractDuration;
 use App\Models\ContractPaymentTerm;
+use App\Models\ContractStatus;
 use App\Models\ContractType;
 use App\Models\CustomerLocations;
 use App\Models\Customers;
@@ -23,25 +24,42 @@ class ContractRepository implements ContractRepositoryInterface
 //        $customers = Customers::join('customer_phones', 'customer_phones.customer_id', 'customers.id')
 //            ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.customer_id','customer_phones.phone')->get();
 //        $data['customers'] = $customers;
-        $contractType = ContractType::select('id', 'contract_name')->get();
-        $productService = ProductServices::select('id', 'service_name')->get();
-        $contractDuration = ContractDuration::select('id', 'slug', 'display_name')->get();
-        $contractPaymentTerms = ContractPaymentTerm::select('id', 'slug', 'display_name')->get();
 
         return [
-            'contract_services' => $contractType,
-            'product_services' => $productService,
-            'contract_duration' => $contractDuration,
-            'contract_payment_terms' => $contractPaymentTerms,
+            'contract_services' => ContractType::select('id', 'contract_name')->get(),
+            'product_services' => ProductServices::select('id', 'service_name')->get(),
+            'contract_duration' => ContractDuration::select('id', 'slug', 'display_name')->get(),
+            'contract_payment_terms' => ContractPaymentTerm::select('id', 'slug', 'display_name')->get(),
+            'contract_statuses' => ContractStatus::select('id','status_name')->get()
         ];
     }
 
     public function getContracts($request){
-        $type = ($request['type'] == 'Active') ? [1] : [2,3,4];
+        $type = $request['type'];
         $contracts = Contract::where('contract_status_id',getStatusId(10001)->id);
-        $customers = Customers::withCount(['contract' => function($query) use($type){
+
+
+        $customers = Customers::with(['contract' => function($q) use($type){
+            $q->whereIn('contract_status_id', $type == 'Active'? [1,3] : [2,4]);
+        }])->withCount(['contract' => function($q) use($type){
+            $q->whereIn('contract_status_id', $type == 'Active'? [1] : [2,3,4]);
+        }])->whereHas('contract')->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
+
+        $customers->makeHidden('contract');
+
+
+      /* $customers = Customers::withCount(['contract' => function($query) use($type){
+            if($type == 'Active'){
+                $query->whereIn('contract_status_id',[1]);
+            }else{
+                $query->whereIn('contract_status_id',[2,3,4]);
+            }
+        }])->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));*/
+
+
+        /*$customers = Customers::withCount(['contract' => function($query) use($type){
             $query->whereIn('contract_status_id',$type);
-        }])->having('contract_count', '>', 0)->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));
+        }])->having('contract_count', '>', 0)->orderBy('first_name','asc')->paginate(config('constant.PAGINATION_RECORD'));*/
         $clientDashboard = [
             'active_contract' => $contracts->count(),
             'paid_amount' => $contracts->sum('amount'),
@@ -100,18 +118,18 @@ class ContractRepository implements ContractRepositoryInterface
             'duration:id,slug,display_name',
             'paymentTerm:id,slug,display_name'
         ])->select('id', 'unique_id', 'customer_id', 'customer_location_id', 'contract_title', 'contract_details', 'amount', 'duration_id', 'payment_term_id', 'contract_status_id', 'start_date', 'end_date', 'is_auto_renew', 'open_ticket_contract', 'is_suspended')
-            ->where('id', $data['contract_id'])
+            ->where('id', $data)
             ->first();
 
         /*suspend button logic
         first check contract active
         then check contract ticket all are closed*/
-        $contractstatus = Contract::where(['id' => $data['contract_id'],'contract_status_id'=>getStatusId(10001)->id])->first();
+        $contractstatus = Contract::where(['id' => $data,'contract_status_id'=>getStatusId(10001)->id])->first();
         if($contractstatus != null){
             $checkTicketStatus = Tickets::with('ticket_status')
                 ->whereHas('ticket_status', function($qry){
                     $qry->whereNot('unique_id',10004);
-                })->where(['contract_id'=> $data['contract_id']])->whereNull('deleted_at')->count();
+                })->where(['contract_id'=> $data])->whereNull('deleted_at')->count();
             $isSuspended = ($checkTicketStatus == 0) ? true : false;
         }else{
             $isSuspended = false;

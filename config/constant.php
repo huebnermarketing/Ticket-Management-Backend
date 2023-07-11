@@ -47,16 +47,16 @@ return [
 
     //Contract Durations
     'CONTRACT_DURATIONS' => [
-        ['slug' => 'year', 'display_name'=> 'Year'],
+        ['slug' => 'year', 'display_name'=> 'Yearly'],
         ['slug' => 'half-year', 'display_name'=> 'Half Year'],
-        ['slug' => 'qtr', 'display_name'=> 'Qtr'],
+        ['slug' => 'qtr', 'display_name'=> 'Quarter'],
         ['slug' => 'month', 'display_name'=> 'Month'],
     ],
 
     'CONTRACT_PAYMENT_TERM' => [
         ['slug' => 'month', 'display_name'=>'Month'],
-        ['slug' => 'qtr', 'display_name'=>'Qtr'],
-        ['slug' => 'half-year', 'display_name'=>'Half Year'],
+        ['slug' => 'qtr', 'display_name'=>'Quarterly '],
+        ['slug' => 'half-year', 'display_name'=>'Half yearly'],
         ['slug' => 'all-at-once', 'display_name'=>'All at Once'],
     ],
 

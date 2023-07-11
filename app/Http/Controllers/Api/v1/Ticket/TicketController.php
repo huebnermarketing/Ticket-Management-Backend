@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1\Ticket;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendTicketCreateEmailNotification;
+use App\Models\AdhocTicketAmount;
 use App\Models\AppointmentTypes;
 use App\Models\CustomerLocations;
 use App\Models\CustomerPhones;
@@ -164,7 +165,7 @@ class TicketController extends Controller
         try{
             if(isset($request->is_filter)){
                 $data['customers'] = Customers::join('customer_phones', 'customer_phones.customer_id', 'customers.id')
-                    ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.customer_id','customer_phones.phone')->get();
+                    ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.phone')->get();
             }
             /*$data['assign_engineer'] = User::with(['role'])->whereHas('role', function($qry){
                 $qry->where('role_slug','user');
@@ -186,6 +187,8 @@ class TicketController extends Controller
     {
         try{
             $getTicket = Tickets::with('comments')->where('id',$ticketId)->ticketRelations()->first();
+            $sumAmount = AdhocTicketAmount::where('ticket_id',$ticketId)->sum('amount');
+            $getTicket->collected_amount = $getTicket->collected_amount + $sumAmount;
             if(empty($getTicket)){
                 return RestResponse::warning('Ticket not found.');
             }
