@@ -168,6 +168,7 @@ class InvoiceController extends Controller
                 'city' => $getContract['customerLocation']['city'],
             ];
             $invoice['invoices'] = $getContract['ledgerInvoice'];
+            $invoice['payment_mode'] = ['card', 'cash', 'online'];
             return RestResponse::Success($invoice, 'Contract retrieve successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
