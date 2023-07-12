@@ -2,11 +2,18 @@
 
 namespace App\Repositories\Ticket;
 
+use App\Mail\SendWorkDoneTicketStatusEmailNotification;
+use App\Models\AppointmentTypes;
+use App\Models\CustomerLocations;
+use App\Models\CustomerPhones;
+use App\Models\Customers;
 use App\Models\TicketProblemType;
 use App\Models\Tickets;
+use App\Models\User;
 use \App\Repositories\Ticket\TicketRepositoryInterface;
 use Carbon\Carbon;
 use App\Filters\TicketFilter;
+use Illuminate\Support\Facades\Mail;
 use Pricecurrent\LaravelEloquentFilters\EloquentFilters;
 
 class TicketRepository implements TicketRepositoryInterface
@@ -96,6 +103,23 @@ class TicketRepository implements TicketRepositoryInterface
         $getTicket['payment_mode'] = $paymentMode;
         $updateTicket = $getTicket->save();
         $getTicket->problem_types()->sync($data['problem_type_id']);
+        if($data['ticket_status_id'] == 3){
+            $sendMailEmails = User::whereNot('role_id',3)->get();
+            foreach($sendMailEmails as $user){
+                $mailData = [
+                    'user_name' =>$user['first_name'] .' '.$user['last_name'],
+                    'ticket' => $getTicket,
+                    'problem_types' => $getTicket->problem_types,
+                    'appointment_type' => AppointmentTypes::select('appointment_name')->where('id',$getTicket['appointment_type_id'])->first(),
+                    'customer_name' => Customers::select('first_name','last_name')->where('id',$getTicket['customer_id'])->first(),
+                    'customer_phone' => CustomerPhones::select('phone')->where(['customer_id'=>$getTicket['customer_id'],'is_primary'=>1])->first(),
+                    'customer_location' => CustomerLocations::where('id',$getTicket['customer_locations_id'])->first(),
+                    'assignee'=> User::select('first_name','last_name')->where('id',$getTicket['assigned_user_id'])->first(),
+                    'ticket_detail_url' =>'d'
+                ];
+                Mail::to($user['email'])->send(new SendWorkDoneTicketStatusEmailNotification($mailData));
+            }
+        }
         return $updateTicket;
     }
 }

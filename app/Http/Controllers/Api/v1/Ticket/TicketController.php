@@ -153,7 +153,7 @@ class TicketController extends Controller
                 'status_type' => TicketStatus::select('status_name')->where('id',$createTicket['ticket_status_id'])->first(),
                 'priority' => TicketPriority::select('priority_name')->where('id',$createTicket['priority_id'])->first(),
                 'customer_name' => Customers::select('first_name','last_name')->where('id',$createTicket['customer_id'])->first(),
-                'customer_phone' => CustomerPhones::select('phone')->where('customer_id',$createTicket['customer_id'])->first(),
+                'customer_phone' => CustomerPhones::select('phone')->where(['customer_id'=>$createTicket['customer_id'],'is_primary'=>1])->first(),
                 'customer_location' => CustomerLocations::where('id',$createTicket['customer_locations_id'])->first()
             ];
             Mail::to($findUser['email'])->send(new SendTicketCreateEmailNotification($mailData));
