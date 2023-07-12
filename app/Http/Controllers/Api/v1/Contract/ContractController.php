@@ -198,7 +198,7 @@ class ContractController extends Controller
                 //Change contract invoice status
                 $updateInvoiceStatus = $this->invoiceController->changeInvoiceStatus($request['contract_id']);
                 if($updateInvoiceStatus){
-                    return RestResponse::Success('Contract suspended successfully.');
+                    return RestResponse::Success([],'Contract suspended successfully.');
                 }else{
                     return RestResponse::warning('Contract not updated successfully.');
                 }
