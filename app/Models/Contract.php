@@ -67,4 +67,8 @@ class Contract extends Model
     {
         return $this->hasMany(Invoices::class,'contract_id','id');
     }
+
+    public function ledgerInvoice(){
+        return $this->hasMany(LedgerInvoices::class,'contract_id','id');
+    }
 }

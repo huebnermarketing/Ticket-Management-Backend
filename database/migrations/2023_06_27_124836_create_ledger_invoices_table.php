@@ -20,6 +20,7 @@ return new class extends Migration
             $table->date('date');
             $table->double('ledger_amount');
             $table->foreign('contract_id')->references('id')->on('contracts');
+            $table->enum('payment_mode',['card','cash','online'])->comment('card,cash,online')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

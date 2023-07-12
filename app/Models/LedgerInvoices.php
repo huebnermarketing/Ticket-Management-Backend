@@ -12,7 +12,7 @@ use Illuminate\Support\Str;
 class LedgerInvoices extends Model
 {
     use HasFactory,CommonTrait,SoftDeletes;
-    protected $fillable= ['ledger_unique_id','contract_id','date','ledger_amount','deleted_at','created_at','updated_at'];
+    protected $fillable= ['ledger_unique_id','contract_id','date','ledger_amount','payment_mode','deleted_at','created_at','updated_at'];
 
     public static function ledgerUniqueId($firstName,$lastName,$companyName){
         $name = Str::substr($firstName, 0, 1);

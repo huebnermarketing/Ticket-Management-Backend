@@ -153,7 +153,7 @@ class InvoiceController extends Controller
     public function getInvoiceDetails($contractId)
     {
         try{
-            $getContract = Contract::with(['customers','customerLocation','invoices'])->find($contractId);
+            $getContract = Contract::with(['customers','customerLocation','invoices','ledgerInvoice'])->find($contractId);
             if(empty($getContract)){
                 return RestResponse::warning('Contract not found.');
             }
@@ -167,7 +167,7 @@ class InvoiceController extends Controller
                 'area' => $getContract['customerLocation']['area'],
                 'city' => $getContract['customerLocation']['city'],
             ];
-            $invoice['invoices'] = $getContract['invoices'];
+            $invoice['invoices'] = $getContract['ledgerInvoice'];
             return RestResponse::Success($invoice, 'Contract retrieve successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
@@ -202,6 +202,7 @@ class InvoiceController extends Controller
                'contract_id' => $request['contract_id'],
                'date' => $request['date'],
                'ledger_amount' => $request['pay_amount'],
+               'payment_mode' => $request['payment_mode']
             ];
             $createLedgerInvoice = LedgerInvoices::create($ledgerPayload);
             $getContract['remaining_amount'] = $getContract['remaining_amount'] - $request['pay_amount'];
