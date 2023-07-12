@@ -8,6 +8,7 @@ use App\Models\Contract;
 use App\Models\CustomerLocations;
 use App\Models\Customers;
 use App\Models\Tickets;
+use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -62,14 +63,17 @@ class ActiveDeactiveContract extends Command
                 Contract::where('id',$contract['id'])->update(['contract_status_id'=>getStatusId(10001)->id]);
                 $createInvoices = $this->invoiceController->createInvoices($contract['id']);
                 $customerLocation = CustomerLocations::where('customer_id',$contract['customer_id'])->first();
-                $mailData = [
-                    'contract' => $contract,
-                    'auth_name' => 'Sarah1 Danforth1',
-                    'customer_location' => $customerLocation,
-                    'customer_name' => Customers::select('first_name','last_name')->where('id',$contract['customer_id'])->first(),
-                    'contract_detail_url' => 'd'
-                ];
-                Mail::to('owner@gmail.com')->send(new SendContractActivateEmailNotification($mailData));
+                $sendMailEmails = User::whereNot('role_id',3)->get();
+                foreach($sendMailEmails as $user){
+                    $mailData = [
+                        'contract' => $contract,
+                        'customer_location' => $customerLocation,
+                        'customer_name' => Customers::select('first_name','last_name')->where('id',$contract['customer_id'])->first(),
+                        'contract_detail_url' => 'd',
+                        'user_name' => $user['first_name'] .' '. $user['last_name']
+                    ];
+                    Mail::to($user['email'])->send(new SendContractActivateEmailNotification($mailData));
+                }
                 if($createInvoices){
                     return RestResponse::warning('Contract Invoices Not created.');
                 }

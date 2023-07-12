@@ -2,13 +2,19 @@
 
 namespace App\Console\Commands;
 
+use App\Mail\SendContractReNewEmailNotification;
 use App\Models\Contract;
 use App\Models\ContractProductService;
 use App\Models\ContractServiceType;
+use App\Models\CustomerLocations;
+use App\Models\CustomerPhones;
+use App\Models\Customers;
+use App\Models\User;
 use App\Repositories\Contract\ContractRepositoryInterface;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Log;
 use App\Traits\CommonTrait;
+use Illuminate\Support\Facades\Mail;
 
 class AutoRenewContract extends Command
 {
@@ -96,6 +102,20 @@ class AutoRenewContract extends Command
                         ];
                     })->toArray();
                     $this->contractRepository->storeContractProductService($storeContract['id'],$productTypes);
+                    $customerLocation = CustomerLocations::where('customer_id',$contract['customer_id'])->first();
+                    $sendMailEmails = User::whereNot('role_id',3)->get();
+                    foreach($sendMailEmails as $user){
+                        $mailData = [
+                            'contract' => $contract,
+                            'auth_name' => 'Sarah1 Danforth1',
+                            'customer_location' => $customerLocation,
+                            'customer_name' => Customers::select('first_name','last_name')->where('id',$contract['customer_id'])->first(),
+                            'customer_phone' => CustomerPhones::select('phone')->where(['customer_id'=>$contract['customer_id'],'is_primary',1])->first(),
+                            'contract_detail_url' => 'd',
+                            'user_name' => $user['first_name'] .' '. $user['last_name']
+                        ];
+                        Mail::to($user['email'])->send(new SendContractReNewEmailNotification($mailData));
+                    }
                 }
             }
             Log::info('~~~~~~Auto Renew End Execution ~~~~~~~~');
