@@ -204,7 +204,7 @@ class ContractRepository implements ContractRepositoryInterface
                 'is_auto_renew'=>$data['is_auto_renew']
             ]);
             $checkContract->manyServiceType()->sync($data['contract_type_id']);
-            $checkContract->contractProductServices()->sync($data['contract_product_service_id']);
+            $checkContract->contractProductServices()->sync($data['contract_product_service']);
             $response['is_updated'] = $updateContract;
             $response['is_amount_change'] = $isAmountChanged;
             return $response;

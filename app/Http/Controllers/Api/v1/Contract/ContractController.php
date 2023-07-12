@@ -155,9 +155,8 @@ class ContractController extends Controller
                 DB::beginTransaction();
                 $validate = Validator::make($request->all(), [
                     "contract_id" => 'required',
-                    'contract_product_service_id.*.product_service_id' => 'required',
-                    'contract_product_service_id.*.product_qty' => 'required|numeric|gt:0',
-                    'contract_product_service_id.*.product_amount' => 'required|numeric|gt:0'
+                    'contract_product_services.*.product_qty' => 'required|numeric|gt:0',
+                    'contract_product_services.*.product_amount' => 'required|numeric|gt:0'
                 ]);
                 if ($validate->fails()) {
                     return RestResponse::validationError($validate->errors());
