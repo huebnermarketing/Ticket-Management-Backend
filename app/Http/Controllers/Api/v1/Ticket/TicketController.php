@@ -109,6 +109,9 @@ class TicketController extends Controller
                     ->update(['phone'=>$request['primary_mobile']]);
 
                 $customerAddressPayload = $request->only(['address_line1','company_name','area','city','zipcode','state','country']);
+
+                if (!isset($customerAddressPayload["company_name"])) $customerAddressPayload["company_name"] = '';
+
                 $updateAddress = $this->customerRepository->updateAddress($customerAddressPayload,$request['customer_locations_id']);
             } else {
                 $customerPayload = $request->only(['first_name','last_name','email','primary_mobile']);
@@ -215,7 +218,7 @@ class TicketController extends Controller
                 'area' => 'required',
                 'state' => 'required',
                 'zipcode' => 'required',
-                'email' => 'required',
+                // 'email' => 'required',
                 'customer_name' => 'required',
                 'city' => 'required',
                 'country' => 'required',
@@ -239,6 +242,9 @@ class TicketController extends Controller
                'email' => $request['email']
             ]);
             $customerAddressPayload = $request->only(['address_line1','company_name','area','city','zipcode','state','country']);
+            
+            if (!isset($customerAddressPayload["company_name"])) $customerAddressPayload["company_name"] = '';
+            
             if($request['customer_locations_id'] == ''){
                 $newAddress = [
                     'customer_id'=> $request['customer_id'],
