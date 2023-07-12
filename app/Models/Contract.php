@@ -48,7 +48,7 @@ class Contract extends Model
     }
 
     public function contractProductServices(){
-        return $this->belongsToMany(ProductServices::class, ContractProductService::class, 'contract_id', 'product_service_id');
+        return $this->belongsToMany(ProductServices::class, ContractProductService::class, 'contract_id', 'product_service_id')->withTimestamps();
     }
 
     public function productService(){
@@ -66,5 +66,9 @@ class Contract extends Model
     public function invoices()
     {
         return $this->hasMany(Invoices::class,'contract_id','id');
+    }
+
+    public function ledgerInvoice(){
+        return $this->hasMany(LedgerInvoices::class,'contract_id','id');
     }
 }

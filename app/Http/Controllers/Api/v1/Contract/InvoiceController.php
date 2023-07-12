@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\v1\Contract;
 
 use App\Http\Controllers\Controller;
+use App\Models\AdhocTicketAmount;
 use App\Models\Contract;
 use App\Models\Invoices;
 use App\Models\LedgerInvoicePayments;
@@ -152,7 +153,7 @@ class InvoiceController extends Controller
     public function getInvoiceDetails($contractId)
     {
         try{
-            $getContract = Contract::with(['customers','customerLocation','invoices'])->find($contractId);
+            $getContract = Contract::with(['customers','customerLocation','invoices','ledgerInvoice'])->find($contractId);
             if(empty($getContract)){
                 return RestResponse::warning('Contract not found.');
             }
@@ -166,7 +167,8 @@ class InvoiceController extends Controller
                 'area' => $getContract['customerLocation']['area'],
                 'city' => $getContract['customerLocation']['city'],
             ];
-            $invoice['invoices'] = $getContract['invoices'];
+            $invoice['invoices'] = $getContract['ledgerInvoice'];
+            $invoice['payment_mode'] = ['card', 'cash', 'online'];
             return RestResponse::Success($invoice, 'Contract retrieve successfully.');
         }catch (\Exception $e) {
             return RestResponse::error($e->getMessage(), $e);
@@ -201,6 +203,7 @@ class InvoiceController extends Controller
                'contract_id' => $request['contract_id'],
                'date' => $request['date'],
                'ledger_amount' => $request['pay_amount'],
+               'payment_mode' => $request['payment_mode']
             ];
             $createLedgerInvoice = LedgerInvoices::create($ledgerPayload);
             $getContract['remaining_amount'] = $getContract['remaining_amount'] - $request['pay_amount'];
@@ -266,4 +269,31 @@ class InvoiceController extends Controller
         return Invoices::where(['contract_id' => $contractId,'is_invoice_paid' => 0])
             ->update(['status' => 'Uncollectible']);
     }
+
+    public function addAdhocTicketAmount(Request $request){
+        try{
+            DB::beginTransaction();
+            $validate = Validator::make($request->all(), [
+                'ticket_id' => 'required',
+                'amount' => 'required',
+                'payment_mode' => 'required',
+            ]);
+            if ($validate->fails()) {
+                return RestResponse::validationError($validate->errors());
+            }
+            $addTicketAmount = [
+                'ticket_id' => $request->ticket_id,
+                'amount' => $request->amount,
+                'payment_mode' => $request->payment_mode
+            ];
+
+            $addAmount = AdhocTicketAmount::create($addTicketAmount);
+            DB::commit();
+            return RestResponse::Success($addAmount,'Successfully Added Amount.');
+        }catch (\Exception $e) {
+            DB::rollBack();
+            return RestResponse::error($e->getMessage(), $e);
+        }
+    }
+
 }
