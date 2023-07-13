@@ -149,6 +149,7 @@ class TicketController extends Controller
                 'ticket_detail_url' => 'd',
                 'problem_title' => $createTicket['problem_title'],
                 'problem_types' => $createTicket->problem_types,
+                'problem_count' => count($createTicket->problem_types),
                 'appointment_type' => AppointmentTypes::select('appointment_name')->where('id',$createTicket['appointment_type_id'])->first(),
                 'status_type' => TicketStatus::select('status_name')->where('id',$createTicket['ticket_status_id'])->first(),
                 'priority' => TicketPriority::select('priority_name')->where('id',$createTicket['priority_id'])->first(),

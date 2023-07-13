@@ -110,6 +110,7 @@ class TicketRepository implements TicketRepositoryInterface
                     'user_name' =>$user['first_name'] .' '.$user['last_name'],
                     'ticket' => $getTicket,
                     'problem_types' => $getTicket->problem_types,
+                    'problem_count' => count($getTicket->problem_types),
                     'appointment_type' => AppointmentTypes::select('appointment_name')->where('id',$getTicket['appointment_type_id'])->first(),
                     'customer_name' => Customers::select('first_name','last_name')->where('id',$getTicket['customer_id'])->first(),
                     'customer_phone' => CustomerPhones::select('phone')->where(['customer_id'=>$getTicket['customer_id'],'is_primary'=>1])->first(),

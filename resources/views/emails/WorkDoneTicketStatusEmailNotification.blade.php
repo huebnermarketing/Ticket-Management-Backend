@@ -6,12 +6,12 @@
         <p><strong>Problem Title:</strong> {{ $mailData['ticket']['problem_title'] }}</p>
         <p><strong>Problem Type:
                 @foreach($mailData['problem_types'] as $type)
-            </strong> {{ $type['problem_name'] }},
+            </strong> {{ $type['problem_name'] }}@if($mailData['problem_count'] != 1),@endif
             @endforeach
         </p>
         <p><strong>Assignee:</strong> {{ $mailData['assignee']['first_name'] }}  {{ $mailData['assignee']['last_name'] }}</p>
         <p><strong>Due Date:</strong> {{ $mailData['ticket']['due_date'] }} </p>
-        <p><strong>Appointment type:</strong> {{ $mailData['appointment_type']['appointment_name'] }} </p>
+        <p><strong>Appointment type:</strong> {{ $mailData['appointment_type']['appointment_name'] }} </p><hr>
         <p><strong>Customer Name:</strong> {{ $mailData['customer_name']['first_name'] }}  {{ $mailData['customer_name']['last_name'] }} </p>
         <p><strong>Mobile Number:</strong> {{ $mailData['customer_phone']['phone'] }} </p>
         <p><strong>Company Name:</strong> {{ $mailData['customer_location']['company_name'] }} </p>
