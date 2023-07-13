@@ -32,7 +32,7 @@ class SendContractReNewEmailNotification extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Send Contract Re New Email Notification',
+            subject: '[Important] Contract auto-renewed for customer '.$this->mailData['customer_name'],
         );
     }
 

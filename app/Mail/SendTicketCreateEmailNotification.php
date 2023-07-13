@@ -32,7 +32,7 @@ class SendTicketCreateEmailNotification extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'New ticket created.',
+            subject: '[Action Required] Ticket [#'.$this->mailData['ticket_id'].'] assigned to you',
         );
     }
 

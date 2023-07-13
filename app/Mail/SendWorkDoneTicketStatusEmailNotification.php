@@ -33,7 +33,7 @@ class SendWorkDoneTicketStatusEmailNotification extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Send Work Done Ticket Status Email Notification',
+            subject: '[Update] Ticket #['.$this->mailData['ticket']['unique_id'].'] marked as a Work Done',
         );
     }
 

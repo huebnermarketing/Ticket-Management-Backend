@@ -32,7 +32,7 @@ class SendContractActivateEmailNotification extends Mailable
     public function envelope()
     {
         return new Envelope(
-            subject: 'Send Contract Activate Email Notification',
+            subject: '[Important] Contract activated for customer '.$this->mailData['customer_name'],
         );
     }
 
