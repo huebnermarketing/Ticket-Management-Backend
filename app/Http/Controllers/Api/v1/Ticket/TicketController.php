@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\v1\Ticket;
 
 use App\Http\Controllers\Controller;
 use App\Mail\SendTicketCreateEmailNotification;
+use App\Models\AdhocTicketAmount;
 use App\Models\AppointmentTypes;
 use App\Models\Contract;
 use App\Models\CustomerLocations;
@@ -110,6 +111,9 @@ class TicketController extends Controller
                     ->update(['phone'=>$request['primary_mobile']]);
 
                 $customerAddressPayload = $request->only(['address_line1','company_name','area','city','zipcode','state','country']);
+
+                if (!isset($customerAddressPayload["company_name"])) $customerAddressPayload["company_name"] = '';
+
                 $updateAddress = $this->customerRepository->updateAddress($customerAddressPayload,$request['customer_locations_id']);
             } else {
                 $customerPayload = $request->only(['first_name','last_name','email','primary_mobile']);
@@ -163,7 +167,7 @@ class TicketController extends Controller
         try{
             if(isset($request->is_filter)){
                 $data['customers'] = Customers::join('customer_phones', 'customer_phones.customer_id', 'customers.id')
-                    ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.customer_id','customer_phones.phone')->get();
+                    ->where('customer_phones.is_primary',1)->select('customers.*','customer_phones.phone')->get();
             }
             /*$data['assign_engineer'] = User::with(['role'])->whereHas('role', function($qry){
                 $qry->where('role_slug','user');
@@ -185,6 +189,8 @@ class TicketController extends Controller
     {
         try{
             $getTicket = Tickets::with('comments')->where('id',$ticketId)->ticketRelations()->first();
+            $sumAmount = AdhocTicketAmount::where('ticket_id',$ticketId)->sum('amount');
+            $getTicket->collected_amount = $getTicket->collected_amount + $sumAmount;
             if(empty($getTicket)){
                 return RestResponse::warning('Ticket not found.');
             }
@@ -214,7 +220,7 @@ class TicketController extends Controller
                 'area' => 'required',
                 'state' => 'required',
                 'zipcode' => 'required',
-                'email' => 'required',
+                // 'email' => 'required',
                 'customer_name' => 'required',
                 'city' => 'required',
                 'country' => 'required',
@@ -238,6 +244,9 @@ class TicketController extends Controller
                'email' => $request['email']
             ]);
             $customerAddressPayload = $request->only(['address_line1','company_name','area','city','zipcode','state','country']);
+            
+            if (!isset($customerAddressPayload["company_name"])) $customerAddressPayload["company_name"] = '';
+            
             if($request['customer_locations_id'] == ''){
                 $newAddress = [
                     'customer_id'=> $request['customer_id'],
