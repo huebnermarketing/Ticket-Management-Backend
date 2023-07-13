@@ -176,7 +176,7 @@ class ContractController extends Controller
                     $updateInvoice = $invoiceController->updateInvoices($request['contract_id'],$request['amount'],$getPaidInvoiceSum);
                 }
                 DB::commit();
-                return RestResponse::Success('Contract updated successfully.');
+                return RestResponse::Success([],'Contract updated successfully.');
             }else{
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }
