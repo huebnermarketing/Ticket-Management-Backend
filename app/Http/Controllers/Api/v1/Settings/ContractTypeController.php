@@ -67,7 +67,8 @@ class ContractTypeController extends Controller
                 if(!$createContract){
                     return RestResponse::warning('Contract create failed.');
                 }
-                return RestResponse::success([], 'Contract created successfully.');
+
+                return RestResponse::success($createContract, 'Contract created successfully.');
             } else {
                 return RestResponse::warning(config('constant.USER_DONT_HAVE_PERMISSION'));
             }

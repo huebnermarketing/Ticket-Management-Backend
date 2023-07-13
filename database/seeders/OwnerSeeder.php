@@ -30,8 +30,8 @@ class OwnerSeeder extends Seeder
 
         if (!User::where('email', 'owner@gmail.com')->exists()) {
             $ownerData = [
-                'first_name' => 'Sarah1',
-                'last_name' => 'Danforth1',
+                'first_name' => 'Sarah',
+                'last_name' => 'Danforth',
                 'email' => 'owner@gmail.com',
                 'password' => app('hash')->make('123456'),
                 'phone' => '9879205701',
