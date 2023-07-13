@@ -146,6 +146,7 @@ class ContractController extends Controller
              }
          }catch(\Exception $e){
              return RestResponse::error($e->getMessage(), $e);
+             
          }
     }
 
